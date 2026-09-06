@@ -40,6 +40,9 @@ class _LoginPageState extends State<LoginPage> {
       );
       if (!mounted) return;
       widget.onLoginSuccess(user);
+      // The home below has swapped to the portal; reveal it by popping this
+      // auth route.
+      if (mounted) Navigator.of(context).pop();
     } on ApiException catch (e) {
       _showError(e.message);
     } catch (_) {
@@ -81,6 +84,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const BackButton(),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

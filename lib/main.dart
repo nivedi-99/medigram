@@ -30,6 +30,10 @@ class MediGramApp extends StatefulWidget {
 }
 
 class _MediGramAppState extends State<MediGramApp> {
+  /// Root navigator key: top-level callbacks (landing page buttons) live in
+  /// a context above MaterialApp, so they navigate through this key.
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   /// Whether we are restoring the session / hydrating the profile.
   bool _restoring = true;
 
@@ -69,6 +73,7 @@ class _MediGramAppState extends State<MediGramApp> {
       builder: (context, themeMode, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          navigatorKey: _navigatorKey,
           title: 'MediGram — Global Pharmaceutical Exports',
           theme: buildAppTheme(),
           darkTheme: buildAppTheme(),
@@ -87,10 +92,10 @@ class _MediGramAppState extends State<MediGramApp> {
     final user = _user;
     if (user == null) {
       return LandingPage(
-        onLogin: () => Navigator.of(context).push(
+        onLogin: () => _navigatorKey.currentState!.push(
           MaterialPageRoute(builder: (_) => LoginPage(onLoginSuccess: _onLoginSuccess)),
         ),
-        onSignup: () => Navigator.of(context).push(
+        onSignup: () => _navigatorKey.currentState!.push(
           MaterialPageRoute(builder: (_) => SignUpPage(onSignUpSuccess: _onLoginSuccess)),
         ),
       );

@@ -73,6 +73,9 @@ class _SignUpPageState extends State<SignUpPage> {
       );
       if (!mounted) return;
       widget.onSignUpSuccess(user);
+      // The home below has swapped to the portal; reveal it by popping this
+      // auth route.
+      if (mounted) Navigator.of(context).pop();
     } on ApiException catch (e) {
       _showError(e.message);
     } catch (_) {
