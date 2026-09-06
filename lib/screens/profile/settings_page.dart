@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../services/theme_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -63,10 +65,15 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  value: darkMode,
-                  onChanged: (v) => setState(() => darkMode = v),
+                  value: AppColors.isDark,
+                  onChanged: (v) => ThemeController.set(
+                      v ? ThemeMode.dark : ThemeMode.light),
                   title: const Text('Dark mode', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: Text('Coming soon', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text(
+                      AppColors.isDark
+                          ? 'Using the dark palette'
+                          : 'Using the light palette',
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
                 const Divider(height: 1),
                 ListTile(

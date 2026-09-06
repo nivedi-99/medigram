@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/cart_service.dart';
+import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
@@ -88,6 +89,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
+                const ThemeToggle(),
                 _NotificationBell(
                   count: unreadNotifications,
                   onTap: onOpenNotifications,
@@ -158,7 +160,7 @@ class DashboardPage extends StatelessWidget {
                 Expanded(
                   child: StatTile(
                     icon: Icons.account_balance_wallet_rounded,
-                    value: 'â‚¹350',
+                    value: 'ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹350',
                     label: 'Wallet',
                     gradient: AppColors.heroGradient,
                   ),
