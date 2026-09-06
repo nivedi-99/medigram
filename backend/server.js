@@ -16,6 +16,7 @@ import productsRoutes from './src/routes/products.routes.js';
 import ordersRoutes from './src/routes/orders.routes.js';
 import notificationsRoutes from './src/routes/notifications.routes.js';
 import reportsRoutes from './src/routes/reports.routes.js';
+import paymentsRoutes from './src/routes/payments.routes.js';
 
 const app = express();
 
@@ -56,6 +57,7 @@ v1.use('/products', apiLimiter, productsRoutes);
 v1.use('/orders', apiLimiter, ordersRoutes);
 v1.use('/notifications', apiLimiter, notificationsRoutes);
 v1.use('/reports', apiLimiter, reportsRoutes);
+v1.use('/payments', apiLimiter, paymentsRoutes);
 
 app.use('/api/v1', v1);
 

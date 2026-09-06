@@ -8,6 +8,7 @@ import 'screens/home_shell.dart';
 import 'screens/landing_page.dart';
 import 'services/api_client.dart';
 import 'services/auth_service.dart';
+import 'services/currency_service.dart';
 import 'services/theme_controller.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
@@ -44,6 +45,7 @@ class _MediGramAppState extends State<MediGramApp> {
   Future<void> _restoreSession() async {
     final user = await AuthService.restoreSession();
     if (!mounted) return;
+    CurrencyService.configure(user?.country);
     setState(() {
       _user = user;
       _restoring = false;
@@ -57,6 +59,7 @@ class _MediGramAppState extends State<MediGramApp> {
   }
 
   void _onLoginSuccess(AppUser user) {
+    CurrencyService.configure(user.country);
     setState(() => _user = user);
   }
 
@@ -111,6 +114,7 @@ class _MediGramAppState extends State<MediGramApp> {
     // Default: B2B client portal.
     return HomeShell(
       customer: user.toCustomer(),
+      country: user.country,
       companyName:
           user.companyName.isEmpty ? 'MediGram B2B Client' : user.companyName,
       onLogout: _onLogout,

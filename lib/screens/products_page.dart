@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import '../services/cart_service.dart';
+import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
@@ -210,8 +211,6 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial =
-        product.name.isEmpty ? '?' : product.name.substring(0, 1).toUpperCase();
     final hasPrice = product.price > 0;
     return SoftCard(
       onTap: () {
@@ -221,20 +220,40 @@ class _ProductCard extends StatelessWidget {
       },
       child: Row(
         children: [
-          Container(
-            height: 68,
-            width: 68,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.blueLight.withValues(alpha: 0.55),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Text(
-              initial,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: AppColors.blueDark,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 68,
+              width: 68,
+              child: Image.network(
+                product.imageAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  alignment: Alignment.center,
+                  color: AppColors.blueLight.withValues(alpha: 0.55),
+                  child: Text(
+                    product.name.isEmpty
+                        ? '?'
+                        : product.name.substring(0, 1).toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.blueDark,
+                    ),
+                  ),
+                ),
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return Container(
+                    alignment: Alignment.center,
+                    color: AppColors.blueLight.withValues(alpha: 0.35),
+                    child: const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -266,7 +285,7 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'MOQ ${product.minOrderQty}  •  ${hasPrice ? '\$${product.price.toStringAsFixed(2)} / unit' : 'Price on request'}',
+                  'MOQ ${product.minOrderQty}  •  ${hasPrice ? CurrencyService.priceLine(product.price) : 'Price on request'}',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: AppColors.textMuted,

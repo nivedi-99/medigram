@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import '../services/api_client.dart';
+import '../services/currency_service.dart';
 import '../services/database_service.dart';
+import '../services/payments_service.dart';
 import 'cart_page.dart';
 import '../widgets/shared_widgets.dart';
-import 'chatbot_page.dart';
+import 'chat_page.dart';
 import 'dashboard_page.dart';
 import 'orders_page.dart';
 import 'products_page.dart';
@@ -13,12 +15,14 @@ import 'profile/profile_page.dart';
 
 class HomeShell extends StatefulWidget {
   final Customer customer;
+  final String country;
   final String companyName;
   final VoidCallback onLogout;
 
   const HomeShell({
     super.key,
     required this.customer,
+    required this.country,
     required this.companyName,
     required this.onLogout,
   });
@@ -35,10 +39,12 @@ class _HomeShellState extends State<HomeShell> {
   List<MedicineOrder> _orders = [];
   List<AppNotification> _notifications = [];
   List<ProductRecord> _products = [];
+  PaymentsConfig? _paymentsConfig;
 
   @override
   void initState() {
     super.initState();
+    CurrencyService.configure(widget.country);
     _loadData();
   }
 
@@ -55,11 +61,18 @@ class _HomeShellState extends State<HomeShell> {
         DatabaseService.fetchMyNotifications(),
         DatabaseService.fetchProducts(),
       ]);
+      // Payment/settlement config is optional — never block the shell on it.
+      PaymentsConfig? config;
+      try {
+        config = await PaymentsService.fetchConfig();
+        CurrencyService.setRates(config.fx);
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _orders = results[0] as List<MedicineOrder>;
         _notifications = results[1] as List<AppNotification>;
         _products = results[2] as List<ProductRecord>;
+        _paymentsConfig = config;
         _loading = false;
       });
     } on ApiException catch (e) {
@@ -103,6 +116,13 @@ class _HomeShellState extends State<HomeShell> {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CartPage(
+          paymentOptions: [
+            ...?_paymentsConfig?.methods
+                .where((m) => m.active)
+                .map((m) => m.label),
+            'Letter of Credit',
+            'Advance (50/50)',
+          ],
           onOrderPlaced: () {
             goToTab(2);
             _refreshOrders();
@@ -161,7 +181,12 @@ class _HomeShellState extends State<HomeShell> {
                       ),
                       ProductsPage(products: _products, onOpenCart: _openCart),
                       OrdersPage(orders: _orders),
-                      const ChatbotPage(),
+                      ChatPage(
+                        products: _products,
+                        config: _paymentsConfig,
+                        customerName: widget.customer.name,
+                        companyName: widget.companyName,
+                      ),
                       ProfilePage(
                         customer: widget.customer,
                         orders: _orders,
@@ -194,9 +219,9 @@ class _HomeShellState extends State<HomeShell> {
                   label: 'Orders',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.smart_toy_outlined),
-                  selectedIcon: Icon(Icons.smart_toy_rounded),
-                  label: 'Chatbot',
+                  icon: Icon(Icons.chat_bubble_outline_rounded),
+                  selectedIcon: Icon(Icons.chat_bubble_rounded),
+                  label: 'Chat',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline_rounded),

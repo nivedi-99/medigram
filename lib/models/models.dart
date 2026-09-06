@@ -376,5 +376,16 @@ class ProductRecord {
       isActive: map['is_active'] as bool? ?? true,
     );
   }
+
+  /// Bundled category product shot for the catalogue cards.
+  /// Category is slugged ('Drops & Syrups' -> drops-syrups) to match the
+  /// generated images in web/assets/products/.
+  String get imageAsset {
+    final slug = category
+        .toLowerCase()
+        .replaceAll(RegExp(r"[^a-z0-9]+"), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    return 'assets/products/$slug.jpg';
+  }
 }
 

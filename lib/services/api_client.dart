@@ -152,6 +152,10 @@ class ApiClient {
           {Map<String, dynamic>? body}) =>
       _send('PATCH', path, body: body);
 
+  static Future<Map<String, dynamic>> put(String path,
+          {Map<String, dynamic>? body}) =>
+      _send('PUT', path, body: body);
+
   static Future<Map<String, dynamic>> delete(String path) =>
       _send('DELETE', path);
 }

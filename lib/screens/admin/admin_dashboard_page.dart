@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../models/models.dart';
 import '../../services/api_client.dart';
+import '../../services/currency_service.dart';
 import '../../services/database_service.dart';
+import '../../services/payments_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -150,6 +152,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       'Clients',
       'Orders',
       'Products',
+      'Payments',
       if (widget.isSuperAdmin) 'Admins',
     ];
 
@@ -180,6 +183,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     _buildClientsTab(),
                     _buildOrdersTab(),
                     _buildProductsTab(),
+                    _buildPaymentsTab(),
                     if (widget.isSuperAdmin) _buildAdminsTab(),
                   ],
                 ),
@@ -410,85 +414,607 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
 
   Widget _buildProductsTab() {
     if (_products.isEmpty) {
-      return const EmptyState(
-        icon: Icons.medication_outlined,
-        title: 'Catalogue is empty',
-        message: 'Add products from the Supabase `products` table to '
-            'populate the export catalogue.',
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton.icon(
+              onPressed: _showAddProductDialog,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Add product'),
+            ),
+          ),
+          const Expanded(
+            child: EmptyState(
+              icon: Icons.medication_outlined,
+              title: 'Catalogue is empty',
+              message: 'Use "Add product" to create the first listing.',
+            ),
+          ),
+        ],
       );
     }
-    return RefreshIndicator(
-      onRefresh: _loadAll,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: SoftCard(
-              child: Row(
-                children: [
-                  Container(
-                    height: 46,
-                    width: 46,
-                    decoration: BoxDecoration(
-                      color: AppColors.blueLight.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.medication_rounded,
-                      color: AppColors.blueDark,
-                      size: 23,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${_products.length} catalogue entries — tap one to edit',
+                  style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: _showAddProductDialog,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blueDark,
+                  foregroundColor: AppColors.onPrimary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                ),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Add'),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: _loadAll,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+              itemCount: _products.length,
+              itemBuilder: (context, index) {
+                final product = _products[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: SoftCard(
+                    onTap: () => _showProductEditDialog(product),
+                    child: Row(
                       children: [
-                        Text(
-                          product.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.5,
-                            color: AppColors.textDark,
+                        Container(
+                          height: 46,
+                          width: 46,
+                          decoration: BoxDecoration(
+                            color: AppColors.blueLight.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            Icons.medication_rounded,
+                            color: AppColors.blueDark,
+                            size: 23,
                           ),
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          '${product.category} • MOQ ${product.minOrderQty}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.5,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${product.category} • MOQ ${product.minOrderQty}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              CurrencyService.format(product.price),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            _VerificationChip(
+                              status:
+                                  product.isActive ? 'verified' : 'rejected',
+                              labels: const {
+                                'verified': 'Active',
+                                'rejected': 'Hidden'
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      _VerificationChip(
-                        status: product.isActive ? 'verified' : 'rejected',
-                        labels: const {'verified': 'Active', 'rejected': 'Hidden'},
-                      ),
-                    ],
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  // -------------------------------------------------------------------
+  // Payments tab — WhatsApp number, FX rates, settlement channels
+  // -------------------------------------------------------------------
+
+  PaymentsConfig? _payments;
+  bool _paymentsLoading = false;
+
+  Future<void> _ensurePayments() async {
+    if (_payments != null || _paymentsLoading) return;
+    setState(() => _paymentsLoading = true);
+    try {
+      final config = await PaymentsService.fetchConfig();
+      if (!mounted) return;
+      setState(() {
+        _payments = config;
+        _paymentsLoading = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.message;
+        _paymentsLoading = false;
+      });
+    }
+  }
+
+  Widget _buildPaymentsTab() {
+    if (_payments == null) {
+      _ensurePayments();
+      return const Center(child: CircularProgressIndicator());
+    }
+    final cfg = _payments!;
+    return RefreshIndicator(
+      onRefresh: () async {
+        _payments = null;
+        await _ensurePayments();
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
+        children: [
+          Text(
+            'Settlement channels',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: AppColors.textDark),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Channels clients use to remit globally to your Indian account. '
+            'Details are placeholders — replace with real receiving details.',
+            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: 10),
+          ...cfg.methods.map(
+            (m) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SoftCard(
+                onTap: () => _showChannelEditDialog(m),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  leading: Icon(
+                    m.active
+                        ? Icons.toggle_on_rounded
+                        : Icons.toggle_off_rounded,
+                    size: 30,
+                    color: m.active ? AppColors.success : AppColors.textMuted,
                   ),
-                ],
+                  title: Text(m.label,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                          color: AppColors.textDark)),
+                  subtitle: Text(
+                      '${m.details.length} detail field(s) • tap to edit',
+                      style: TextStyle(
+                          fontSize: 11.5, color: AppColors.textMuted)),
+                  trailing: const Icon(Icons.edit_rounded, size: 18),
+                ),
               ),
             ),
-          );
-        },
+          ),
+          const Divider(height: 30),
+          Text(
+            'FX rates (units per 1 USD)',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: AppColors.textDark),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: cfg.fx.entries
+                .map((e) => Chip(
+                      label: Text(
+                          '${e.key} ${e.value < 0.01 ? e.value.toStringAsFixed(8) : e.value.toStringAsFixed(2)}',
+                          style: TextStyle(
+                              fontSize: 12, color: AppColors.textDark)),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _showFxEditDialog,
+            icon: const Icon(Icons.edit_rounded, size: 18),
+            label: const Text('Edit FX rates'),
+          ),
+          const Divider(height: 30),
+          Text(
+            'WhatsApp business number',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: AppColors.textDark),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _showWhatsAppEditDialog,
+            icon: const Icon(Icons.edit_rounded, size: 18),
+            label: Text(cfg.whatsappNumber),
+          ),
+        ],
+      ),
+    );
+  }
+  Future<void> _savePayments(PaymentsConfig config) async {
+    await PaymentsService.saveConfig(config);
+    if (!mounted) return;
+    setState(() => _payments = config);
+    CurrencyService.setRates(config.fx);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Payment settings saved')),
+    );
+  }
+
+  void _showChannelEditDialog(PaymentChannel channel) {
+    final label = TextEditingController(text: channel.label);
+    final instructions = TextEditingController(text: channel.instructions);
+    final details = TextEditingController(
+      text: channel.details.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+    );
+    var active = channel.active;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Edit ${channel.key}', style: const TextStyle(fontSize: 17)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: label, decoration: const InputDecoration(hintText: 'Label')),
+                const SizedBox(height: 10),
+                TextField(controller: instructions, maxLines: 3, decoration: const InputDecoration(hintText: 'Instructions')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: details,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                        hintText: 'Details, one per line:\nBeneficiary: Name\nAccount No: 0000')),
+                const SizedBox(height: 10),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: active,
+                  onChanged: (v) => setDialogState(() => active = v),
+                  title: const Text('Active'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () async {
+                final detailsMap = <String, String>{};
+                for (final line in details.text.split('\n')) {
+                  final idx = line.indexOf(':');
+                  if (idx > 0) {
+                    detailsMap[line.substring(0, idx).trim()] = line.substring(idx + 1).trim();
+                  }
+                }
+                final methods = _payments!.methods
+                    .map((m) => m.key == channel.key
+                        ? PaymentChannel(
+                            key: m.key,
+                            label: label.text.trim(),
+                            tagline: m.tagline,
+                            details: detailsMap,
+                            instructions: instructions.text.trim(),
+                            sortOrder: m.sortOrder,
+                            active: active,
+                          )
+                        : m)
+                    .toList();
+                Navigator.pop(dialogContext);
+                await _savePayments(PaymentsConfig(
+                    whatsappNumber: _payments!.whatsappNumber,
+                    fx: _payments!.fx,
+                    methods: methods));
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  void _showFxEditDialog() {
+    final controllers = <String, TextEditingController>{
+      for (final e in _payments!.fx.entries)
+        e.key: TextEditingController(
+            text: e.value < 0.01
+                ? e.value.toStringAsFixed(8)
+                : e.value.toStringAsFixed(4)),
+    };
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Edit FX rates', style: TextStyle(fontSize: 17)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: controllers.entries
+                .map((e) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextField(
+                        controller: e.value,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration:
+                            InputDecoration(hintText: '${e.key} per 1 USD'),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              final fx = <String, double>{};
+              controllers.forEach((key, c) {
+                final v = double.tryParse(c.text.trim());
+                if (v != null && v > 0) fx[key] = v;
+              });
+              Navigator.pop(dialogContext);
+              await _savePayments(PaymentsConfig(
+                  whatsappNumber: _payments!.whatsappNumber,
+                  fx: fx,
+                  methods: _payments!.methods));
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWhatsAppEditDialog() {
+    final controller = TextEditingController(text: _payments!.whatsappNumber);
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('WhatsApp number', style: TextStyle(fontSize: 17)),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(hintText: '+91 90000 00000'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await _savePayments(PaymentsConfig(
+                  whatsappNumber: controller.text.trim(),
+                  fx: _payments!.fx,
+                  methods: _payments!.methods));
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+  void _showProductEditDialog(ProductRecord product) {
+    final price = TextEditingController(text: product.price.toStringAsFixed(2));
+    final moq = TextEditingController(text: product.minOrderQty.toString());
+    final category = TextEditingController(text: product.category);
+    final manufacturer = TextEditingController(text: product.manufacturer);
+    final description = TextEditingController(text: product.description);
+    var isActive = product.isActive;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Edit ${product.name}', style: const TextStyle(fontSize: 16)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                    controller: price,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                        hintText: 'Price (USD)', labelText: 'Price (USD)')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: moq,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        hintText: 'Minimum order qty',
+                        labelText: 'Minimum order qty')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: category,
+                    decoration: const InputDecoration(
+                        hintText: 'Category', labelText: 'Category')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: manufacturer,
+                    decoration: const InputDecoration(
+                        hintText: 'Manufacturer', labelText: 'Manufacturer')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: description,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                        hintText: 'Description', labelText: 'Description')),
+                const SizedBox(height: 6),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: isActive,
+                  onChanged: (v) => setDialogState(() => isActive = v),
+                  title: const Text('Active in catalogue'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final updated = await DatabaseService.updateProduct(
+                  id: product.id,
+                  category: category.text.trim(),
+                  manufacturer: manufacturer.text.trim(),
+                  description: description.text.trim(),
+                  price: double.tryParse(price.text.trim()) ?? product.price,
+                  minOrderQty: int.tryParse(moq.text.trim()) ?? product.minOrderQty,
+                  isActive: isActive,
+                );
+                if (!mounted) return;
+                if (dialogContext.mounted) Navigator.pop(dialogContext);
+                if (!mounted) return;
+                setState(() {
+                  _products[_products.indexWhere((p) => p.id == product.id)] =
+                      updated;
+                });
+                messenger.showSnackBar(
+                  SnackBar(content: Text('${updated.name} updated')),
+                );
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  void _showAddProductDialog() {
+    final name = TextEditingController();
+    final price = TextEditingController();
+    final moq = TextEditingController(text: '100');
+    final category = TextEditingController();
+    final manufacturer = TextEditingController();
+    final form = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Add product', style: TextStyle(fontSize: 17)),
+        content: SingleChildScrollView(
+          child: Form(
+            key: form,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                    controller: name,
+                    validator: (v) =>
+                        (v == null || v.trim().length < 2) ? 'Name required' : null,
+                    decoration: const InputDecoration(
+                        hintText: 'Product name', labelText: 'Product name')),
+                const SizedBox(height: 10),
+                TextFormField(
+                    controller: category,
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Category required' : null,
+                    decoration: const InputDecoration(
+                        hintText: 'Category', labelText: 'Category')),
+                const SizedBox(height: 10),
+                TextFormField(
+                    controller: manufacturer,
+                    decoration: const InputDecoration(
+                        hintText: 'Manufacturer (optional)',
+                        labelText: 'Manufacturer')),
+                const SizedBox(height: 10),
+                TextFormField(
+                    controller: price,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (v) => double.tryParse(v ?? '') == null
+                        ? 'Valid price required'
+                        : null,
+                    decoration: const InputDecoration(
+                        hintText: 'Price in USD', labelText: 'Price (USD)')),
+                const SizedBox(height: 10),
+                TextFormField(
+                    controller: moq,
+                    keyboardType: TextInputType.number,
+                    validator: (v) => int.tryParse(v ?? '') == null
+                        ? 'Valid MOQ required'
+                        : null,
+                    decoration: const InputDecoration(
+                        hintText: 'Minimum order qty',
+                        labelText: 'Minimum order qty')),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (!form.currentState!.validate()) return;
+              final created = await DatabaseService.createProduct(
+                name: name.text.trim(),
+                category: category.text.trim(),
+                manufacturer: manufacturer.text.trim(),
+                price: double.parse(price.text.trim()),
+                minOrderQty: int.parse(moq.text.trim()),
+              );
+              if (!mounted) return;
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+              setState(() => _products.insert(0, created));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${created.name} added to catalogue')),
+              );
+            },
+            child: const Text('Create'),
+          ),
+        ],
       ),
     );
   }

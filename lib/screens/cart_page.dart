@@ -3,15 +3,36 @@ import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../services/api_client.dart';
 import '../../services/cart_service.dart';
+import '../../services/currency_service.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
 
+/// Global settlement options offered at checkout (kept in sync with the
+/// admin-managed channels served by /api/v1/payments).
+const List<String> kDefaultPaymentOptions = [
+  'International Wire Transfer (SWIFT)',
+  'Western Union',
+  'Remitly',
+  'MoneyGram',
+  'Wise',
+  'Bitcoin (BTC)',
+  'Ethereum (ETH)',
+  'USDT (TRC-20)',
+  'Letter of Credit',
+  'Advance (50/50)',
+];
+
 /// The client's order cart: quantity steppers, totals and checkout.
 class CartPage extends StatefulWidget {
   final VoidCallback? onOrderPlaced;
+  final List<String> paymentOptions;
 
-  const CartPage({super.key, this.onOrderPlaced});
+  const CartPage({
+    super.key,
+    this.onOrderPlaced,
+    this.paymentOptions = kDefaultPaymentOptions,
+  });
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -37,6 +58,7 @@ class _CartPageState extends State<CartPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) => _CheckoutSheet(
+        options: widget.paymentOptions,
         onPlaced: (order) {
           Navigator.of(sheetContext).pop(); // close the sheet
           CartService.clear();
@@ -130,7 +152,7 @@ class _CartPageState extends State<CartPage> {
                   ],
                 ),
                 Text(
-                  '\$${item.unitPrice.toStringAsFixed(2)} / unit  •  MOQ ${item.minOrderQty}',
+                  '${CurrencyService.format(item.unitPrice)} / unit  •  MOQ ${item.minOrderQty}',
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 10),
@@ -158,7 +180,7 @@ class _CartPageState extends State<CartPage> {
                     ),
                     const Spacer(),
                     Text(
-                      '\$${item.lineTotal.toStringAsFixed(2)}',
+                      CurrencyService.format(item.lineTotal),
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -193,7 +215,7 @@ class _CartPageState extends State<CartPage> {
                 ),
                 const Spacer(),
                 Text(
-                  '\$${CartService.total.toStringAsFixed(2)}',
+                  CurrencyService.format(CartService.total),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
@@ -221,8 +243,9 @@ class _CartPageState extends State<CartPage> {
 /// Checkout sheet: shipping details + order placement.
 class _CheckoutSheet extends StatefulWidget {
   final ValueChanged<MedicineOrder> onPlaced;
+  final List<String> options;
 
-  const _CheckoutSheet({required this.onPlaced});
+  const _CheckoutSheet({required this.onPlaced, required this.options});
 
   @override
   State<_CheckoutSheet> createState() => _CheckoutSheetState();
@@ -231,15 +254,25 @@ class _CheckoutSheet extends StatefulWidget {
 class _CheckoutSheetState extends State<_CheckoutSheet> {
   final _addressController = TextEditingController();
   final _notesController = TextEditingController();
+  final _referenceController = TextEditingController();
   String _incoterms = 'FOB';
-  String _paymentMethod = 'Wire Transfer';
+  String _paymentMethod = kDefaultPaymentOptions.first;
   bool _placing = false;
 
   @override
   void dispose() {
     _addressController.dispose();
     _notesController.dispose();
+    _referenceController.dispose();
     super.dispose();
+  }
+
+  /// Notes plus an optional remittance reference (MTCN / TxID / SWIFT copy).
+  String get _composedNotes {
+    final notes = _notesController.text.trim();
+    final ref = _referenceController.text.trim();
+    if (ref.isEmpty) return notes;
+    return notes.isEmpty ? '[Payment ref: $ref]' : '$notes\n[Payment ref: $ref]';
   }
 
   Future<void> _place() async {
@@ -251,7 +284,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
         incoterms: _incoterms,
         paymentMethod: _paymentMethod,
         shippingAddress: _addressController.text.trim(),
-        notes: _notesController.text.trim(),
+        notes: _composedNotes,
       );
       if (!mounted) return;
       Navigator.of(context).pop(); // close the sheet
@@ -323,7 +356,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
             ),
             const SizedBox(height: 14),
             Text(
-              'Total: \$${CartService.total.toStringAsFixed(2)} for ${CartService.items.length} line(s)',
+              'Total: ${CurrencyService.format(CartService.total)} for ${CartService.items.length} line(s)'
+              '  -  INR approx ${CurrencyService.settlementInr(CartService.total)}',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.blueDark,
@@ -354,16 +388,26 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    initialValue: _paymentMethod,
+                    initialValue: widget.options.contains(_paymentMethod)
+                        ? _paymentMethod
+                        : widget.options.first,
                     decoration: const InputDecoration(hintText: 'Payment'),
-                    items: ['Wire Transfer', 'Letter of Credit', 'Advance (50/50)']
+                    items: widget.options
                         .map((v) => DropdownMenuItem(value: v, child: Text(v)))
                         .toList(),
-                    onChanged: (v) =>
-                        setState(() => _paymentMethod = v ?? 'Wire Transfer'),
+                    onChanged: (v) => setState(() =>
+                        _paymentMethod = v ?? widget.options.first),
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _referenceController,
+              decoration: const InputDecoration(
+                hintText: 'Transaction / MTCN / TxID reference (optional)',
+                prefixIcon: Icon(Icons.receipt_rounded, size: 20),
+              ),
             ),
             const SizedBox(height: 12),
             TextField(

@@ -1,0 +1,4 @@
+[medigram-api] listening on :4000 (development)
+[medigram-api] CORS origins: http://localhost:3000, http://localhost:63927
+GET /api/v1/payments 401 66 - 30.484 ms
+GET /api/v1/health 200 59 - 656.637 ms

@@ -174,4 +174,50 @@ class DatabaseService {
       'details': details,
     });
   }
+
+  // -------------------------------------------------------------------
+  // Admin catalogue management — P7 writes (admin role enforced server-side)
+  // -------------------------------------------------------------------
+
+  /// Creates a catalogue entry (POST /products).
+  static Future<ProductRecord> createProduct({
+    required String name,
+    required String category,
+    String manufacturer = '',
+    String description = '',
+    required double price,
+    int minOrderQty = 1,
+  }) async {
+    final body = await ApiClient.post('/products', body: {
+      'name': name,
+      'category': category,
+      'manufacturer': manufacturer,
+      'description': description,
+      'price': price,
+      'currency': 'USD',
+      'minOrderQty': minOrderQty,
+    });
+    return ProductRecord.fromMap(body['data'] as Map<String, dynamic>);
+  }
+
+  /// Edits a catalogue entry (PATCH /products/:id).
+  static Future<ProductRecord> updateProduct({
+    required String id,
+    String? category,
+    String? manufacturer,
+    String? description,
+    double? price,
+    int? minOrderQty,
+    bool? isActive,
+  }) async {
+    final body = await ApiClient.patch('/products/$id', body: {
+      if (category != null) 'category': category,
+      if (manufacturer != null) 'manufacturer': manufacturer,
+      if (description != null) 'description': description,
+      if (price != null) 'price': price,
+      if (minOrderQty != null) 'minOrderQty': minOrderQty,
+      if (isActive != null) 'isActive': isActive,
+    });
+    return ProductRecord.fromMap(body['data'] as Map<String, dynamic>);
+  }
 }
