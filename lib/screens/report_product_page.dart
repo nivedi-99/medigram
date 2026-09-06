@@ -22,7 +22,7 @@ class _ReportProductPageState extends State<ReportProductPage> {
   bool _submitted = false;
   bool _submitting = false;
 
-  final issueTypes = const [
+  final issueTypes = [
     'Damaged packaging',
     'Wrong item received',
     'Missing item',
@@ -80,8 +80,8 @@ class _ReportProductPageState extends State<ReportProductPage> {
       if (!mounted) return;
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not submit the report. Please try again.'),
+        SnackBar(
+          content: const Text('Could not submit the report. Please try again.'),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -104,19 +104,19 @@ class _ReportProductPageState extends State<ReportProductPage> {
                 CircleAvatar(
                   radius: 42,
                   backgroundColor: AppColors.success.withValues(alpha: 0.15),
-                  child: const Icon(Icons.check_circle_rounded, size: 46, color: AppColors.success),
+                  child: Icon(Icons.check_circle_rounded, size: 46, color: AppColors.success),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Thanks — we\'ve received your report',
+                Text(
+                  'Thanks â€” we\'ve received your report',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.textDark),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Our support team will review order ${widget.order.id} and get back to you within 24–48 hours.',
+                  'Our support team will review order ${widget.order.id} and get back to you within 24â€“48 hours.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textMuted, height: 1.4),
+                  style: TextStyle(color: AppColors.textMuted, height: 1.4),
                 ),
                 const SizedBox(height: 26),
                 SizedBox(
@@ -141,10 +141,10 @@ class _ReportProductPageState extends State<ReportProductPage> {
         children: [
           Text(
             'Order ${widget.order.id}',
-            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark, fontSize: 15),
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark, fontSize: 15),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Which product is this about?',
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
           ),
@@ -168,7 +168,7 @@ class _ReportProductPageState extends State<ReportProductPage> {
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'What went wrong?',
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
           ),

@@ -35,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: pushNotifications,
                   onChanged: (v) => setState(() => pushNotifications = v),
                   title: const Text('Push notifications', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Order updates, offers and reminders', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text('Order updates, offers and reminders', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
@@ -43,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: emailNotifications,
                   onChanged: (v) => setState(() => emailNotifications = v),
                   title: const Text('Email notifications', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Receipts and account activity', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text('Receipts and account activity', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
@@ -51,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: orderUpdatesSms,
                   onChanged: (v) => setState(() => orderUpdatesSms = v),
                   title: const Text('SMS order updates', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Delivery status via text message', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text('Delivery status via text message', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
               ],
             ),
@@ -66,13 +66,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: darkMode,
                   onChanged: (v) => setState(() => darkMode = v),
                   title: const Text('Dark mode', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Coming soon', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text('Coming soon', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Language', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: Text(language, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text(language, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => _pickLanguage(context),
                 ),
@@ -89,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: biometricLogin,
                   onChanged: (v) => setState(() => biometricLogin = v),
                   title: const Text('Biometric login', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Use fingerprint or Face ID to sign in', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  subtitle: Text('Use fingerprint or Face ID to sign in', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -119,11 +119,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 const Divider(height: 1),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text(
+                  title: Text(
                     'Delete account',
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.danger),
                   ),
-                  trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.danger),
+                  trailing: Icon(Icons.chevron_right_rounded, color: AppColors.danger),
                   onTap: () => _confirmDelete(context),
                 ),
               ],
@@ -141,14 +141,14 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        final options = ['English', 'हिन्दी', 'मराठी', 'বাংলা', 'தமிழ்'];
+        final options = ['English', 'à¤¹à¤¿à¤¨à¥à¤¦à¥€', 'à¤®à¤°à¤¾à¤ à¥€', 'à¦¬à¦¾à¦‚à¦²à¦¾', 'à®¤à®®à®¿à®´à¯'];
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: options
                 .map((o) => ListTile(
                       title: Text(o),
-                      trailing: language == o ? const Icon(Icons.check_rounded, color: AppColors.blueDark) : null,
+                      trailing: language == o ? Icon(Icons.check_rounded, color: AppColors.blueDark) : null,
                       onTap: () {
                         setState(() => language = o);
                         Navigator.pop(context);
@@ -191,7 +191,7 @@ class _SettingsHeading extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 20, 4, 10),
       child: Text(
         text,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textDark),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textDark),
       ),
     );
   }

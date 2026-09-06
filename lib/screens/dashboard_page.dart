@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/cart_service.dart';
 import '../theme/app_colors.dart';
@@ -59,14 +59,14 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       Text(
                         'Hello ${customer.name}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Your health, our priority',
                         style: TextStyle(fontSize: 13.5, color: AppColors.textMuted),
                       ),
@@ -155,7 +155,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: StatTile(
                     icon: Icons.account_balance_wallet_rounded,
                     value: 'â‚¹350',
@@ -189,7 +189,7 @@ class DashboardPage extends StatelessWidget {
                   child: Center(
                     child: Text(
                       _categories[index],
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.blueDark,
                         fontWeight: FontWeight.w600,
                       ),
@@ -293,7 +293,7 @@ class DashboardPage extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 initial,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: AppColors.blueDark,
@@ -309,7 +309,7 @@ class DashboardPage extends StatelessWidget {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16.5,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
@@ -332,7 +332,7 @@ class DashboardPage extends StatelessWidget {
                     product.manufacturer.isEmpty
                         ? product.category
                         : product.manufacturer,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.blueDark,
                       fontWeight: FontWeight.w600,
@@ -345,7 +345,7 @@ class DashboardPage extends StatelessWidget {
                         hasPrice
                             ? '\$${product.price.toStringAsFixed(2)} / unit'
                             : 'Price on request',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
@@ -354,7 +354,7 @@ class DashboardPage extends StatelessWidget {
                       const Spacer(),
                       Text(
                         'MOQ ${product.minOrderQty}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textMuted,
@@ -440,7 +440,7 @@ class _NotificationBell extends StatelessWidget {
         children: [
           IconButton(
             onPressed: onTap,
-            icon: const Icon(Icons.notifications_none_rounded, color: AppColors.blueDark),
+            icon: Icon(Icons.notifications_none_rounded, color: AppColors.blueDark),
           ),
           if (count > 0)
             Positioned(
@@ -449,7 +449,7 @@ class _NotificationBell extends StatelessWidget {
               child: Container(
                 height: 9,
                 width: 9,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.pink,
                   shape: BoxShape.circle,
                 ),

@@ -68,8 +68,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not save your profile. Please try again.'),
+        SnackBar(
+          content: const Text('Could not save your profile. Please try again.'),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -106,7 +106,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Container(
                       height: 30,
                       width: 30,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: AppColors.pinkGradient,
                         shape: BoxShape.circle,
                       ),

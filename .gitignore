@@ -59,3 +59,6 @@ deploy/vercel.env
 *.log
 gh-login.out
 backend/login-*.txt
+
+# Local secrets (Gemini key etc.)
+.env

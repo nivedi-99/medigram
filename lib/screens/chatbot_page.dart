@@ -11,13 +11,13 @@ class ChatbotPage extends StatefulWidget {
 class _ChatMessage {
   final String text;
   final bool fromUser;
-  const _ChatMessage(this.text, this.fromUser);
+  _ChatMessage(this.text, this.fromUser);
 }
 
 class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _controller = TextEditingController();
   final List<_ChatMessage> _messages = [
-    const _ChatMessage(
+    _ChatMessage(
       "Hi! I'm the MediGram assistant. Ask me about medicine categories, "
       'order status, or product availability.',
       false,
@@ -30,9 +30,9 @@ class _ChatbotPageState extends State<ChatbotPage> {
     setState(() {
       _messages.add(_ChatMessage(text, true));
       _messages.add(
-        const _ChatMessage(
+        _ChatMessage(
           "Thanks for your question! For anything about dosage or "
-          'prescriptions, please consult a licensed pharmacist — I can '
+          'prescriptions, please consult a licensed pharmacist â€” I can '
           'help with order status, categories and general product info.',
           false,
         ),
@@ -58,14 +58,14 @@ class _ChatbotPageState extends State<ChatbotPage> {
               Container(
                 height: 46,
                 width: 46,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: AppColors.heroGradient,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.smart_toy_rounded, color: Colors.white),
               ),
               const SizedBox(width: 12),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -77,7 +77,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
                     ),
                   ),
                   Text(
-                    'Online • Usually replies instantly',
+                    'Online â€¢ Usually replies instantly',
                     style: TextStyle(fontSize: 11.5, color: AppColors.success),
                   ),
                 ],
@@ -143,7 +143,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
               Container(
                 height: 50,
                 width: 50,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: AppColors.heroGradient,
                   shape: BoxShape.circle,
                 ),

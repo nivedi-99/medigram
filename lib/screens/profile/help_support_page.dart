@@ -13,7 +13,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
 
-  final faqs = const [
+  final faqs = [
     {
       'q': 'How do I track my order?',
       'a': 'Go to Orders from the bottom navigation, tap any order and view '
@@ -32,11 +32,11 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
     {
       'q': 'How do I request a refund?',
       'a': 'Open the order in Orders, tap "Report issue" and choose '
-          '"Billing / payment issue" — our team will follow up.',
+          '"Billing / payment issue" â€” our team will follow up.',
     },
     {
       'q': 'How do I change my delivery address?',
-      'a': 'Go to Profile → Edit Profile to update your saved address at '
+      'a': 'Go to Profile â†’ Edit Profile to update your saved address at '
           'any time before an order is dispatched.',
     },
   ];
@@ -87,7 +87,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             ],
           ),
           const SizedBox(height: 26),
-          const Text(
+          Text(
             'Frequently Asked Questions',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark),
           ),
@@ -104,7 +104,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                         childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 14),
                         title: Text(
                           f['q']!,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
                         ),
                         iconColor: AppColors.blueDark,
                         collapsedIconColor: AppColors.textMuted,
@@ -113,7 +113,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               f['a']!,
-                              style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5, height: 1.5),
+                              style: TextStyle(color: AppColors.textMuted, fontSize: 12.5, height: 1.5),
                             ),
                           ),
                         ],
@@ -124,7 +124,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             ),
           ),
           const SizedBox(height: 26),
-          const Text(
+          Text(
             'Raise a Support Ticket',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark),
           ),
@@ -148,7 +148,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             onPressed: () {
               _subjectController.clear();
               _messageController.clear();
-              _snack(context, 'Ticket submitted — our team will reach out within 24 hours');
+              _snack(context, 'Ticket submitted â€” our team will reach out within 24 hours');
             },
             icon: const Icon(Icons.send_rounded, size: 18),
             label: const Text('Submit Ticket'),

@@ -41,15 +41,15 @@ class _PaymentPageState extends State<PaymentPage> {
               color: AppColors.blueLight.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline_rounded,
                     size: 18, color: AppColors.blueDark),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Payments are simulated in this build. Export orders are invoiced per contract — online payment goes live soon.',
+                    'Payments are simulated in this build. Export orders are invoiced per contract â€” online payment goes live soon.',
                     style: TextStyle(
                         fontSize: 12, height: 1.35, color: AppColors.textDark),
                   ),
@@ -75,7 +75,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     children: [
                       Text('MediGram Wallet', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                       SizedBox(height: 4),
-                      Text('₹350.00', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text('â‚¹350.00', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -83,7 +83,7 @@ class _PaymentPageState extends State<PaymentPage> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text('Saved Methods', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark)),
+          Text('Saved Methods', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark)),
           const SizedBox(height: 12),
           ...widget.methods.map(
             (m) => Padding(
@@ -107,7 +107,7 @@ class _PaymentPageState extends State<PaymentPage> {
                         children: [
                           Row(
                             children: [
-                              Text(m.label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textDark)),
+                              Text(m.label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textDark)),
                               if (m.isDefault) ...[
                                 const SizedBox(width: 8),
                                 Container(
@@ -116,7 +116,7 @@ class _PaymentPageState extends State<PaymentPage> {
                                     color: AppColors.success.withValues(alpha: 0.13),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Default',
                                     style: TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
@@ -125,12 +125,12 @@ class _PaymentPageState extends State<PaymentPage> {
                             ],
                           ),
                           const SizedBox(height: 3),
-                          Text(m.detail, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          Text(m.detail, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                         ],
                       ),
                     ),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
+                      icon: Icon(Icons.more_vert_rounded, color: AppColors.textMuted),
                       onSelected: (value) {
                         setState(() {
                           if (value == 'default') {
@@ -159,17 +159,17 @@ class _PaymentPageState extends State<PaymentPage> {
             label: const Text('Add Payment Method'),
           ),
           const SizedBox(height: 26),
-          const Text('Transaction History', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark)),
+          Text('Transaction History', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark)),
           const SizedBox(height: 12),
           const SoftCard(
             padding: EdgeInsets.symmetric(horizontal: 6),
             child: Column(
               children: [
-                _TransactionRow(title: 'Order MG-10231', date: '25 Aug 2026', amount: '- ₹797.00'),
+                _TransactionRow(title: 'Order MG-10231', date: '25 Aug 2026', amount: '- â‚¹797.00'),
                 Divider(height: 1),
-                _TransactionRow(title: 'Order MG-10198', date: '18 Aug 2026', amount: '- ₹399.00'),
+                _TransactionRow(title: 'Order MG-10198', date: '18 Aug 2026', amount: '- â‚¹399.00'),
                 Divider(height: 1),
-                _TransactionRow(title: 'Wallet top-up', date: '10 Aug 2026', amount: '+ ₹500.00', positive: true),
+                _TransactionRow(title: 'Wallet top-up', date: '10 Aug 2026', amount: '+ â‚¹500.00', positive: true),
               ],
             ),
           ),
@@ -196,7 +196,7 @@ class _PaymentPageState extends State<PaymentPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Add Card', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              Text('Add Card', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
               const SizedBox(height: 18),
               LabeledField(
                 label: 'Cardholder name',
@@ -208,7 +208,7 @@ class _PaymentPageState extends State<PaymentPage> {
               LabeledField(
                 label: 'Card number',
                 controller: cardController,
-                hint: '•••• •••• •••• ••••',
+                hint: 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢',
                 icon: Icons.credit_card_rounded,
                 keyboardType: TextInputType.number,
               ),
@@ -253,9 +253,9 @@ class _TransactionRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark)),
                 const SizedBox(height: 3),
-                Text(date, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+                Text(date, style: TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
               ],
             ),
           ),

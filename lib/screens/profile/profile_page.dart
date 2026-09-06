@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
@@ -67,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     customer.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
@@ -76,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 3),
                   Text(
                     customer.email,
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: AppColors.pinkLight.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Verified Customer',
                       style: TextStyle(
                         fontSize: 10.5,
@@ -106,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
                 if (updated != null) setState(() => customer = updated);
               },
-              icon: const Icon(Icons.edit_outlined, color: AppColors.blueDark),
+              icon: Icon(Icons.edit_outlined, color: AppColors.blueDark),
             ),
           ],
         ),
@@ -135,11 +135,11 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(child: _StatBadge(value: '₹350', label: 'Wallet')),
+            const Expanded(child: _StatBadge(value: 'Ã¢â€šÂ¹350', label: 'Wallet')),
           ],
         ),
         const SizedBox(height: 26),
-        const Text(
+        Text(
           'Account',
           style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark, fontSize: 15),
         ),
@@ -215,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         const SizedBox(height: 10),
-        const Center(
+        Center(
           child: Text(
             'MediGram v1.0.0',
             style: TextStyle(color: AppColors.textMuted, fontSize: 11.5),
@@ -251,7 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String _formatDate(DateTime date) {
-    const months = [
+    final months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
@@ -282,13 +282,13 @@ class _InfoRow extends StatelessWidget {
             child: Icon(icon, size: 17, color: AppColors.blueDark),
           ),
           const SizedBox(width: 12),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5)),
+          Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 12.5)),
           const Spacer(),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textDark),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textDark),
             ),
           ),
         ],
@@ -311,10 +311,10 @@ class _StatBadge extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.textDark),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.textDark),
           ),
           const SizedBox(height: 3),
-          Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+          Text(label, style: TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
         ],
       ),
     );

@@ -5,7 +5,7 @@ import '../services/cart_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
-/// Live export catalogue — sourced from the MediGram API (master list).
+/// Live export catalogue â€” sourced from the MediGram API (master list).
 class ProductsPage extends StatefulWidget {
   final List<ProductRecord> products;
   final VoidCallback? onOpenCart;
@@ -44,9 +44,9 @@ class _ProductsPageState extends State<ProductsPage> {
     final items = _filtered;
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
             child: Text(
               'Export Catalogue',
               style: TextStyle(
@@ -80,7 +80,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       IconButton(
                         tooltip: 'Your order',
                         onPressed: widget.onOpenCart,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.shopping_cart_rounded,
                           color: AppColors.blueDark,
                         ),
@@ -91,7 +91,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           top: 2,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppColors.pink,
                               shape: BoxShape.circle,
                             ),
@@ -136,7 +136,7 @@ class _ProductsPageState extends State<ProductsPage> {
           ),
         ),
         if (items.isEmpty)
-          const SliverFillRemaining(
+          SliverFillRemaining(
             hasScrollBody: false,
             child: Center(
               child: Text(
@@ -231,7 +231,7 @@ class _ProductCard extends StatelessWidget {
             ),
             child: Text(
               initial,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: AppColors.blueDark,
@@ -247,7 +247,7 @@ class _ProductCard extends StatelessWidget {
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     color: AppColors.textDark,
@@ -255,10 +255,10 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${product.category}  •  ${product.manufacturer.isEmpty ? 'MediGram' : product.manufacturer}',
+                  '${product.category}  â€¢  ${product.manufacturer.isEmpty ? 'MediGram' : product.manufacturer}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.blueDark,
                     fontWeight: FontWeight.w600,
@@ -266,8 +266,8 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'MOQ ${product.minOrderQty}  •  ${hasPrice ? '\$${product.price.toStringAsFixed(2)} / unit' : 'Price on request'}',
-                  style: const TextStyle(
+                  'MOQ ${product.minOrderQty}  â€¢  ${hasPrice ? '\$${product.price.toStringAsFixed(2)} / unit' : 'Price on request'}',
+                  style: TextStyle(
                     fontSize: 11.5,
                     color: AppColors.textMuted,
                   ),
@@ -285,7 +285,7 @@ class _ProductCard extends StatelessWidget {
                 ),
               );
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.add_circle_rounded,
               color: AppColors.pink,
               size: 28,

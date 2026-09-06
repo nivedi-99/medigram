@@ -84,7 +84,7 @@ class _HomeShellState extends State<HomeShell> {
       if (!mounted) return;
       setState(() => _notifications = list);
     } catch (_) {
-      /* silent — the stale list is still usable */
+      /* silent â€” the stale list is still usable */
     }
   }
 
@@ -213,7 +213,7 @@ class _HomeShellState extends State<HomeShell> {
 final List<SavedPaymentMethod> demoPaymentMethods = [
   SavedPaymentMethod(
     label: 'HDFC Credit Card',
-    detail: '•••• •••• •••• 4821',
+    detail: 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ 4821',
     type: PaymentType.card,
     isDefault: true,
   ),
@@ -224,7 +224,7 @@ final List<SavedPaymentMethod> demoPaymentMethods = [
   ),
   SavedPaymentMethod(
     label: 'MediGram Wallet',
-    detail: 'Balance: ₹350.00',
+    detail: 'Balance: â‚¹350.00',
     type: PaymentType.wallet,
   ),
 ];

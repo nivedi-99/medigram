@@ -45,11 +45,11 @@ class _CartPageState extends State<CartPage> {
             context: context,
             builder: (dialogContext) => AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Row(
+              title: Row(
                 children: [
                   Icon(Icons.check_circle_rounded, color: AppColors.success),
-                  SizedBox(width: 8),
-                  Text('Order placed'),
+                  const SizedBox(width: 8),
+                  const Text('Order placed'),
                 ],
               ),
               content: Text(
@@ -111,7 +111,7 @@ class _CartPageState extends State<CartPage> {
                         item.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.5,
                           color: AppColors.textDark,
@@ -121,7 +121,7 @@ class _CartPageState extends State<CartPage> {
                     IconButton(
                       tooltip: 'Remove',
                       onPressed: () => _remove(index),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.delete_outline_rounded,
                         size: 20,
                         color: AppColors.danger,
@@ -130,8 +130,8 @@ class _CartPageState extends State<CartPage> {
                   ],
                 ),
                 Text(
-                  '\$${item.unitPrice.toStringAsFixed(2)} / unit  ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢  MOQ ${item.minOrderQty}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  '\$${item.unitPrice.toStringAsFixed(2)} / unit  ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢  MOQ ${item.minOrderQty}',
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -145,7 +145,7 @@ class _CartPageState extends State<CartPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         '${item.quantity}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
@@ -159,7 +159,7 @@ class _CartPageState extends State<CartPage> {
                     const Spacer(),
                     Text(
                       '\$${item.lineTotal.toStringAsFixed(2)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
@@ -183,7 +183,7 @@ class _CartPageState extends State<CartPage> {
           children: [
             Row(
               children: [
-                const Text(
+                Text(
                   'Order total',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -194,7 +194,7 @@ class _CartPageState extends State<CartPage> {
                 const Spacer(),
                 Text(
                   '\$${CartService.total.toStringAsFixed(2)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
                     color: AppColors.blueDark,
@@ -270,8 +270,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
       if (!mounted) return;
       setState(() => _placing = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not place the order. Please try again.'),
+        SnackBar(
+          content: const Text('Could not place the order. Please try again.'),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -298,9 +298,9 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                 Container(
                   height: 42,
                   width: 42,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: AppColors.heroGradient,
-                    borderRadius: BorderRadius.all(Radius.circular(13)),
+                    borderRadius: const BorderRadius.all(Radius.circular(13)),
                   ),
                   child: const Icon(
                     Icons.local_shipping_rounded,
@@ -309,9 +309,9 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Checkout ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â export order',
+                    'Checkout ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â export order',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -324,7 +324,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
             const SizedBox(height: 14),
             Text(
               'Total: \$${CartService.total.toStringAsFixed(2)} for ${CartService.items.length} line(s)',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.blueDark,
               ),
@@ -392,7 +392,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
               ),
             ),
             const SizedBox(height: 4),
-            const Center(
+            Center(
               child: Text(
                 'Payment is settled per contract after order confirmation.',
                 style: TextStyle(fontSize: 11, color: AppColors.textMuted),

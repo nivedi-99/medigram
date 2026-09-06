@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
             const GradientHeader(
               title: 'Welcome back',
               subtitle:
-                  'Sign in to continue to MediGram — your global\npharmaceutical export partner.',
+                  'Sign in to continue to MediGram â€” your global\npharmaceutical export partner.',
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: _handleForgotPassword,
-                        child: const Text(
+                        child: Text(
                           'Forgot password?',
                           style: TextStyle(
                             color: AppColors.blueDark,
@@ -167,24 +167,24 @@ class _LoginPageState extends State<LoginPage> {
                           : const Text('Sign In'),
                     ),
                     const SizedBox(height: 18),
-                    const Row(
+                    Row(
                       children: [
-                        Expanded(child: Divider()),
+                        const Expanded(child: Divider()),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
                             'or',
                             style: TextStyle(color: AppColors.textMuted),
                           ),
                         ),
-                        Expanded(child: Divider()),
+                        const Expanded(child: Divider()),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           "Don't have an account?",
                           style: TextStyle(color: AppColors.textMuted),
                         ),
@@ -198,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'Create one',
                             style: TextStyle(
                               color: AppColors.pink,

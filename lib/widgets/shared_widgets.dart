@@ -65,7 +65,7 @@ class SectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
@@ -77,7 +77,7 @@ class SectionTitle extends StatelessWidget {
               onTap: onAction,
               child: Text(
                 actionLabel!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.blueDark,
@@ -95,14 +95,14 @@ class StatTile extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
-  final Gradient gradient;
+  final Gradient? gradient;
 
   const StatTile({
     super.key,
     required this.icon,
     required this.value,
     required this.label,
-    this.gradient = AppColors.blueGradient,
+    this.gradient,
   });
 
   @override
@@ -110,7 +110,7 @@ class StatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
       decoration: BoxDecoration(
-        gradient: gradient,
+        gradient: gradient ?? AppColors.blueGradient,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -146,8 +146,8 @@ class MenuTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Color iconColor;
-  final Color iconBg;
+  final Color? iconColor;
+  final Color? iconBg;
   final Widget? trailing;
   final VoidCallback? onTap;
 
@@ -156,8 +156,8 @@ class MenuTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
-    this.iconColor = AppColors.blueDark,
-    this.iconBg = AppColors.blueLight,
+    this.iconColor,
+    this.iconBg,
     this.trailing,
     this.onTap,
   });
@@ -171,14 +171,14 @@ class MenuTile extends StatelessWidget {
         height: 42,
         width: 42,
         decoration: BoxDecoration(
-          color: iconBg,
+          color: iconBg ?? AppColors.blueLight,
           borderRadius: BorderRadius.circular(13),
         ),
-        child: Icon(icon, color: iconColor, size: 21),
+        child: Icon(icon, color: iconColor ?? AppColors.blueDark, size: 21),
       ),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14.5,
           color: AppColors.textDark,
@@ -187,11 +187,11 @@ class MenuTile extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle!,
-              style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             )
           : null,
       trailing: trailing ??
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
     );
   }
 }
@@ -255,7 +255,7 @@ class LabeledField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppColors.textDark,
@@ -297,9 +297,9 @@ class GradientHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 60, 28, 36),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: AppColors.authGradient,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(36),
           bottomRight: Radius.circular(36),
         ),
@@ -367,7 +367,7 @@ class EmptyState extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
               color: AppColors.textDark,
@@ -377,7 +377,7 @@ class EmptyState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textMuted, height: 1.4),
+            style: TextStyle(color: AppColors.textMuted, height: 1.4),
           ),
         ],
       ),

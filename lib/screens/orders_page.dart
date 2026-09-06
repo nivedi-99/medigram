@@ -28,9 +28,9 @@ class OrdersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
             child: Text(
               'Your Orders',
               style: TextStyle(
@@ -69,7 +69,7 @@ class OrdersPage extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   order.id,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                     color: AppColors.textDark,
@@ -84,15 +84,15 @@ class OrdersPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${order.items.length} item(s) â€¢ ${_formatDate(order.date)}',
-                            style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                            '${order.items.length} item(s) Ã¢â‚¬Â¢ ${_formatDate(order.date)}',
+                            style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                           ),
                           const Divider(height: 22),
                           Row(
                             children: [
                               Text(
-                                'â‚¹${order.total.toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                'Ã¢â€šÂ¹${order.total.toStringAsFixed(2)}',
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                   color: AppColors.textDark,
@@ -151,9 +151,9 @@ class OrdersPage extends StatelessWidget {
           expand: false,
           builder: (context, scrollController) {
             return Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.bg,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               ),
               child: ListView(
                 controller: scrollController,
@@ -175,7 +175,7 @@ class OrdersPage extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Order ${order.id}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark,
@@ -190,8 +190,8 @@ class OrdersPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Placed on ${_formatDate(order.date)} â€¢ Paid via ${order.paymentMethod}',
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5),
+                    'Placed on ${_formatDate(order.date)} Ã¢â‚¬Â¢ Paid via ${order.paymentMethod}',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
                   ),
                   const SizedBox(height: 20),
                   SoftCard(
@@ -202,11 +202,11 @@ class OrdersPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  '${item.name}  Ã—${item.quantity}',
+                                  '${item.name}  Ãƒâ€”${item.quantity}',
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                               ),
-                              Text('â‚¹${item.lineTotal.toStringAsFixed(2)}'),
+                              Text('Ã¢â€šÂ¹${item.lineTotal.toStringAsFixed(2)}'),
                             ],
                           ),
                           if (item != order.items.last) const SizedBox(height: 10),
@@ -220,8 +220,8 @@ class OrdersPage extends StatelessWidget {
                             ),
                             const Spacer(),
                             Text(
-                              'â‚¹${order.total.toStringAsFixed(2)}',
-                              style: const TextStyle(
+                              'Ã¢â€šÂ¹${order.total.toStringAsFixed(2)}',
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.blueDark,
                                 fontSize: 16,
@@ -271,7 +271,7 @@ class OrdersPage extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    const months = [
+    final months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
@@ -304,12 +304,12 @@ class _TrackingTimeline extends StatelessWidget {
     }
 
     if (status == OrderStatus.cancelled) {
-      return const SoftCard(
-        color: Color(0xFFFFEDED),
+      return SoftCard(
+        color: const Color(0xFFFFEDED),
         child: Row(
           children: [
             Icon(Icons.cancel_rounded, color: AppColors.danger),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 'This order was cancelled. Refund (if applicable) has been credited to your original payment method.',
