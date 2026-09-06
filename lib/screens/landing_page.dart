@@ -3,33 +3,60 @@ import 'package:flutter/material.dart';
 import '../services/theme_controller.dart';
 import '../theme/app_colors.dart';
 
-/// Public marketing landing page â€” shown to signed-out visitors.
-class LandingPage extends StatelessWidget {
+/// Public marketing landing page Ã¢â‚¬â€ shown to signed-out visitors.
+class LandingPage extends StatefulWidget {
   final VoidCallback onLogin;
   final VoidCallback onSignup;
 
   const LandingPage({super.key, required this.onLogin, required this.onSignup});
 
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  VoidCallback get onLogin => widget.onLogin;
+  VoidCallback get onSignup => widget.onSignup;
+
+  bool _precached = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_precached) {
+      _precached = true;
+      // Warm the image cache so hero and section visuals pop in instantly.
+      for (final asset in const [
+        'assets/landing/hero-3d.jpg',
+        'assets/landing/supply-chain-3d.jpg',
+        'assets/landing/dashboard-3d.jpg',
+        'assets/landing/kyc-shield-3d.jpg',
+      ]) {
+        precacheImage(NetworkImage(asset), context);
+      }
+    }
+  }
+
   static const _sections = [
     (
       'From factory to pharmacy',
       'One verified pipeline: manufacturer QA, air and sea freight, and '
-          'last-mile delivery to licensed pharmacies â€” all tracked from a '
+          'last-mile delivery to licensed pharmacies Ã¢â‚¬â€ all tracked from a '
           'single dashboard.',
-      'assets/landing/supply-chain-3d.png',
+      'assets/landing/supply-chain-3d.jpg',
     ),
     (
       'Live order intelligence',
-      'Every export order surfaces in a live operations view â€” statuses, '
+      'Every export order surfaces in a live operations view Ã¢â‚¬â€ statuses, '
           'Incoterms, documents and shipment milestones, without a single '
           'email thread.',
-      'assets/landing/dashboard-3d.png',
+      'assets/landing/dashboard-3d.jpg',
     ),
     (
       'KYC-verified trade',
       'Every buyer is identity- and licence-verified before their first '
           'order, so you trade only with trusted counterparties.',
-      'assets/landing/kyc-shield-3d.png',
+      'assets/landing/kyc-shield-3d.jpg',
     ),
   ];
 
@@ -165,7 +192,7 @@ class LandingPage extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'MediGram connects licensed pharmacies and distributors to a verified '
-          'global supply chain â€” 180+ products, KYC-verified partners and '
+          'global supply chain Ã¢â‚¬â€ 180+ products, KYC-verified partners and '
           'every shipment tracked to the door.',
           style: TextStyle(
             fontSize: 16,
@@ -203,18 +230,9 @@ class LandingPage extends StatelessWidget {
   }
 
   Widget _heroImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.network(
-        'assets/landing/hero-3d.png',
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, progress) => Container(
-          height: 320,
-          color: AppColors.blueLight.withValues(alpha: 0.4),
-          alignment: Alignment.center,
-          child: const CircularProgressIndicator(),
-        ),
-      ),
+    return const _LandingImage(
+      asset: 'assets/landing/hero-3d.jpg',
+      aspectRatio: 1584 / 672,
     );
   }
 
@@ -263,10 +281,7 @@ class LandingPage extends StatelessWidget {
   Widget _buildImageSection(
       BuildContext context, String title, String body, String image) {
     final wide = MediaQuery.of(context).size.width > 900;
-    final visual = ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.network(image, fit: BoxFit.cover),
-    );
+    final visual = _LandingImage(asset: image, aspectRatio: 1408 / 768);
     final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -429,19 +444,74 @@ class LandingPage extends StatelessWidget {
                       size: 18, color: AppColors.blueMid),
                   const SizedBox(width: 6),
                   Text(
-                    'MediGram â€” Global Pharmaceutical Exports',
+                    'MediGram Ã¢â‚¬â€ Global Pharmaceutical Exports',
                     style:
                         TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                   ),
                 ],
               ),
               Text(
-                'Â© 2026 MediGram. All rights reserved.',
+                'Ã‚Â© 2026 MediGram. All rights reserved.',
                 style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bounded, fade-in landing visual with progress and graceful error state.
+class _LandingImage extends StatelessWidget {
+  final String asset;
+  final double aspectRatio;
+
+  const _LandingImage({required this.asset, required this.aspectRatio});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Image.network(
+          asset,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          gaplessPlayback: true,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+              wasSynchronouslyLoaded
+                  ? child
+                  : AnimatedOpacity(
+                      opacity: frame == null ? 0 : 1,
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeOut,
+                      child: child,
+                    ),
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return Container(
+              color: AppColors.blueLight.withValues(alpha: 0.4),
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(
+                value: progress.expectedTotalBytes != null
+                    ? progress.cumulativeBytesLoaded /
+                        progress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: AppColors.blueLight.withValues(alpha: 0.4),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_not_supported_rounded,
+              size: 42,
+              color: AppColors.blueMid,
+            ),
+          ),
+        ),
       ),
     );
   }
