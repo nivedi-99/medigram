@@ -5,7 +5,7 @@ import '../services/cart_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
-/// Live export catalogue â€” sourced from the MediGram API (master list).
+/// Live export catalogue — sourced from the MediGram API (master list).
 class ProductsPage extends StatefulWidget {
   final List<ProductRecord> products;
   final VoidCallback? onOpenCart;
@@ -255,7 +255,7 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${product.category}  â€¢  ${product.manufacturer.isEmpty ? 'MediGram' : product.manufacturer}',
+                  '${product.category}  •  ${product.manufacturer.isEmpty ? 'MediGram' : product.manufacturer}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -266,7 +266,7 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'MOQ ${product.minOrderQty}  â€¢  ${hasPrice ? '\$${product.price.toStringAsFixed(2)} / unit' : 'Price on request'}',
+                  'MOQ ${product.minOrderQty}  •  ${hasPrice ? '\$${product.price.toStringAsFixed(2)} / unit' : 'Price on request'}',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: AppColors.textMuted,

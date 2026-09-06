@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../models/models.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
@@ -135,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(child: _StatBadge(value: 'Ã¢â€šÂ¹350', label: 'Wallet')),
+            const Expanded(child: _StatBadge(value: '₹350', label: 'Wallet')),
           ],
         ),
         const SizedBox(height: 26),

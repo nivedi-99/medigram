@@ -32,7 +32,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
       _messages.add(
         _ChatMessage(
           "Thanks for your question! For anything about dosage or "
-          'prescriptions, please consult a licensed pharmacist â€” I can '
+          'prescriptions, please consult a licensed pharmacist — I can '
           'help with order status, categories and general product info.',
           false,
         ),
@@ -77,7 +77,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
                     ),
                   ),
                   Text(
-                    'Online â€¢ Usually replies instantly',
+                    'Online • Usually replies instantly',
                     style: TextStyle(fontSize: 11.5, color: AppColors.success),
                   ),
                 ],

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/theme_controller.dart';
 import '../theme/app_colors.dart';
 
-/// Public marketing landing page Ã¢â‚¬â€ shown to signed-out visitors.
+/// Public marketing landing page — shown to signed-out visitors.
 class LandingPage extends StatefulWidget {
   final VoidCallback onLogin;
   final VoidCallback onSignup;
@@ -41,13 +41,13 @@ class _LandingPageState extends State<LandingPage> {
     (
       'From factory to pharmacy',
       'One verified pipeline: manufacturer QA, air and sea freight, and '
-          'last-mile delivery to licensed pharmacies Ã¢â‚¬â€ all tracked from a '
+          'last-mile delivery to licensed pharmacies — all tracked from a '
           'single dashboard.',
       'assets/landing/supply-chain-3d.jpg',
     ),
     (
       'Live order intelligence',
-      'Every export order surfaces in a live operations view Ã¢â‚¬â€ statuses, '
+      'Every export order surfaces in a live operations view — statuses, '
           'Incoterms, documents and shipment milestones, without a single '
           'email thread.',
       'assets/landing/dashboard-3d.jpg',
@@ -136,71 +136,132 @@ class _LandingPageState extends State<LandingPage> {
 
   Widget _buildHero(BuildContext context) {
     final wide = MediaQuery.of(context).size.width > 900;
+    final content = wide
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: _heroText(context)),
+              const SizedBox(width: 48),
+              Expanded(child: _heroImage()),
+            ],
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _heroText(context),
+              const SizedBox(height: 32),
+              _heroImage(),
+            ],
+          );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-      child: wide
-          ? Row(
-              children: [
-                Expanded(child: _heroText(context)),
-                const SizedBox(width: 32),
-                Expanded(child: _heroImage()),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.blueLight.withValues(alpha: 0.6),
+                AppColors.bg,
+                AppColors.bg,
               ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _heroText(context),
-                const SizedBox(height: 24),
-                _heroImage(),
-              ],
+              stops: const [0, 0.55, 1],
             ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -70,
+                right: -60,
+                child:
+                    _heroBlob(220, AppColors.blueMid.withValues(alpha: 0.08)),
+              ),
+              Positioned(
+                bottom: -90,
+                left: -40,
+                child: _heroBlob(240, AppColors.pink.withValues(alpha: 0.07)),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: wide ? 48 : 22, vertical: wide ? 56 : 36),
+                child: content,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Widget _heroText(BuildContext context) {
+    final wide = MediaQuery.of(context).size.width > 900;
+    final headline = wide ? 52.0 : 34.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.blueLight.withValues(alpha: 0.5),
+            color: AppColors.card,
             borderRadius: BorderRadius.circular(20),
             border:
                 Border.all(color: AppColors.blueMid.withValues(alpha: 0.4)),
           ),
-          child: Text(
-            'WHO-GMP CERTIFIED SUPPLY',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.4,
-              color: AppColors.blueDark,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.verified_rounded, size: 15, color: AppColors.blueMid),
+              const SizedBox(width: 6),
+              Text(
+                'WHO-GMP CERTIFIED SUPPLY',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.4,
+                  color: AppColors.blueDark,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 22),
         Text(
-          'Pharmaceutical exports,\ndelivered with certainty.',
+          'Pharmaceutical exports,',
           style: TextStyle(
-            fontSize: 40,
-            height: 1.15,
+            fontSize: headline,
+            height: 1.08,
             fontWeight: FontWeight.w800,
+            letterSpacing: -1.2,
             color: AppColors.textDark,
           ),
         ),
-        const SizedBox(height: 16),
         Text(
-          'MediGram connects licensed pharmacies and distributors to a verified '
-          'global supply chain Ã¢â‚¬â€ 180+ products, KYC-verified partners and '
-          'every shipment tracked to the door.',
+          'delivered with certainty.',
           style: TextStyle(
-            fontSize: 16,
-            height: 1.5,
-            color: AppColors.textMuted,
+            fontSize: headline,
+            height: 1.08,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.2,
+            color: AppColors.blueMid,
           ),
         ),
-        const SizedBox(height: 26),
+        const SizedBox(height: 18),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Text(
+            'MediGram connects licensed pharmacies and distributors to a verified '
+                'global supply chain — 180+ products, KYC-verified partners and '
+                'every shipment tracked to the door.',
+            style: TextStyle(
+              fontSize: 16.5,
+              height: 1.55,
+              color: AppColors.textMuted,
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
         Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -210,29 +271,80 @@ class _LandingPageState extends State<LandingPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blueDark,
                 foregroundColor: AppColors.onPrimary,
+                elevation: 0,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
               ),
               child: const Text('Create a business account'),
             ),
             OutlinedButton(
               onPressed: onLogin,
               style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.blueDark,
+                side:
+                    BorderSide(color: AppColors.blueMid.withValues(alpha: 0.5)),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
               ),
               child: const Text('Sign in'),
             ),
           ],
         ),
+        const SizedBox(height: 26),
+        Wrap(
+          spacing: 20,
+          runSpacing: 10,
+          children: [
+            _heroProof('180+ catalogue products'),
+            _heroProof('KYC-verified buyers'),
+            _heroProof('Door-tracked shipments'),
+          ],
+        ),
+      ],
+    );
+  }
+  Widget _heroProof(String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.check_circle_rounded, size: 16, color: AppColors.success),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textMuted,
+          ),
+        ),
       ],
     );
   }
 
+  Widget _heroBlob(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
   Widget _heroImage() {
-    return const _LandingImage(
-      asset: 'assets/landing/hero-3d.jpg',
-      aspectRatio: 1584 / 672,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blueMid.withValues(alpha: 0.28),
+            blurRadius: 60,
+            offset: const Offset(0, 22),
+          ),
+        ],
+      ),
+      child: const _LandingImage(
+        asset: 'assets/landing/hero-3d.jpg',
+        aspectRatio: 1584 / 672,
+        radius: 28,
+      ),
     );
   }
 
@@ -444,14 +556,14 @@ class _LandingPageState extends State<LandingPage> {
                       size: 18, color: AppColors.blueMid),
                   const SizedBox(width: 6),
                   Text(
-                    'MediGram Ã¢â‚¬â€ Global Pharmaceutical Exports',
+                    'MediGram — Global Pharmaceutical Exports',
                     style:
                         TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                   ),
                 ],
               ),
               Text(
-                'Ã‚Â© 2026 MediGram. All rights reserved.',
+                '© 2026 MediGram. All rights reserved.',
                 style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
               ),
             ],
@@ -467,12 +579,15 @@ class _LandingImage extends StatelessWidget {
   final String asset;
   final double aspectRatio;
 
-  const _LandingImage({required this.asset, required this.aspectRatio});
+  final double radius;
+
+  const _LandingImage(
+      {required this.asset, required this.aspectRatio, this.radius = 24});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(radius),
       child: AspectRatio(
         aspectRatio: aspectRatio,
         child: Image.network(

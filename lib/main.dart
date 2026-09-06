@@ -69,7 +69,7 @@ class _MediGramAppState extends State<MediGramApp> {
       builder: (context, themeMode, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'MediGram Ã¢â‚¬â€ Global Pharmaceutical Exports',
+          title: 'MediGram — Global Pharmaceutical Exports',
           theme: buildAppTheme(),
           darkTheme: buildAppTheme(),
           themeMode: themeMode,

@@ -133,7 +133,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       );
       await _loadAll();
     } catch (_) {
-      _toast('Update failed â€” you may lack permission.');
+      _toast('Update failed — you may lack permission.');
     }
   }
 
@@ -224,7 +224,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${widget.user.fullName.isEmpty ? widget.user.email : widget.user.fullName} â€¢ ${widget.user.role.label}',
+                      '${widget.user.fullName.isEmpty ? widget.user.email : widget.user.fullName} • ${widget.user.role.label}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
@@ -305,7 +305,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   // -------------------------------------------------------------------
-  // Clients tab â€” the B2B client database
+  // Clients tab — the B2B client database
   // -------------------------------------------------------------------
 
   Widget _buildClientsTab() {
@@ -458,7 +458,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${product.category} â€¢ MOQ ${product.minOrderQty}',
+                          '${product.category} • MOQ ${product.minOrderQty}',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textMuted,
@@ -494,7 +494,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   // -------------------------------------------------------------------
-  // Admins tab â€” super admin only: the admin handler database
+  // Admins tab — super admin only: the admin handler database
   // -------------------------------------------------------------------
 
   Widget _buildAdminsTab() {
@@ -567,7 +567,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           : '${admin.fullName} reactivated');
       await _loadAll();
     } catch (_) {
-      _toast('Update failed â€” super admin permission required.');
+      _toast('Update failed — super admin permission required.');
     }
   }
 
@@ -577,7 +577,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       _toast('${admin.fullName} demoted to client');
       await _loadAll();
     } catch (_) {
-      _toast('Demotion failed â€” super admin permission required.');
+      _toast('Demotion failed — super admin permission required.');
     }
   }
 
@@ -625,7 +625,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     } on ApiException catch (e) {
       _toast(e.message);
     } catch (_) {
-      _toast('Promotion failed â€” super admin permission required.');
+      _toast('Promotion failed — super admin permission required.');
     }
   }
 }
@@ -723,7 +723,7 @@ class _ClientCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${client.country.isEmpty ? 'â€”' : client.country} â€¢ ${client.contactEmail}',
+                      '${client.country.isEmpty ? '—' : client.country} • ${client.contactEmail}',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textMuted,
@@ -821,7 +821,7 @@ class _AdminCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${admin.email} â€¢ ${admin.department}',
+                      '${admin.email} • ${admin.department}',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textMuted,

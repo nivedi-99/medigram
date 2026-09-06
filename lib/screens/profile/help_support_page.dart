@@ -32,11 +32,11 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
     {
       'q': 'How do I request a refund?',
       'a': 'Open the order in Orders, tap "Report issue" and choose '
-          '"Billing / payment issue" â€” our team will follow up.',
+          '"Billing / payment issue" — our team will follow up.',
     },
     {
       'q': 'How do I change my delivery address?',
-      'a': 'Go to Profile â†’ Edit Profile to update your saved address at '
+      'a': 'Go to Profile → Edit Profile to update your saved address at '
           'any time before an order is dispatched.',
     },
   ];
@@ -148,7 +148,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             onPressed: () {
               _subjectController.clear();
               _messageController.clear();
-              _snack(context, 'Ticket submitted â€” our team will reach out within 24 hours');
+              _snack(context, 'Ticket submitted — our team will reach out within 24 hours');
             },
             icon: const Icon(Icons.send_rounded, size: 18),
             label: const Text('Submit Ticket'),

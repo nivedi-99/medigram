@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
             const GradientHeader(
               title: 'Welcome back',
               subtitle:
-                  'Sign in to continue to MediGram â€” your global\npharmaceutical export partner.',
+                  'Sign in to continue to MediGram — your global\npharmaceutical export partner.',
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),

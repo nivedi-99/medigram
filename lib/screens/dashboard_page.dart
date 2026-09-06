@@ -160,7 +160,7 @@ class DashboardPage extends StatelessWidget {
                 Expanded(
                   child: StatTile(
                     icon: Icons.account_balance_wallet_rounded,
-                    value: 'ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¹350',
+                    value: '₹350',
                     label: 'Wallet',
                     gradient: AppColors.heroGradient,
                   ),

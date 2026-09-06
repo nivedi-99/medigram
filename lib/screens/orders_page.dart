@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
@@ -84,14 +84,14 @@ class OrdersPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${order.items.length} item(s) Ã¢â‚¬Â¢ ${_formatDate(order.date)}',
+                            '${order.items.length} item(s) • ${_formatDate(order.date)}',
                             style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                           ),
                           const Divider(height: 22),
                           Row(
                             children: [
                               Text(
-                                'Ã¢â€šÂ¹${order.total.toStringAsFixed(2)}',
+                                '₹${order.total.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -190,7 +190,7 @@ class OrdersPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Placed on ${_formatDate(order.date)} Ã¢â‚¬Â¢ Paid via ${order.paymentMethod}',
+                    'Placed on ${_formatDate(order.date)} • Paid via ${order.paymentMethod}',
                     style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
                   ),
                   const SizedBox(height: 20),
@@ -202,11 +202,11 @@ class OrdersPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  '${item.name}  Ãƒâ€”${item.quantity}',
+                                  '${item.name}  ×${item.quantity}',
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                               ),
-                              Text('Ã¢â€šÂ¹${item.lineTotal.toStringAsFixed(2)}'),
+                              Text('₹${item.lineTotal.toStringAsFixed(2)}'),
                             ],
                           ),
                           if (item != order.items.last) const SizedBox(height: 10),
@@ -220,7 +220,7 @@ class OrdersPage extends StatelessWidget {
                             ),
                             const Spacer(),
                             Text(
-                              'Ã¢â€šÂ¹${order.total.toStringAsFixed(2)}',
+                              '₹${order.total.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.blueDark,

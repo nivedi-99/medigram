@@ -108,13 +108,13 @@ class _ReportProductPageState extends State<ReportProductPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Thanks â€” we\'ve received your report',
+                  'Thanks — we\'ve received your report',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.textDark),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Our support team will review order ${widget.order.id} and get back to you within 24â€“48 hours.',
+                  'Our support team will review order ${widget.order.id} and get back to you within 24–48 hours.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.textMuted, height: 1.4),
                 ),

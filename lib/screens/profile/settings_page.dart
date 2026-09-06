@@ -148,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        final options = ['English', 'à¤¹à¤¿à¤¨à¥à¤¦à¥€', 'à¤®à¤°à¤¾à¤ à¥€', 'à¦¬à¦¾à¦‚à¦²à¦¾', 'à®¤à®®à®¿à®´à¯'];
+        final options = ['English', 'हिन्दी', 'मराठी', 'বাংলা', 'தமிழ்'];
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -49,7 +49,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Payments are simulated in this build. Export orders are invoiced per contract â€” online payment goes live soon.',
+                    'Payments are simulated in this build. Export orders are invoiced per contract — online payment goes live soon.',
                     style: TextStyle(
                         fontSize: 12, height: 1.35, color: AppColors.textDark),
                   ),
@@ -75,7 +75,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     children: [
                       Text('MediGram Wallet', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                       SizedBox(height: 4),
-                      Text('â‚¹350.00', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text('₹350.00', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -165,11 +165,11 @@ class _PaymentPageState extends State<PaymentPage> {
             padding: EdgeInsets.symmetric(horizontal: 6),
             child: Column(
               children: [
-                _TransactionRow(title: 'Order MG-10231', date: '25 Aug 2026', amount: '- â‚¹797.00'),
+                _TransactionRow(title: 'Order MG-10231', date: '25 Aug 2026', amount: '- ₹797.00'),
                 Divider(height: 1),
-                _TransactionRow(title: 'Order MG-10198', date: '18 Aug 2026', amount: '- â‚¹399.00'),
+                _TransactionRow(title: 'Order MG-10198', date: '18 Aug 2026', amount: '- ₹399.00'),
                 Divider(height: 1),
-                _TransactionRow(title: 'Wallet top-up', date: '10 Aug 2026', amount: '+ â‚¹500.00', positive: true),
+                _TransactionRow(title: 'Wallet top-up', date: '10 Aug 2026', amount: '+ ₹500.00', positive: true),
               ],
             ),
           ),
@@ -208,7 +208,7 @@ class _PaymentPageState extends State<PaymentPage> {
               LabeledField(
                 label: 'Card number',
                 controller: cardController,
-                hint: 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢',
+                hint: '•••• •••• •••• ••••',
                 icon: Icons.credit_card_rounded,
                 keyboardType: TextInputType.number,
               ),
