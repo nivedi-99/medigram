@@ -350,9 +350,9 @@ class _LandingPageState extends State<LandingPage> {
 
   Widget _buildStatsBand(BuildContext context) {
     final stats = [
-      ('8', 'Export products'),
-      ('4', 'Therapy categories'),
-      ('WHO-GMP', 'Certified manufacturing'),
+      ('113', 'Export products'),
+      ('59', 'Generic molecules'),
+      ('13', 'Therapy categories'),
       ('24h', 'KYC verification'),
     ];
     return Container(
@@ -438,8 +438,17 @@ class _LandingPageState extends State<LandingPage> {
     final cats = [
       ('Erectile Dysfunction', Icons.favorite_rounded),
       ('Pain Killers', Icons.healing_rounded),
+      ('Antibiotics', Icons.science_rounded),
+      ('Anti Parasitic', Icons.bug_report_rounded),
+      ('Steroids', Icons.fitness_center_rounded),
+      ('Anti-Anxiety', Icons.spa_rounded),
+      ('Sleeping Pills', Icons.bedtime_rounded),
+      ('Hair Care', Icons.content_cut_rounded),
+      ('Anti Diabetic', Icons.water_drop_rounded),
+      ('Skin Care', Icons.face_rounded),
+      ('Womens Health', Icons.health_and_safety_rounded),
+      ('Weight Loss', Icons.monitor_weight_rounded),
       ('Wakefulness', Icons.bolt_rounded),
-      ('Womens Health', Icons.spa_rounded),
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),

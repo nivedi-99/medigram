@@ -150,17 +150,74 @@ class _ProductsPageState extends State<ProductsPage> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: _ProductCard(product: items[index]),
-                ),
-                childCount: items.length,
-              ),
+              delegate: SliverChildListDelegate(_buildGrouped(items)),
             ),
           ),
       ],
     );
+  }
+
+  /// Catalogue flow: category -> generic molecule -> brand names with
+  /// strengths. The generic is carried in `manufacturer`; brands are grouped
+  /// under a section header per molecule.
+  List<Widget> _buildGrouped(List<ProductRecord> items) {
+    final groups = <String, List<ProductRecord>>{};
+    for (final p in items) {
+      final generic = p.manufacturer.isEmpty ? 'General' : p.manufacturer;
+      groups.putIfAbsent(generic, () => []).add(p);
+    }
+    final generics = groups.keys.toList()..sort();
+    final children = <Widget>[];
+    for (final generic in generics) {
+      final brands = groups[generic]!;
+      children.add(Padding(
+        padding: const EdgeInsets.fromLTRB(0, 12, 0, 10),
+        child: Row(
+          children: [
+            Icon(Icons.science_rounded, size: 16, color: AppColors.blueMid),
+            const SizedBox(width: 6),
+            Text(
+              generic,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 15.5,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.blueLight.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'Generic',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.blueDark,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${brands.length} brand${brands.length == 1 ? '' : 's'}',
+              style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+            ),
+          ],
+        ),
+      ));
+      for (final p in brands) {
+        children.add(Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _ProductCard(product: p),
+        ));
+      }
+      children.add(const SizedBox(height: 10));
+    }
+    return children;
   }
 }
 
