@@ -252,8 +252,8 @@ class _LandingPageState extends State<LandingPage> {
           constraints: const BoxConstraints(maxWidth: 520),
           child: Text(
             'MediGram connects licensed pharmacies and distributors to a verified '
-                'global supply chain — 180+ products, KYC-verified partners and '
-                'every shipment tracked to the door.',
+                'global supply chain — Cenforce, Vidalista, Tapaday, Modvigil '
+                'and more, KYC-verified and tracked to the door.',
             style: TextStyle(
               fontSize: 16.5,
               height: 1.55,
@@ -295,7 +295,7 @@ class _LandingPageState extends State<LandingPage> {
           spacing: 20,
           runSpacing: 10,
           children: [
-            _heroProof('180+ catalogue products'),
+            _heroProof('Genuine, batch-verified medicines'),
             _heroProof('KYC-verified buyers'),
             _heroProof('Door-tracked shipments'),
           ],
@@ -350,8 +350,8 @@ class _LandingPageState extends State<LandingPage> {
 
   Widget _buildStatsBand(BuildContext context) {
     final stats = [
-      ('180+', 'Catalogue products'),
-      ('14', 'Therapy categories'),
+      ('8', 'Export products'),
+      ('4', 'Therapy categories'),
       ('WHO-GMP', 'Certified manufacturing'),
       ('24h', 'KYC verification'),
     ];
@@ -436,19 +436,17 @@ class _LandingPageState extends State<LandingPage> {
 
   Widget _buildCategoriesBand(BuildContext context) {
     final cats = [
-      ('Anti Parasites', Icons.medication_rounded),
-      ('Ed Medicines', Icons.favorite_rounded),
-      ('Anti-Biotics', Icons.science_rounded),
+      ('Erectile Dysfunction', Icons.favorite_rounded),
       ('Pain Killers', Icons.healing_rounded),
-      ('Anti-Anxiety', Icons.spa_rounded),
-      ('Hair Care', Icons.content_cut_rounded),
+      ('Wakefulness', Icons.bolt_rounded),
+      ('Womens Health', Icons.spa_rounded),
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
       child: Column(
         children: [
           Text(
-            'Every therapy area, one catalogue',
+            'Focused catalogue, export grade',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
