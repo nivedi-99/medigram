@@ -62,3 +62,7 @@ backend/login-*.txt
 
 # Local secrets (Gemini key etc.)
 .env
+
+# Windows desktop build artifacts
+windows/flutter/ephemeral/
+windows/out/

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/theme_controller.dart';
 import '../theme/app_colors.dart';
+import '../widgets/whatsapp_chat_button.dart';
 
 /// Public marketing landing page — shown to signed-out visitors.
 class LandingPage extends StatefulWidget {
@@ -64,6 +65,8 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      floatingActionButton: const WhatsAppChatButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

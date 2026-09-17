@@ -4,9 +4,13 @@ import '../models/models.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
-import '../widgets/shared_widgets.dart';
+import 'medicine_labels_page.dart';
+import 'product_detail_page.dart';
 
-/// Live export catalogue — sourced from the MediGram API (master list).
+/// Live export catalogue - sourced from the MediGram API (master list).
+/// Products render as cards - image placeholder, name and description - and
+/// each card opens the product detail page (add to order / WhatsApp
+/// quotation live there).
 class ProductsPage extends StatefulWidget {
   final List<ProductRecord> products;
   final VoidCallback? onOpenCart;
@@ -67,12 +71,27 @@ class _ProductsPageState extends State<ProductsPage> {
                   child: TextField(
                     onChanged: (v) => setState(() => _query = v),
                     decoration: const InputDecoration(
-                      hintText: 'Search products, manufacturers...',
+                      hintText: 'Search products...',
                       prefixIcon: Icon(Icons.search_rounded),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
+                IconButton(
+                  tooltip: 'Labelled medicines',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) =>
+                            MedicineLabelsPage(products: widget.products),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.medication_rounded,
+                    color: AppColors.blueDark,
+                  ),
+                ),
                 ValueListenableBuilder<int>(
                   valueListenable: CartService.count,
                   builder: (context, count, _) => Stack(
@@ -86,7 +105,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           color: AppColors.blueDark,
                         ),
                       ),
-                      if (count > 0)
+                      if (count != 0)
                         Positioned(
                           right: -2,
                           top: 2,
@@ -147,77 +166,192 @@ class _ProductsPageState extends State<ProductsPage> {
             ),
           )
         else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate(_buildGrouped(items)),
+          SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
+                  child: Column(
+                    children: _buildCards(items),
+                  ),
+                ),
+              ),
             ),
           ),
       ],
     );
   }
 
-  /// Catalogue flow: category -> generic molecule -> brand names with
-  /// strengths. The generic is carried in `manufacturer`; brands are grouped
-  /// under a section header per molecule.
-  List<Widget> _buildGrouped(List<ProductRecord> items) {
-    final groups = <String, List<ProductRecord>>{};
-    for (final p in items) {
-      final generic = p.manufacturer.isEmpty ? 'General' : p.manufacturer;
-      groups.putIfAbsent(generic, () => []).add(p);
-    }
-    final generics = groups.keys.toList()..sort();
+  /// Catalogue cards: image placeholder + product name + description,
+  /// tappable to open the product detail page.
+  List<Widget> _buildCards(List<ProductRecord> items) {
     final children = <Widget>[];
-    for (final generic in generics) {
-      final brands = groups[generic]!;
-      children.add(Padding(
-        padding: const EdgeInsets.fromLTRB(0, 12, 0, 10),
-        child: Row(
-          children: [
-            Icon(Icons.science_rounded, size: 16, color: AppColors.blueMid),
-            const SizedBox(width: 6),
-            Text(
-              generic,
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 15.5,
-                color: AppColors.textDark,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.blueLight.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Generic',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.blueDark,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${brands.length} brand${brands.length == 1 ? '' : 's'}',
-              style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-      ));
-      for (final p in brands) {
-        children.add(Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: _ProductCard(product: p),
-        ));
+    for (var i = 0; i < items.length; i++) {
+      children.add(_ProductCard(product: items[i]));
+      if (i != items.length - 1) {
+        children.add(const SizedBox(height: 12));
       }
-      children.add(const SizedBox(height: 10));
     }
     return children;
+  }
+}
+
+/// Maps a medicine name to its generated image slug:
+/// 'Pregabalin 300mg' -> 'pregabalin-300mg'. Must stay in sync with
+/// tool/generate_label_images.dart, which writes the files.
+String _slug(String name) => name
+    .toLowerCase()
+    .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+    .replaceAll(RegExp(r'^-+|-+$'), '');
+
+/// One catalogue product card: image placeholder on the left, the item name,
+/// description and price on the right. Tapping opens the product detail
+/// page.
+class _ProductCard extends StatelessWidget {
+  final ProductRecord product;
+
+  const _ProductCard({required this.product});
+
+  /// Catalogue description, pipe-normalised for card display. Falls back to
+  /// category/manufacturer so the card never looks empty.
+  String get _description {
+    final text = product.description
+        .split('|')
+        .map((p) => p.trim())
+        .where((p) => p.isNotEmpty)
+        .join(' - ');
+    if (text.isNotEmpty) return text;
+    final bits = <String>[
+      if (product.category.isNotEmpty) product.category,
+      if (product.manufacturer.isNotEmpty) product.manufacturer,
+    ];
+    return bits.isEmpty ? 'No description provided.' : bits.join(' - ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Ink(
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => ProductDetailPage(product: product),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _ImagePlaceholder(name: product.name),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.25,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${CurrencyService.format(product.price)} / unit',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.blueDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: AppColors.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Square image placeholder for a product card. Shows the generated labelled
+/// bottle shot when one exists for this medicine, otherwise the soft blue
+/// placeholder box with an image icon stays visible.
+class _ImagePlaceholder extends StatelessWidget {
+  final String name;
+
+  const _ImagePlaceholder({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 92,
+        height: 92,
+        child: Image.network(
+          'assets/products/labels/${_slug(name)}.png',
+          fit: BoxFit.cover,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+              wasSynchronouslyLoaded
+                  ? child
+                  : AnimatedOpacity(
+                      opacity: frame == null ? 0 : 1,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                      child: child,
+                    ),
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: AppColors.blueLight.withValues(alpha: 0.55),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_rounded,
+              size: 30,
+              color: AppColors.blueMid.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -256,118 +390,6 @@ class _FilterChip extends StatelessWidget {
             fontSize: 13,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ProductCard extends StatelessWidget {
-  final ProductRecord product;
-
-  const _ProductCard({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final hasPrice = product.price > 0;
-    return SoftCard(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Opening ${product.name}...')),
-        );
-      },
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              height: 68,
-              width: 68,
-              child: Image.network(
-                product.imageAsset,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  alignment: Alignment.center,
-                  color: AppColors.blueLight.withValues(alpha: 0.55),
-                  child: Text(
-                    product.name.isEmpty
-                        ? '?'
-                        : product.name.substring(0, 1).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.blueDark,
-                    ),
-                  ),
-                ),
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return Container(
-                    alignment: Alignment.center,
-                    color: AppColors.blueLight.withValues(alpha: 0.35),
-                    child: const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${product.category}  •  ${product.manufacturer.isEmpty ? 'MediGram' : product.manufacturer}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.blueDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'MOQ ${product.minOrderQty}  •  ${hasPrice ? CurrencyService.priceLine(product.price) : 'Price on request'}',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              CartService.add(product);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${product.name} added to your order'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.add_circle_rounded,
-              color: AppColors.pink,
-              size: 28,
-            ),
-          ),
-        ],
       ),
     );
   }

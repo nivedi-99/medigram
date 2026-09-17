@@ -4,7 +4,11 @@
 
 | Layer | URL |
 |---|---|
-| **Frontend (Flutter web)** | https://medigram-export.vercel.app |
+| **Frontend (Flutter web)** | https://medigram-seven.vercel.app |
+
+> NOTE: https://medigram-export.vercel.app belongs to a DIFFERENT Vercel
+> account (team `unicorn23` has no access) and is NOT updated by this
+> workflow. Production for this project is always medigram-seven.vercel.app.
 | **Backend (Railway)** | https://medigram-api-production.up.railway.app |
 | **Database (Supabase)** | project ref `hcoperadzsrcpkftetug` (ap-south-1) |
 
