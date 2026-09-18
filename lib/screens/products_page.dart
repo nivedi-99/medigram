@@ -208,10 +208,19 @@ String _slug(String name) => name
 /// One catalogue product card: image placeholder on the left, the item name,
 /// description and price on the right. Tapping opens the product detail
 /// page.
-class _ProductCard extends StatelessWidget {
+class _ProductCard extends StatefulWidget {
   final ProductRecord product;
 
   const _ProductCard({required this.product});
+
+  @override
+  State<_ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<_ProductCard> {
+  bool _hover = false;
+
+  ProductRecord get product => widget.product;
 
   /// Catalogue description, pipe-normalised for card display. Falls back to
   /// category/manufacturer so the card never looks empty.
@@ -231,21 +240,41 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Ink(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: AnimatedScale(
+        scale: _hover ? 1.015 : 1.0,
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _hover ? AppColors.blueMid : AppColors.border,
+              width: _hover ? 1.5 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    AppColors.shadow.withValues(alpha: _hover ? 0.08 : 0.05),
+                blurRadius: _hover ? 14 : 10,
+                offset: Offset(0, _hover ? 6 : 4),
+              ),
+              if (_hover)
+                BoxShadow(
+                  color: AppColors.blueMid.withValues(alpha: 0.30),
+                  blurRadius: 14,
+                  spreadRadius: 1,
+                ),
+            ],
           ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute<void>(
@@ -309,7 +338,9 @@ class _ProductCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
