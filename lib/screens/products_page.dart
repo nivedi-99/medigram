@@ -169,11 +169,30 @@ class _ProductsPageState extends State<ProductsPage> {
           SliverToBoxAdapter(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
+                constraints: const BoxConstraints(maxWidth: 1160),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
-                  child: Column(
-                    children: _buildCards(items),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      const gap = 16.0;
+                      final width = constraints.maxWidth;
+                      final columns =
+                          ((width + gap) / (316 + gap)).floor().clamp(1, 4);
+                      final cardWidth =
+                          (width - gap * (columns - 1)) / columns;
+                      return Wrap(
+                        spacing: gap,
+                        runSpacing: gap,
+                        children: [
+                          for (final p in items)
+                            SizedBox(
+                              width: cardWidth,
+                              height: 310,
+                              child: _ProductCard(product: p),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -183,18 +202,8 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 
-  /// Catalogue cards: image placeholder + product name + description,
-  /// tappable to open the product detail page.
-  List<Widget> _buildCards(List<ProductRecord> items) {
-    final children = <Widget>[];
-    for (var i = 0; i < items.length; i++) {
-      children.add(_ProductCard(product: items[i]));
-      if (i != items.length - 1) {
-        children.add(const SizedBox(height: 12));
-      }
-    }
-    return children;
-  }
+  /// Responsive uniform grid; every card is a fixed-size box so the hover
+  /// glow cards can never overflow, on any screen width.
 }
 
 /// Maps a medicine name to its generated image slug:
@@ -221,6 +230,9 @@ class _ProductCardState extends State<_ProductCard> {
   bool _hover = false;
 
   ProductRecord get product => widget.product;
+
+  String get _generic =>
+      product.manufacturer.isEmpty ? 'General' : product.manufacturer;
 
   /// Catalogue description, pipe-normalised for card display. Falls back to
   /// category/manufacturer so the card never looks empty.
@@ -275,112 +287,212 @@ class _ProductCardState extends State<_ProductCard> {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => ProductDetailPage(product: product),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _ImagePlaceholder(name: product.name),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        height: 1.25,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${CurrencyService.format(product.price)} / unit',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.blueDark,
-                      ),
-                    ),
-                  ],
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ProductDetailPage(product: product),
                 ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _ImageTile(product: product),
+                      const Spacer(),
+                      _CardBadge(product.category.toUpperCase()),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Generic: $_generic',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const _DashedDivider(),
+                  const SizedBox(height: 8),
+                  Text(
+                    _description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      height: 1.25,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        CurrencyService.format(product.price),
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.blueDark,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '/ unit',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 40,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                ProductDetailPage(product: product),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blueDark,
+                        foregroundColor: AppColors.onPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      child: const Text('View details'),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: AppColors.textMuted,
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 
-/// Square image placeholder for a product card. Shows the generated labelled
-/// bottle shot when one exists for this medicine, otherwise the soft blue
-/// placeholder box with an image icon stays visible.
-class _ImagePlaceholder extends StatelessWidget {
-  final String name;
+/// Rounded image tile at the top-left of a catalogue card: shows the
+/// generated labelled bottle shot for this medicine, or a soft placeholder
+/// tile with a medication icon.
+class _ImageTile extends StatelessWidget {
+  final ProductRecord product;
 
-  const _ImagePlaceholder({required this.name});
+  const _ImageTile({required this.product});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: SizedBox(
-        width: 92,
-        height: 92,
+        width: 56,
+        height: 56,
         child: Image.network(
-          'assets/products/labels/${_slug(name)}.png',
+          'assets/products/labels/${_slug(product.name)}.png',
           fit: BoxFit.cover,
-          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
-              wasSynchronouslyLoaded
-                  ? child
-                  : AnimatedOpacity(
-                      opacity: frame == null ? 0 : 1,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOut,
-                      child: child,
-                    ),
           errorBuilder: (context, error, stackTrace) => Container(
             color: AppColors.blueLight.withValues(alpha: 0.55),
             alignment: Alignment.center,
             child: Icon(
-              Icons.image_rounded,
-              size: 30,
+              Icons.medication_rounded,
+              size: 26,
               color: AppColors.blueMid.withValues(alpha: 0.7),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Amber pill badge (category), like the GLOBAL badge on the framed cards.
+class _CardBadge extends StatelessWidget {
+  final String text;
+
+  const _CardBadge(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.8,
+          color: AppColors.warning,
+        ),
+      ),
+    );
+  }
+}
+
+/// Thin dashed rule used inside catalogue cards.
+class _DashedDivider extends StatelessWidget {
+  const _DashedDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 1,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const dash = 6.0;
+          const gap = 5.0;
+          final count =
+              (constraints.maxWidth / (dash + gap)).floor().clamp(1, 200);
+          return Row(
+            children: List.generate(
+              count,
+              (i) => Container(
+                width: dash,
+                height: 1,
+                margin: EdgeInsets.only(right: i == count - 1 ? 0 : gap),
+                color: AppColors.textMuted.withValues(alpha: 0.45),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
