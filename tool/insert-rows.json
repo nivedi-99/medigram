@@ -1,0 +1,242 @@
+[
+    {
+        "manufacturer":  "Abbott",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  240,
+        "description":  "Etoricoxib 90 mg | Etody 90 Tablet contains etoricoxib 90 mg, a selective cyclooxygenase-2 (COX-2) inhibitor belonging to the non-steroidal anti-inflammatory drug (NSAID) group. It works by reducing the production of prostaglandins, which are involved in pain and inflammation. Etoricoxib is used in adults for certa...",
+        "name":  "Etody 90 Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Nascent Life Sciences",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  25,
+        "description":  "dicyclomine hydrochloride 20 mg and paracetamol 500 mg | Dipet 20/500 mg Tablet contains two active ingredients, dicyclomine hydrochloride 20 mg and paracetamol 500 mg. It is a prescription medicine used for the symptomatic relief of abdominal pain and cramping associated with spasms of the digestive tract. Dicyclomine is an antispasmodic that works by...",
+        "name":  "Dipet 20/500 mg",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Mapra Laboratories Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  52,
+        "description":  "diclofenac 50 mg as the listed salt | Dilona 50 mg Tablet is listed with diclofenac 50 mg as its salt. Diclofenac belongs to a group of medicines called non-steroidal anti-inflammatory drugs (NSAIDs), which are used to reduce pain and inflammation. It may be prescribed for certain painful conditions affecting the joints, muscles, and...",
+        "name":  "Dilona 50mg Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Cipla Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  68,
+        "description":  "Nodard 100 mg Tablet contains nimesulide, a non-steroidal anti-inflammatory drug (NSAID) that helps relieve acute pain and inflammation. It works by reducing the production of substances in the body that contribute to pain and swelling. Nimesulide is intended for short-term treatment of acute pai...",
+        "name":  "Nodard Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Endocard India Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  76,
+        "description":  "Endonac CX Tablet 100/325/250 mg is a prescription combination medicine containing aceclofenac, paracetamol, and chlorzoxazone. It is used for the short-term relief of muscular pain when inflammation, muscle spasm, or stiffness are present. Aceclofenac belongs to a group of medicines called non-s...",
+        "name":  "Endonac CX Tablet 100/325/250 mg",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Cipla Ltd.",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  50.8,
+        "description":  "three active ingredients: aceclofenac 100 mg, paracetamol 325 mg, and serratiopeptidase 15 mg | Movexx SP 100/325/15 mg Tablet is a combination medicine prescribed for the short-term relief of pain, inflammation, and associated swelling. It contains three active ingredients: aceclofenac 100 mg, paracetamol 325 mg, and serratiopeptidase 15 mg. Aceclofenac is a non-steroidal anti-inflammatory...",
+        "name":  "Movexx SP",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Cipla Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  99,
+        "description":  "nimesulide 100 mg and paracetamol 325 mg | Nodard Plus Tablet 100/325 mg contains nimesulide 100 mg and paracetamol 325 mg. Nimesulide is a non-steroidal anti-inflammatory drug (NSAID) that helps relieve pain and inflammation, while paracetamol provides additional pain relief. It may be prescribed for short-term painful conditions, includ...",
+        "name":  "Nodard Plus Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Troikaa Pharmaceuticals Ltd.",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  69,
+        "description":  "diclofenac 75 mg and should be taken as directed by a healthcare professional | Dynapar SR 75 Tablet contains diclofenac 75 mg, a nonsteroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation. Diclofenac works mainly by reducing the production of prostaglandins, substances involved in pain and inflammatory responses. It is used to relieve pain, swelling...",
+        "name":  "Dynapar SR 75 Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "FDC Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  85,
+        "description":  "aceclofenac 100 mg, paracetamol 325 mg, and chlorzoxazone 500 mg | Arflur-MR Tablet is a combination medicine containing aceclofenac, paracetamol, and chlorzoxazone. It is used for the short-term relief of musculoskeletal pain associated with inflammation and muscle spasm. Aceclofenac is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and i...",
+        "name":  "Arflur-MR Tablet 100/325/500 mg",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Alkem Laboratories Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  99,
+        "description":  "nimesulide 100 mg, paracetamol 325 mg, and serratiopeptidase 15 mg | Sumoflam Tablet 100/325/15 mg contains nimesulide, paracetamol, and serratiopeptidase. Nimesulide is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation. Paracetamol helps relieve pain and reduce fever, while serratiopeptidase is an enzyme included in some combi...",
+        "name":  "Sumoflam Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Mbp Pharmaceuticals Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  56,
+        "description":  "325 mg of paracetamol, so taking another paracetamol-containing product can increase your total intake | Nimotek MR Tablet 100/325/250 mg contains nimesulide, paracetamol, and chlorzoxazone. It is used for the relief of pain associated with muscle spasm. Nimesulide is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation, paracetamol provides additional pain relief, ...",
+        "name":  "Nimotek MR Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Systopic Laboratories Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  75,
+        "description":  "diclofenac 100 mg and should be taken only as prescribed by a healthcare professional | NAC SR 100 Tablet contains diclofenac 100 mg, a nonsteroidal anti-inflammatory drug (NSAID). Diclofenac works by reducing the production of prostaglandins, chemicals that contribute to pain and inflammation. This helps relieve pain, swelling, and stiffness. It is used to relieve symptoms associat...",
+        "name":  "NAC SR 100 Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Kaizen Pharmaceuticals Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  59,
+        "description":  "aceclofenac 100 mg, a non-steroidal anti-inflammatory drug (NSAID) used to relieve pain and inflammation | Aceact 100 mg Tablet contains aceclofenac 100 mg, a non-steroidal anti-inflammatory drug (NSAID) used to relieve pain and inflammation. It is used in the treatment of inflammatory joint conditions such as osteoarthritis, rheumatoid arthritis, and ankylosing spondylitis. Aceclofenac works by reduc...",
+        "name":  "Aceact 100mg Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Leeford",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  40.5,
+        "description":  "aceclofenac 100 mg, paracetamol 325 mg, and serratiopeptidase 15 mg | Alcinac Forte 100/325/15 mg Tablet is a prescription combination medicine containing aceclofenac, paracetamol, and serratiopeptidase. Aceclofenac is an NSAID that helps reduce pain and inflammation, while paracetamol provides additional pain relief and helps reduce fever. Serratiopeptidase is a p...",
+        "name":  "Alcinac Forte",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Lupin Ltd.",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  20.5,
+        "description":  "aceclofenac 100 mg and paracetamol 325 mg | Acemiz Plus 100/325 mg contains aceclofenac 100 mg and paracetamol 325 mg, which work in different ways to help relieve pain. Aceclofenac is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation, while paracetamol provides pain relief and can help reduce fever. Th...",
+        "name":  "Acemiz Plus",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Mankind Pharma Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  89,
+        "description":  "Flozen-Plus Tablet combines diclofenac, paracetamol, and serratiopeptidase for the management of pain and inflammatory symptoms. Diclofenac is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation. Paracetamol provides pain relief and can also reduce fever. Serrat...",
+        "name":  "Flozen-Plus Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Mankind Pharma Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  53,
+        "description":  "two active ingredients: mefenamic acid 500 mg and paracetamol 325 mg | Mefkind Forte Tablet contains two active ingredients: mefenamic acid 500 mg and paracetamol 325 mg. Mefenamic acid is a nonsteroidal anti-inflammatory drug (NSAID) that helps relieve pain and reduce inflammation. Paracetamol helps relieve pain and reduce fever. This combination may be prescribed ...",
+        "name":  "Mefkind Forte 500/325 mg",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Mankind Pharma Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  169,
+        "description":  "etoricoxib 90 mg, a selective cyclooxygenase-2 (COX-2) inhibitor belonging to the non-steroidal anti-inflammatory drug (NSAID) group | Brutaflam 90 mg Tablet contains etoricoxib 90 mg, a selective cyclooxygenase-2 (COX-2) inhibitor belonging to the non-steroidal anti-inflammatory drug (NSAID) group. It is used to reduce pain and inflammation associated with certain musculoskeletal and inflammatory conditions. Etoricoxib may be p...",
+        "name":  "Brutaflam 90 mg",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Dr. Reddy\u0026#039;s Laboratories Ltd.",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  71,
+        "description":  "Nise Tablet MD 100 mg contains nimesulide, a non-steroidal anti-inflammatory drug (NSAID) used for the short-term relief of pain and inflammation. It works by reducing the production of certain substances in the body that contribute to pain and inflammation. Your doctor may prescribe Nise Tablet ...",
+        "name":  "Nise Tablet MD",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Zuventus Healthcare Ltd.",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  75,
+        "description":  "nimesulide 100 mg and paracetamol 325 mg | Normopar Tablet 100/325 mg contains nimesulide 100 mg and paracetamol 325 mg. Nimesulide is a non-steroidal anti-inflammatory drug (NSAID) that helps reduce pain and inflammation, while paracetamol helps relieve pain and reduce fever. The combination may be prescribed for short-term treatment of ...",
+        "name":  "Normopar Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Zydus Cadila",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  280,
+        "description":  "etoricoxib 60 mg, a selective COX-2 inhibitor used to reduce pain and inflammation | Nucoxia 60 Tablet contains etoricoxib, a selective cyclooxygenase-2 (COX-2) inhibitor. It helps reduce pain and inflammation by decreasing the production of substances involved in inflammatory processes. Depending on the prescribed dose and the patient\u0026#8217;s condition, etoricoxib may be used in...",
+        "name":  "Nucoxia 60 Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Aurz Pharmaceuticals Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  72,
+        "description":  "Nimbond P Tablet 100/325 mg contains two active ingredients: nimesulide and paracetamol. Nimesulide is a non-steroidal anti-inflammatory drug (NSAID), while paracetamol is a pain reliever and fever reducer. This combination may be prescribed for the short-term management of pain and inflammation....",
+        "name":  "Nimbond P Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "USV Private Limited",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  62,
+        "description":  "Nizer Tablet 100 mg contains nimesulide, a non-steroidal anti-inflammatory drug (NSAID). It may be prescribed for the short-term management of pain and inflammation when a healthcare professional considers it appropriate for the patient\u0026#8217;s condition. Nimesulide works by reducing the producti...",
+        "name":  "Nizer Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    },
+    {
+        "manufacturer":  "Lancer Health Care Pvt Ltd",
+        "min_order_qty":  10,
+        "category":  "Pharmaceutical tablets",
+        "price":  30,
+        "description":  "Dicyclomine 20 mg, an antispasmodic medicine used to manage symptoms associated with irritable bowel syndrome (IBS) | Cyclomin 20 mg Tablet contains Dicyclomine 20 mg, an antispasmodic medicine used to manage symptoms associated with irritable bowel syndrome (IBS). It may be prescribed to help relieve abdominal cramps and intestinal spasms caused by this condition. Dicyclomine works by relaxing certain muscles i...",
+        "name":  "Cyclomin 20mg Tablet",
+        "currency":  "USD",
+        "is_active":  true
+    }
+]
