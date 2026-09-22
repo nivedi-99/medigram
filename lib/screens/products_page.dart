@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
+import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
+import '../widgets/whatsapp_chat_button.dart';
 import '../theme/app_colors.dart';
 import 'medicine_labels_page.dart';
 import 'product_detail_page.dart';
@@ -190,7 +192,10 @@ class _ProductsPageState extends State<ProductsPage> {
                             SizedBox(
                               width: cardWidth,
                               height: 310,
-                              child: _ProductCard(product: p),
+                              child: _ProductCard(
+                                product: p,
+                                onOpenCart: widget.onOpenCart,
+                              ),
                             ),
                         ],
                       );
@@ -221,8 +226,9 @@ String _slug(String name) => name
 /// page.
 class _ProductCard extends StatefulWidget {
   final ProductRecord product;
+  final VoidCallback? onOpenCart;
 
-  const _ProductCard({required this.product});
+  const _ProductCard({required this.product, this.onOpenCart});
 
   @override
   State<_ProductCard> createState() => _ProductCardState();
@@ -373,28 +379,74 @@ class _ProductCardState extends State<_ProductCard> {
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 40,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) =>
-                                ProductDetailPage(product: product),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              CartService.add(product);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      '${product.name} added to cart - MOQ ${product.minOrderQty}'),
+                                  behavior: SnackBarBehavior.floating,
+                                  action: SnackBarAction(
+                                    label: 'View cart',
+                                    onPressed: widget.onOpenCart ?? () {},
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.blueDark,
+                              foregroundColor: AppColors.onPrimary,
+                              elevation: 0,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            icon: const Icon(Icons.add_shopping_cart_rounded,
+                                size: 18),
+                            label: const Text('Add to cart'),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blueDark,
-                        foregroundColor: AppColors.onPrimary,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final message = 'Hello MediGram! Please send me '
+                                'a quotation for ${product.name}, '
+                                'MOQ: ${product.minOrderQty} units.';
+                            final opened = await openExternalUrl(
+                                WhatsAppChatButton.deepLink(message));
+                            if (opened || !context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Chat with us on WhatsApp: +91 95884 23570'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF1FA855),
+                            side: const BorderSide(
+                                color: Color(0xFF25D366), width: 1.4),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          icon: const Icon(Icons.chat_rounded, size: 18),
+                          label: const Text('Quotation'),
                         ),
-                      ),
-                      child: const Text('View details'),
+                      ],
                     ),
                   ),
                 ],

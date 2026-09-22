@@ -592,6 +592,13 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                             ),
                           ],
                         ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          tooltip: 'Delete product',
+                          onPressed: () => _confirmDeleteProduct(product),
+                          icon: Icon(Icons.delete_outline_rounded,
+                              color: AppColors.danger),
+                        ),
                       ],
                     ),
                   ),
@@ -1339,6 +1346,46 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       _toast('Invoice for ${order.id} downloaded');
     } catch (_) {
       _toast('Invoice download failed - check your connection.');
+    }
+  }
+
+  /// Asks for confirmation, then soft-deletes the product (hidden from
+  /// buyers; order history is preserved server-side).
+  Future<void> _confirmDeleteProduct(ProductRecord product) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete product', style: TextStyle(fontSize: 17)),
+        content: Text(
+          'Hide "${product.name}" from the catalogue? Buyers will no longer '
+          'see it. Past orders are preserved.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: AppColors.onPrimary,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await DatabaseService.deleteProduct(id: product.id);
+      if (!mounted) return;
+      _toast('${product.name} deleted - hidden from buyers');
+      await _loadAll();
+    } catch (_) {
+      if (!mounted) return;
+      _toast('Could not delete the product - check your connection.');
     }
   }
 

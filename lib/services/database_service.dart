@@ -221,6 +221,12 @@ class DatabaseService {
     return ProductRecord.fromMap(body['data'] as Map<String, dynamic>);
   }
 
+  /// Soft-deletes a catalogue entry (DELETE /products/:id) - the row
+  /// stays for order history but is_active=false hides it from buyers.
+  static Future<void> deleteProduct({required String id}) async {
+    await ApiClient.delete('/products/$id');
+  }
+
   /// Edits a catalogue entry (PATCH /products/:id).
   static Future<ProductRecord> updateProduct({
     required String id,
