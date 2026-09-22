@@ -4,6 +4,7 @@ import '../models/models.dart';
 import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
+import 'cart_page.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 import '../widgets/whatsapp_chat_button.dart';
@@ -235,11 +236,9 @@ class ProductDetailPage extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: () {
             CartService.add(product);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${product.name} added to your order'),
-                behavior: SnackBarBehavior.floating,
-              ),
+            // Direct the buyer to the cart so the line is visible at once.
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const CartPage()),
             );
           },
           style: ElevatedButton.styleFrom(

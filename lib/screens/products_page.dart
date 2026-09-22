@@ -6,6 +6,7 @@ import '../services/cart_service.dart';
 import '../services/currency_service.dart';
 import '../widgets/whatsapp_chat_button.dart';
 import '../theme/app_colors.dart';
+import 'cart_page.dart';
 import 'medicine_labels_page.dart';
 import 'product_detail_page.dart';
 
@@ -385,17 +386,17 @@ class _ProductCardState extends State<_ProductCard> {
                           child: ElevatedButton.icon(
                             onPressed: () {
                               CartService.add(product);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      '${product.name} added to cart - MOQ ${product.minOrderQty}'),
-                                  behavior: SnackBarBehavior.floating,
-                                  action: SnackBarAction(
-                                    label: 'View cart',
-                                    onPressed: widget.onOpenCart ?? () {},
-                                  ),
-                                ),
-                              );
+                              // Go straight to the cart so the buyer sees
+                              // the added line immediately.
+                              final openCart = widget.onOpenCart;
+                              if (openCart != null) {
+                                openCart();
+                              } else {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (_) => const CartPage()),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.blueDark,
