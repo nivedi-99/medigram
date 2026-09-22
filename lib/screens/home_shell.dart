@@ -7,7 +7,7 @@ import '../services/database_service.dart';
 import '../services/payments_service.dart';
 import 'cart_page.dart';
 import '../widgets/shared_widgets.dart';
-import 'chat_page.dart';
+import 'quotation_page.dart';
 import 'dashboard_page.dart';
 import 'orders_page.dart';
 import 'products_page.dart';
@@ -195,12 +195,7 @@ class _HomeShellState extends State<HomeShell> {
                       ),
                       ProductsPage(products: _products, onOpenCart: _openCart),
                       OrdersPage(orders: _orders),
-                      ChatPage(
-                        products: _products,
-                        config: _paymentsConfig,
-                        customerName: widget.customer.name,
-                        companyName: widget.companyName,
-                      ),
+                      const QuotationPage(),
                       ProfilePage(
                         customer: widget.customer,
                         orders: _orders,
@@ -233,9 +228,9 @@ class _HomeShellState extends State<HomeShell> {
                   label: 'Orders',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.chat_bubble_outline_rounded),
-                  selectedIcon: Icon(Icons.chat_bubble_rounded),
-                  label: 'Chat',
+                  icon: Icon(Icons.request_quote_outlined),
+                  selectedIcon: Icon(Icons.request_quote_rounded),
+                  label: 'Quotation',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline_rounded),

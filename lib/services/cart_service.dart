@@ -55,6 +55,26 @@ class CartService {
     _notify();
   }
 
+  /// Adds a catalogue product with an explicit quantity (clamped to MOQ).
+  static void addWithQuantity(ProductRecord product, int quantity) {
+    final qty =
+        quantity < product.minOrderQty ? product.minOrderQty : quantity;
+    final existing =
+        _items.where((i) => i.productId == product.id).toList(growable: false);
+    if (existing.isNotEmpty) {
+      existing.first.quantity += qty;
+    } else {
+      _items.add(CartItem(
+        productId: product.id,
+        name: product.name,
+        unitPrice: product.price,
+        minOrderQty: product.minOrderQty,
+        quantity: qty,
+      ));
+    }
+    _notify();
+  }
+
   /// Adds every line of a past order (Reorder). Missing product ids are
   /// skipped — the API rejects orders referencing unknown products.
   static void addOrderItems(MedicineOrder order) {

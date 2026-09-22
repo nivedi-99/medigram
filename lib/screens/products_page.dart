@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
-import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
-import '../widgets/whatsapp_chat_button.dart';
 import '../theme/app_colors.dart';
-import 'cart_page.dart';
 import 'medicine_labels_page.dart';
+import 'quotation_page.dart';
 import 'product_detail_page.dart';
 
 /// Live export catalogue - sourced from the MediGram API (master list).
@@ -192,7 +190,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           for (final p in items)
                             SizedBox(
                               width: cardWidth,
-                              height: 310,
+                              height: 372,
                               child: _ProductCard(
                                 product: p,
                                 onOpenCart: widget.onOpenCart,
@@ -237,6 +235,13 @@ class _ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<_ProductCard> {
   bool _hover = false;
+  late int _qty;
+
+  @override
+  void initState() {
+    super.initState();
+    _qty = product.minOrderQty;
+  }
 
   ProductRecord get product => widget.product;
 
@@ -378,76 +383,68 @@ class _ProductCardState extends State<_ProductCard> {
                     ],
                   ),
                   const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Text(
+                        'Qty (MOQ ${product.minOrderQty})',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                      const Spacer(),
+                      _QtyButton(
+                        icon: Icons.remove_rounded,
+                        onTap: _qty > product.minOrderQty
+                            ? () => setState(() => _qty--)
+                            : null,
+                      ),
+                      Container(
+                        width: 52,
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$_qty',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ),
+                      _QtyButton(
+                        icon: Icons.add_rounded,
+                        onTap: () => setState(() => _qty++),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   SizedBox(
-                    height: 40,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              CartService.add(product);
-                              // Go straight to the cart so the buyer sees
-                              // the added line immediately.
-                              final openCart = widget.onOpenCart;
-                              if (openCart != null) {
-                                openCart();
-                              } else {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                      builder: (_) => const CartPage()),
-                                );
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.blueDark,
-                              foregroundColor: AppColors.onPrimary,
-                              elevation: 0,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              textStyle: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            icon: const Icon(Icons.add_shopping_cart_rounded,
-                                size: 18),
-                            label: const Text('Add to cart'),
-                          ),
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        CartService.addWithQuantity(product, _qty);
+                        // Quotation & payment hub: pay now or get a quote.
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                              builder: (_) => const QuotationPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blueDark,
+                        foregroundColor: AppColors.onPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const SizedBox(width: 8),
-                        OutlinedButton.icon(
-                          onPressed: () async {
-                            final message = 'Hello MediGram! Please send me '
-                                'a quotation for ${product.name}, '
-                                'MOQ: ${product.minOrderQty} units.';
-                            final opened = await openExternalUrl(
-                                WhatsAppChatButton.deepLink(message));
-                            if (opened || !context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Chat with us on WhatsApp: +91 95884 23570'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF1FA855),
-                            side: const BorderSide(
-                                color: Color(0xFF25D366), width: 1.4),
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          icon: const Icon(Icons.chat_rounded, size: 18),
-                          label: const Text('Quotation'),
+                        textStyle: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
                         ),
-                      ],
+                      ),
+                      icon:
+                          const Icon(Icons.add_shopping_cart_rounded, size: 18),
+                      label: const Text('Add to cart'),
                     ),
                   ),
                 ],
@@ -588,6 +585,36 @@ class _FilterChip extends StatelessWidget {
             fontWeight: FontWeight.w600,
             fontSize: 13,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// Round +/- stepper button used on catalogue cards (disabled at MOQ).
+class _QtyButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _QtyButton({required this.icon, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: 30,
+        width: 30,
+        decoration: BoxDecoration(
+          color: onTap == null ? AppColors.bg : AppColors.blueLight,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: onTap == null ? AppColors.textMuted : AppColors.blueDark,
         ),
       ),
     );

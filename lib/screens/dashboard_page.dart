@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/cart_service.dart';
-import 'cart_page.dart';
+import 'quotation_page.dart';
 import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
@@ -369,10 +369,10 @@ class DashboardPage extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             CartService.add(product);
-                            // Direct the buyer to the cart right away.
+                            // Quotation & payment hub: pay now or get a quote.
                             Navigator.of(context).push(
                               MaterialPageRoute<void>(
-                                  builder: (_) => const CartPage()),
+                                  builder: (_) => const QuotationPage()),
                             );
                           },
                           icon: const Icon(Icons.add_shopping_cart_rounded,
