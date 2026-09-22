@@ -83,7 +83,9 @@ router.patch(
         ...(b.category !== undefined && { category: b.category }),
         ...(b.manufacturer !== undefined && { manufacturer: b.manufacturer }),
         ...(b.description !== undefined && { description: b.description }),
-        ...(b.strength !== undefined && { strength: b.strength }),
+        // Omitted when empty so edits also work before the strength
+        // migration has been applied to the live database.
+        ...(b.strength ? { strength: b.strength } : {}),
         ...(b.price !== undefined && { price: b.price }),
         ...(b.currency !== undefined && { currency: b.currency }),
         ...(b.minOrderQty !== undefined && { min_order_qty: b.minOrderQty }),
