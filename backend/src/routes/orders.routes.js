@@ -188,4 +188,26 @@ router.patch('/:id/status', requireRole('admin'), validate({ body: statusSchema 
     next(err);
   }
 });
+
+/**
+ * P4 - PAYMENT STATUS - PATCH /api/v1/orders/:id/payment
+ * Admin marks an order paid / pending; invoices carry this status.
+ */
+const paymentSchema = z.object({ paymentStatus: z.enum(['pending', 'paid']) });
+
+router.patch('/:id/payment', requireRole('admin'), validate({ body: paymentSchema }), async (req, res, next) => {
+  try {
+    const { data, error } = await admin
+      .from('orders')
+      .update({ payment_status: req.body.paymentStatus, updated_at: new Date().toISOString() })
+      .eq('id', req.params.id)
+      .select('*, order_items(*)')
+      .single();
+    if (error) return next(mapDbError(error));
+    if (!data) return next(errors.notFound('Order'));
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+});
 export default router;

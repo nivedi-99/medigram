@@ -62,6 +62,8 @@ class MedicineOrder {
   final List<OrderItem> items;
   final OrderStatus status;
   final String paymentMethod;
+  final String paymentStatus;
+  final String clientEmail;
 
   const MedicineOrder({
     required this.uuid,
@@ -70,6 +72,8 @@ class MedicineOrder {
     required this.items,
     required this.status,
     required this.paymentMethod,
+    this.paymentStatus = 'pending',
+    this.clientEmail = '',
   });
 
   double get total => items.fold(0, (sum, i) => sum + i.lineTotal);
@@ -105,6 +109,10 @@ class MedicineOrder {
       items: items,
       status: statusFromApi(map['status']?.toString()),
       paymentMethod: (map['payment_method'] ?? '') as String,
+      paymentStatus: (map['payment_status'] ?? 'pending').toString(),
+      clientEmail: map['profiles'] is Map
+          ? ((map['profiles'] as Map)['email'] ?? '').toString()
+          : '',
     );
   }
 }
@@ -349,6 +357,7 @@ class ProductRecord {
   final String category;
   final String manufacturer;
   final String description;
+  final String strength;
   final double price;
   final int minOrderQty;
   final bool isActive;
@@ -359,6 +368,7 @@ class ProductRecord {
     this.category = 'General',
     this.manufacturer = '',
     this.description = '',
+    this.strength = '',
     this.price = 0,
     this.minOrderQty = 1,
     this.isActive = true,
@@ -371,6 +381,7 @@ class ProductRecord {
       category: map['category']?.toString() ?? 'General',
       manufacturer: map['manufacturer']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
+      strength: map['strength']?.toString() ?? '',
       price: (map['price'] as num?)?.toDouble() ?? 0,
       minOrderQty: (map['min_order_qty'] as num?)?.toInt() ?? 1,
       isActive: map['is_active'] as bool? ?? true,

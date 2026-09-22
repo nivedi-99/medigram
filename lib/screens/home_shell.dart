@@ -133,9 +133,23 @@ class _HomeShellState extends State<HomeShell> {
     _refreshNotifications();
   }
 
+  /// Keeps the catalogue fresh so products added by admins / super admins
+  /// show up on the buyer Products tab right away - the live list is
+  /// re-fetched every time the buyer opens the Products tab.
+  Future<void> _refreshProducts() async {
+    try {
+      final list = await DatabaseService.fetchProducts();
+      if (!mounted) return;
+      setState(() => _products = list);
+    } catch (_) {
+      /* silent - the stale list is still usable */
+    }
+  }
+
   void goToTab(int index) {
     setState(() => selectedIndex = index);
     if (index == 0 || index == 4) _refreshNotifications();
+    if (index == 1) _refreshProducts();
     if (index == 2) _refreshOrders();
   }
 

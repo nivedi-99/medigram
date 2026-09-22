@@ -14,6 +14,7 @@ const createSchema = z.object({
   category: z.string().trim().max(80).optional().default('General'),
   manufacturer: z.string().trim().max(160).optional().default(''),
   description: z.string().trim().max(2000).optional().default(''),
+  strength: z.string().trim().max(120).optional().default(''),
   price: z.number().nonnegative(),
   currency: z.string().trim().length(3).optional().default('USD'),
   minOrderQty: z.number().int().positive().optional().default(1),
@@ -47,7 +48,22 @@ router.get('/', async (req, res, next) => {
 /** POST /api/v1/products — create a catalogue entry (admin). */
 router.post('/', requireRole('admin'), validate({ body: createSchema }), async (req, res, next) => {
   try {
-    const { data, error } = await admin.from('products').insert(req.body).select().single();
+    const b = req.body;
+    // PostgREST speaks snake_case - map the camelCase API body.
+    const row = {
+      name: b.name,
+      category: b.category,
+      manufacturer: b.manufacturer,
+      description: b.description,
+      price: b.price,
+      currency: b.currency,
+      min_order_qty: b.minOrderQty,
+      is_active: b.isActive,
+      // Omitted when empty so inserts also work before the strength
+      // migration has been applied to the live database.
+      ...(b.strength ? { strength: b.strength } : {}),
+    };
+    const { data, error } = await admin.from('products').insert(row).select().single();
     if (error) return next(mapDbError(error));
     res.status(201).json({ data });
   } catch (err) {
@@ -62,9 +78,20 @@ router.patch(
   validate({ body: patchSchema }),
   async (req, res, next) => {
     try {
+      const b = req.body;
+      const row = {
+        ...(b.category !== undefined && { category: b.category }),
+        ...(b.manufacturer !== undefined && { manufacturer: b.manufacturer }),
+        ...(b.description !== undefined && { description: b.description }),
+        ...(b.strength !== undefined && { strength: b.strength }),
+        ...(b.price !== undefined && { price: b.price }),
+        ...(b.currency !== undefined && { currency: b.currency }),
+        ...(b.minOrderQty !== undefined && { min_order_qty: b.minOrderQty }),
+        ...(b.isActive !== undefined && { is_active: b.isActive }),
+      };
       const { data, error } = await admin
         .from('products')
-        .update(req.body)
+        .update(row)
         .eq('id', req.params.id)
         .select()
         .single();

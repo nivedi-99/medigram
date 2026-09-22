@@ -4,6 +4,7 @@ import '../../models/models.dart';
 import '../../services/api_client.dart';
 import '../../services/currency_service.dart';
 import '../../services/database_service.dart';
+import '../../services/export_service.dart';
 import '../../services/payments_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
@@ -75,6 +76,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   List<ClientRecord> _clients = [];
   List<AdminRecord> _admins = [];
   List<ProductRecord> _products = [];
+  List<MedicineOrder> _orders = [];
   Map<String, int> _orderStats = {};
   Map<UserRole, int> _roleCounts = {};
 
@@ -94,6 +96,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         DatabaseService.fetchClients(),
         DatabaseService.fetchProducts(activeOnly: false),
         DatabaseService.fetchOrderStats(),
+        DatabaseService.fetchAllOrders(),
         if (widget.isSuperAdmin) DatabaseService.fetchAdmins(),
         if (widget.isSuperAdmin) DatabaseService.fetchRoleCounts(),
       ]);
@@ -103,9 +106,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         _clients = results[0] as List<ClientRecord>;
         _products = results[1] as List<ProductRecord>;
         _orderStats = results[2] as Map<String, int>;
+        _orders = results[3] as List<MedicineOrder>;
         if (widget.isSuperAdmin) {
-          _admins = results[3] as List<AdminRecord>;
-          _roleCounts = results[4] as Map<UserRole, int>;
+          _admins = results[4] as List<AdminRecord>;
+          _roleCounts = results[5] as Map<UserRole, int>;
         }
         _loading = false;
       });
@@ -154,11 +158,39 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       'Products',
       'Payments',
       if (widget.isSuperAdmin) 'Admins',
+      if (widget.isSuperAdmin) 'Exports',
     ];
 
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
+        // '+' product symbol - shown while the Products tab is open, so
+        // admins and super admins can publish a listing that buyers
+        // immediately see when they open their own Products tab.
+        floatingActionButton: Builder(
+          builder: (fabContext) {
+            final tabController = DefaultTabController.of(fabContext);
+            return AnimatedBuilder(
+              animation: tabController,
+              builder: (context, _) {
+                final onProductsTab = tabController.index == 2;
+                return AnimatedScale(
+                  scale: onProductsTab ? 1 : 0,
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  child: FloatingActionButton.extended(
+                    heroTag: 'admin-add-product-fab',
+                    onPressed: onProductsTab ? _showAddProductDialog : null,
+                    backgroundColor: AppColors.blueDark,
+                    foregroundColor: AppColors.onPrimary,
+                    icon: const Icon(Icons.add_rounded),
+                    label: const Text('Add product'),
+                  ),
+                );
+              },
+            );
+          },
+        ),
         backgroundColor: AppColors.bg,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -185,6 +217,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     _buildProductsTab(),
                     _buildPaymentsTab(),
                     if (widget.isSuperAdmin) _buildAdminsTab(),
+                    if (widget.isSuperAdmin) _buildExportsTab(),
                   ],
                 ),
               ),
@@ -404,6 +437,32 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
               ),
             ),
           ),
+        const SizedBox(height: 8),
+        Text(
+          'Recent orders - mark payments and download invoices',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 10),
+        if (_orders.isEmpty)
+          const EmptyState(
+            icon: Icons.receipt_long_outlined,
+            title: 'No orders yet',
+            message: 'Client export orders will appear here.',
+          )
+        else
+          for (final order in _orders)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _AdminOrderCard(
+                order: order,
+                onTogglePaid: () => _togglePayment(order),
+                onInvoice: () => _downloadInvoice(order),
+              ),
+            ),
       ],
     );
   }
@@ -846,6 +905,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     final category = TextEditingController(text: product.category);
     final manufacturer = TextEditingController(text: product.manufacturer);
     final description = TextEditingController(text: product.description);
+    final strength = TextEditingController(text: product.strength);
     var isActive = product.isActive;
     showDialog(
       context: context,
@@ -886,6 +946,11 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     maxLines: 2,
                     decoration: const InputDecoration(
                         hintText: 'Description', labelText: 'Description')),
+                const SizedBox(height: 10),
+                TextField(
+                    controller: strength,
+                    decoration: const InputDecoration(
+                        hintText: 'e.g. 500 mg', labelText: 'Strength')),
                 const SizedBox(height: 6),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -903,25 +968,37 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             ElevatedButton(
               onPressed: () async {
                 final messenger = ScaffoldMessenger.of(context);
-                final updated = await DatabaseService.updateProduct(
-                  id: product.id,
-                  category: category.text.trim(),
-                  manufacturer: manufacturer.text.trim(),
-                  description: description.text.trim(),
-                  price: double.tryParse(price.text.trim()) ?? product.price,
-                  minOrderQty: int.tryParse(moq.text.trim()) ?? product.minOrderQty,
-                  isActive: isActive,
-                );
-                if (!mounted) return;
-                if (dialogContext.mounted) Navigator.pop(dialogContext);
-                if (!mounted) return;
-                setState(() {
-                  _products[_products.indexWhere((p) => p.id == product.id)] =
-                      updated;
-                });
-                messenger.showSnackBar(
-                  SnackBar(content: Text('${updated.name} updated')),
-                );
+                try {
+                  final updated = await DatabaseService.updateProduct(
+                    id: product.id,
+                    category: category.text.trim(),
+                    manufacturer: manufacturer.text.trim(),
+                    description: description.text.trim(),
+                    strength: strength.text.trim(),
+                    price: double.tryParse(price.text.trim()) ?? product.price,
+                    minOrderQty:
+                        int.tryParse(moq.text.trim()) ?? product.minOrderQty,
+                    isActive: isActive,
+                  );
+                  if (!mounted) return;
+                  if (dialogContext.mounted) Navigator.pop(dialogContext);
+                  if (!mounted) return;
+                  setState(() {
+                    _products[_products.indexWhere((p) => p.id == product.id)] =
+                        updated;
+                  });
+                  messenger.showSnackBar(
+                    SnackBar(content: Text('${updated.name} updated')),
+                  );
+                } catch (_) {
+                  if (!mounted) return;
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('Update failed - check your connection '
+                          'and permissions.'),
+                    ),
+                  );
+                }
               },
               child: const Text('Save'),
             ),
@@ -936,6 +1013,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     final moq = TextEditingController(text: '100');
     final category = TextEditingController();
     final manufacturer = TextEditingController();
+    final strength = TextEditingController();
+    final description = TextEditingController();
     final form = GlobalKey<FormState>();
     showDialog(
       context: context,
@@ -969,6 +1048,18 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         labelText: 'Manufacturer')),
                 const SizedBox(height: 10),
                 TextFormField(
+                    controller: strength,
+                    decoration: const InputDecoration(
+                        hintText: 'e.g. 500 mg', labelText: 'Strength')),
+                const SizedBox(height: 10),
+                TextFormField(
+                    controller: description,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                        hintText: 'Shown on the product card',
+                        labelText: 'Description')),
+                const SizedBox(height: 10),
+                TextFormField(
                     controller: price,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
@@ -998,24 +1089,146 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           ElevatedButton(
             onPressed: () async {
               if (!form.currentState!.validate()) return;
-              final created = await DatabaseService.createProduct(
-                name: name.text.trim(),
-                category: category.text.trim(),
-                manufacturer: manufacturer.text.trim(),
-                price: double.parse(price.text.trim()),
-                minOrderQty: int.parse(moq.text.trim()),
-              );
-              if (!mounted) return;
-              if (dialogContext.mounted) Navigator.pop(dialogContext);
-              setState(() => _products.insert(0, created));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${created.name} added to catalogue')),
-              );
+              try {
+                final created = await DatabaseService.createProduct(
+                  name: name.text.trim(),
+                  category: category.text.trim(),
+                  manufacturer: manufacturer.text.trim(),
+                  description: description.text.trim(),
+                  strength: strength.text.trim(),
+                  price: double.parse(price.text.trim()),
+                  minOrderQty: int.parse(moq.text.trim()),
+                );
+                if (!mounted) return;
+                if (dialogContext.mounted) Navigator.pop(dialogContext);
+                setState(() => _products.insert(0, created));
+                _toast('${created.name} added to catalogue - it appears in '
+                    'the buyer Products tab automatically');
+              } catch (_) {
+                if (!mounted) return;
+                _toast('Could not add the product - check your connection '
+                    'and permissions.');
+              }
             },
             child: const Text('Create'),
           ),
         ],
       ),
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // Exports tab - super admin only: CSV downloads via the MediGram API
+  // -------------------------------------------------------------------
+
+  Widget _buildExportsTab() {
+    final items = <(String, IconData, String, Future<String> Function())>[
+      (
+        'Products CSV',
+        Icons.medication_rounded,
+        'Full catalogue incl. hidden entries, prices, MOQ and strength.',
+        ExportService.productsCsv,
+      ),
+      (
+        'Users CSV',
+        Icons.people_alt_rounded,
+        'Every registered user with role, company, country and KYC status.',
+        ExportService.usersCsv,
+      ),
+      (
+        'Payments / orders CSV',
+        Icons.receipt_long_rounded,
+        'All orders with payment method, payment status and totals.',
+        ExportService.ordersCsv,
+      ),
+    ];
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
+      children: [
+        Text(
+          'Data exports (CSV)',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Live data pulled from the database through the MediGram API and '
+              'downloaded as a CSV file.',
+          style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+        ),
+        const SizedBox(height: 14),
+        for (final (label, icon, note, fetch) in items)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: SoftCard(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 46,
+                      width: 46,
+                      decoration: BoxDecoration(
+                        color: AppColors.blueLight.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(icon, color: AppColors.blueDark, size: 23),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.5,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            note,
+                            style: TextStyle(
+                                fontSize: 11.5, color: AppColors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        try {
+                          final where = await fetch();
+                          _toast('Downloaded: $where');
+                        } catch (_) {
+                          _toast('Download failed - check your connection.');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.blueDark,
+                        foregroundColor: AppColors.onPrimary,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      icon: const Icon(Icons.download_rounded, size: 16),
+                      label: const Text('Download'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(height: 6),
+        Text(
+          'Tip: invoices for individual orders live in the Orders tab - '
+              'tap Invoice on any order row.',
+          style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+        ),
+      ],
     );
   }
 
@@ -1104,6 +1317,28 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       await _loadAll();
     } catch (_) {
       _toast('Demotion failed — super admin permission required.');
+    }
+  }
+
+  Future<void> _togglePayment(MedicineOrder order) async {
+    final paid = order.paymentStatus == 'paid';
+    try {
+      await DatabaseService.setOrderPaymentStatus(
+          orderId: order.uuid, paid: !paid);
+      _toast('${order.id} marked ${paid ? 'pending' : 'paid'}');
+      await _loadAll();
+    } catch (_) {
+      _toast('Could not update payment status - run the database upgrade '
+          'script (upgrade_strength_payments.sql) first.');
+    }
+  }
+
+  Future<void> _downloadInvoice(MedicineOrder order) async {
+    try {
+      await ExportService.invoiceCsv(order.uuid);
+      _toast('Invoice for ${order.id} downloaded');
+    } catch (_) {
+      _toast('Invoice download failed - check your connection.');
     }
   }
 
@@ -1431,6 +1666,109 @@ class _RoleCountBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+/// One order row in the admin Orders tab: client, total, payment chip and
+/// actions (mark paid / download invoice).
+class _AdminOrderCard extends StatelessWidget {
+  final MedicineOrder order;
+  final VoidCallback onTogglePaid;
+  final VoidCallback onInvoice;
+
+  const _AdminOrderCard({
+    required this.order,
+    required this.onTogglePaid,
+    required this.onInvoice,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final paid = order.paymentStatus == 'paid';
+    final chipColor = paid ? AppColors.success : AppColors.warning;
+    return SoftCard(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${order.id}  |  ${order.date.toIso8601String().substring(0, 10)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: chipColor.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(20),
+                    border:
+                        Border.all(color: chipColor.withValues(alpha: 0.4)),
+                  ),
+                  child: Text(
+                    paid ? 'Paid' : 'Payment pending',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: chipColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              order.clientEmail.isEmpty
+                  ? '${order.items.length} item(s) | ${order.paymentMethod}'
+                  : '${order.clientEmail} | ${order.items.length} item(s) | ${order.paymentMethod}',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  CurrencyService.format(order.total),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    color: AppColors.blueDark,
+                  ),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: onTogglePaid,
+                  icon: Icon(
+                    paid ? Icons.money_off_rounded : Icons.payments_rounded,
+                    size: 16,
+                  ),
+                  label: Text(paid ? 'Mark unpaid' : 'Mark paid'),
+                ),
+                const SizedBox(width: 4),
+                ElevatedButton.icon(
+                  onPressed: onInvoice,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.blueDark,
+                    foregroundColor: AppColors.onPrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  icon: const Icon(Icons.download_rounded, size: 16),
+                  label: const Text('Invoice'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

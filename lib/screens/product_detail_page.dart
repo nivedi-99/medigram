@@ -31,7 +31,7 @@ class ProductDetailPage extends StatelessWidget {
         .map((p) => p.trim())
         .where((p) => p.isNotEmpty)
         .toList();
-    final strengths = parts.isEmpty ? '' : parts.first;
+    final strengths = parts.isEmpty ? product.strength : parts.first;
     final rest = parts.skip(1).toList();
     final supplier = rest.isEmpty ? '' : rest.join('' '');
 
@@ -76,6 +76,11 @@ class ProductDetailPage extends StatelessWidget {
                             background:
                                 AppColors.blueLight.withValues(alpha: 0.6),
                             foreground: AppColors.blueMid),
+                        if (product.strength.isNotEmpty)
+                          _chip('Strength - ${product.strength}',
+                              background:
+                                  AppColors.warning.withValues(alpha: 0.15),
+                              foreground: AppColors.warning),
                       ],
                     ),
                     const SizedBox(height: 18),

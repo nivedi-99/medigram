@@ -140,9 +140,41 @@ class ApiClient {
     return decoded;
   }
 
+
+
   static Future<Map<String, dynamic>> get(String path,
           {Map<String, String>? query}) =>
       _send('GET', path, query: query);
+
+  /// GET returning the raw response body (CSV exports). Same 401 -> refresh
+  /// -> single-retry behaviour as [_send].
+  static Future<String> getText(
+    String path, {
+    Map<String, String>? query,
+    bool retryOn401 = true,
+  }) async {
+    final uri = ApiConfig.uri(path, query);
+    final headers = <String, String>{};
+    if (_accessToken != null) headers['Authorization'] = 'Bearer $_accessToken';
+
+    final res = await _client
+        .get(uri, headers: headers)
+        .timeout(const Duration(seconds: 30));
+
+    if (res.statusCode == 401 && retryOn401) {
+      final refreshed = await refreshSession();
+      if (refreshed) return getText(path, query: query, retryOn401: false);
+      await clearSession();
+      throw const ApiException(
+          401, 'UNAUTHORIZED', 'Session expired - please sign in again.');
+    }
+    if (res.statusCode >= 400) {
+      throw ApiException(res.statusCode, 'HTTP_${res.statusCode}',
+          'Download failed (${res.statusCode})');
+    }
+    return utf8.decode(res.bodyBytes);
+  }
+
 
   static Future<Map<String, dynamic>> post(String path,
           {Map<String, dynamic>? body}) =>

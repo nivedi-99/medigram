@@ -100,6 +100,25 @@ class DatabaseService {
     return raw.map((k, v) => MapEntry(k, (v as num).toInt()));
   }
 
+  /// Admin order feed - GET /orders returns every order for admins.
+  static Future<List<MedicineOrder>> fetchAllOrders() async {
+    final body = await ApiClient.get('/orders', query: {'limit': '100'});
+    final rows = body['data'] as List<dynamic>;
+    return rows
+        .whereType<Map<String, dynamic>>()
+        .map(MedicineOrder.fromApi)
+        .toList();
+  }
+
+  /// Admin marks an order paid / pending (PATCH /orders/:id/payment).
+  static Future<void> setOrderPaymentStatus({
+    required String orderId,
+    required bool paid,
+  }) async {
+    await ApiClient.patch('/orders/$orderId/payment',
+        body: {'paymentStatus': paid ? 'paid' : 'pending'});
+  }
+
   // ---------------------------------------------------------------------
   // Client portal (the signed-in user's own data)
   // ---------------------------------------------------------------------
@@ -185,6 +204,7 @@ class DatabaseService {
     required String category,
     String manufacturer = '',
     String description = '',
+    String strength = '',
     required double price,
     int minOrderQty = 1,
   }) async {
@@ -193,6 +213,7 @@ class DatabaseService {
       'category': category,
       'manufacturer': manufacturer,
       'description': description,
+      'strength': strength,
       'price': price,
       'currency': 'USD',
       'minOrderQty': minOrderQty,
@@ -206,6 +227,7 @@ class DatabaseService {
     String? category,
     String? manufacturer,
     String? description,
+    String? strength,
     double? price,
     int? minOrderQty,
     bool? isActive,
@@ -214,6 +236,7 @@ class DatabaseService {
       if (category != null) 'category': category,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (description != null) 'description': description,
+      if (strength != null) 'strength': strength,
       if (price != null) 'price': price,
       if (minOrderQty != null) 'minOrderQty': minOrderQty,
       if (isActive != null) 'isActive': isActive,

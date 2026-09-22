@@ -25,7 +25,9 @@ class _ProductsPageState extends State<ProductsPage> {
   String? selectedCategory;
   String _query = '';
 
-  late final List<String> _categories = widget.products
+  /// Derived on every build so the category filter chips stay in sync with
+  /// the live catalogue (e.g. when a super admin adds a new product).
+  List<String> get _categories => widget.products
       .map((p) => p.category)
       .where((c) => c.isNotEmpty)
       .toSet()
@@ -320,7 +322,8 @@ class _ProductCardState extends State<_ProductCard> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Generic: $_generic',
+                    'Generic: $_generic'
+                    '${product.strength.isEmpty ? '' : '  |  Strength: ${product.strength}'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
