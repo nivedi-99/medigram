@@ -218,7 +218,7 @@ class _QuotationPageState extends State<QuotationPage> {
                   _qtyButton(
                     Icons.remove_rounded,
                     item.quantity > item.minOrderQty
-                        ? () => _changeQty(index, item.quantity - 1)
+                        ? () => _changeQty(index, -1)
                         : null,
                   ),
                   Container(
@@ -233,7 +233,7 @@ class _QuotationPageState extends State<QuotationPage> {
                     ),
                   ),
                   _qtyButton(Icons.add_rounded,
-                      () => _changeQty(index, item.quantity + 1)),
+                      () => _changeQty(index, 1)),
                   const SizedBox(width: 10),
                   Text(
                     CurrencyService.format(item.lineTotal),
