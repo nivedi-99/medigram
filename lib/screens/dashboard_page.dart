@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/cart_service.dart';
+import '../services/currency_service.dart';
+import '../widgets/region_picker.dart';
 import 'quotation_page.dart';
 import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
@@ -90,6 +92,8 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
+                const RegionPicker(),
+                const SizedBox(width: 6),
                 const ThemeToggle(),
                 _NotificationBell(
                   count: unreadNotifications,
@@ -185,9 +189,9 @@ class DashboardPage extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 10),
                   padding: const EdgeInsets.symmetric(horizontal: 17),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.card,
                     borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: AppColors.blueLight),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Center(
                     child: Text(
@@ -324,10 +328,10 @@ class DashboardPage extends StatelessWidget {
                       product.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         height: 1.35,
                         fontSize: 12.5,
-                        color: Colors.black54,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   const SizedBox(height: 8),
@@ -346,7 +350,7 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       Text(
                         hasPrice
-                            ? '\$${product.price.toStringAsFixed(2)} / unit'
+                            ? '${CurrencyService.format(product.price)} / unit'
                             : 'Price on request',
                         style: TextStyle(
                           fontSize: 15,
@@ -397,21 +401,24 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _safetyNotice() {
+    final noticeBg = AppColors.isDark ? const Color(0xFF2E2A1A) : const Color(0xFFFFF4D9);
+    final noticeFg = AppColors.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB87900);
+    final noticeText = AppColors.isDark ? const Color(0xFFE8D9A8) : const Color(0xFF735400);
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF4D9),
+        color: noticeBg,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, color: Color(0xFFB87900)),
-          SizedBox(width: 10),
+          Icon(Icons.info_outline_rounded, color: noticeFg),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Medicine information is for educational purposes. Consult a qualified healthcare professional and upload a valid prescription before ordering prescription-only medicines.',
-              style: TextStyle(color: Color(0xFF735400), height: 1.35, fontSize: 13),
+              style: TextStyle(color: noticeText, height: 1.35, fontSize: 13),
             ),
           ),
         ],
@@ -430,7 +437,7 @@ class _NotificationBell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),

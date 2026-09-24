@@ -183,7 +183,7 @@ class _ReportProductPageState extends State<ReportProductPage> {
                 selected: selected,
                 onSelected: (_) => setState(() => issueType = type),
                 selectedColor: AppColors.blueDark,
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.card,
                 labelStyle: TextStyle(
                   color: selected ? Colors.white : AppColors.textDark,
                   fontSize: 12.5,

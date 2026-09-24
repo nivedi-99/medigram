@@ -4,6 +4,7 @@ import '../models/models.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/region_picker.dart';
 import 'medicine_labels_page.dart';
 import 'quotation_page.dart';
 import 'product_detail_page.dart';
@@ -80,6 +81,8 @@ class _ProductsPageState extends State<ProductsPage> {
                   ),
                 ),
                 const SizedBox(width: 10),
+                const RegionPicker(),
+                const SizedBox(width: 6),
                 IconButton(
                   tooltip: 'Labelled medicines',
                   onPressed: () {
@@ -235,6 +238,7 @@ class _ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<_ProductCard> {
   bool _hover = false;
+  Offset _pointer = Offset.zero;
   late int _qty;
 
   @override
@@ -248,13 +252,22 @@ class _ProductCardState extends State<_ProductCard> {
   String get _generic =>
       product.manufacturer.isEmpty ? 'General' : product.manufacturer;
 
-  /// Catalogue description, pipe-normalised for card display. Falls back to
-  /// category/manufacturer so the card never looks empty.
+  /// Packaging segment of the description (e.g. 'Packaging: 10 x 10 ...').
+  String get _packaging {
+    for (final part in product.description.split('|')) {
+      final t = part.trim();
+      if (t.toLowerCase().startsWith('packaging')) return t;
+    }
+    return '';
+  }
+
+  /// Catalogue description, pipe-normalised for card display (packaging
+  /// shown separately as a chip). Falls back to category/manufacturer.
   String get _description {
     final text = product.description
         .split('|')
         .map((p) => p.trim())
-        .where((p) => p.isNotEmpty)
+        .where((p) => p.isNotEmpty && !p.toLowerCase().startsWith('packaging'))
         .join(' - ');
     if (text.isNotEmpty) return text;
     final bits = <String>[
@@ -268,13 +281,31 @@ class _ProductCardState extends State<_ProductCard> {
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
+      onHover: (e) {
+        final box = context.findRenderObject() as RenderBox?;
+        if (box == null || !box.hasSize) return;
+        final local = box.globalToLocal(e.position);
+        final w = box.size.width, h = box.size.height;
+        setState(() {
+          _hover = true;
+          _pointer = Offset((local.dx / w) * 2 - 1, (local.dy / h) * 2 - 1);
+        });
+      },
+      onExit: (_) => setState(() {
+        _hover = false;
+        _pointer = Offset.zero;
+      }),
       child: AnimatedScale(
-        scale: _hover ? 1.015 : 1.0,
+        scale: _hover ? 1.02 : 1.0,
         duration: const Duration(milliseconds: 160),
         curve: Curves.easeOut,
-        child: AnimatedContainer(
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0012)
+            ..rotateX(_hover ? -_pointer.dy * 0.05 : 0)
+            ..rotateY(_hover ? _pointer.dx * 0.07 : 0),
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
@@ -344,6 +375,29 @@ class _ProductCardState extends State<_ProductCard> {
                       color: AppColors.textMuted,
                     ),
                   ),
+                  if (_packaging.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Row(
+                        children: [
+                          Icon(Icons.inventory_2_rounded,
+                              size: 13, color: AppColors.blueMid),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Text(
+                              _packaging,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.blueMid,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   const SizedBox(height: 8),
                   const _DashedDivider(),
                   const SizedBox(height: 8),
@@ -360,18 +414,24 @@ class _ProductCardState extends State<_ProductCard> {
                   ),
                   const Spacer(),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
                     children: [
-                      Text(
-                        CurrencyService.format(product.price),
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.blueDark,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.blueGradient,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Text(
+                          CurrencyService.format(product.price),
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
                       Text(
                         '/ unit',
                         style: TextStyle(
@@ -450,6 +510,7 @@ class _ProductCardState extends State<_ProductCard> {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),
@@ -572,7 +633,7 @@ class _FilterChip extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           gradient: selected ? AppColors.heroGradient : null,
-          color: selected ? null : Colors.white,
+          color: selected ? null : AppColors.card,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: selected ? Colors.transparent : AppColors.blueLight,

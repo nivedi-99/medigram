@@ -5,21 +5,21 @@ import '../theme/app_colors.dart';
 class SoftCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  final Color? color;
   final VoidCallback? onTap;
 
   const SoftCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
-    this.color = Colors.white,
+    this.color,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color,
+      color: color ?? AppColors.card,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -30,7 +30,7 @@ class SoftCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: AppColors.shadow.withValues(alpha: 0.06),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               ),

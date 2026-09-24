@@ -305,7 +305,9 @@ class _TrackingTimeline extends StatelessWidget {
 
     if (status == OrderStatus.cancelled) {
       return SoftCard(
-        color: const Color(0xFFFFEDED),
+        color: AppColors.isDark
+            ? AppColors.danger.withValues(alpha: 0.16)
+            : const Color(0xFFFFEDED),
         child: Row(
           children: [
             Icon(Icons.cancel_rounded, color: AppColors.danger),

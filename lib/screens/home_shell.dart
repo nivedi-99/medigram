@@ -45,6 +45,7 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     CurrencyService.configure(widget.country);
+    CurrencyService.loadRegion();
     _loadData();
   }
 
@@ -180,9 +181,11 @@ class _HomeShellState extends State<HomeShell> {
                       ],
                     ),
                   )
-                : IndexedStack(
-                    index: selectedIndex,
-                    children: [
+                : ValueListenableBuilder<String>(
+                    valueListenable: CurrencyService.region,
+                    builder: (context, __, ___) => IndexedStack(
+                      index: selectedIndex,
+                      children: [
                       DashboardPage(
                         customer: widget.customer,
                         companyName: widget.companyName,
@@ -203,7 +206,8 @@ class _HomeShellState extends State<HomeShell> {
                         paymentMethods: demoPaymentMethods,
                         onLogout: widget.onLogout,
                       ),
-                    ],
+                      ],
+                    ),
                   ),
       ),
       bottomNavigationBar: _loading
