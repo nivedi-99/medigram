@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 /// Global UI brightness for the palette (light / dark).
 enum AppBrightness { light, dark }
 
-/// MediGram design tokens — palette designed with gemini-3.6-flash.
+/// MediGram design tokens - MedsBharat storefront palette.
 ///
-/// Colors are brightness-aware: the theme toggle flips every getter app-wide.
+/// Green primary (green-600 family), orange accents for offers, white
+/// surfaces on gray-50. Colors are brightness-aware: the theme toggle
+/// flips every getter app-wide.
 class AppColors {
   AppColors._();
 
@@ -16,59 +18,61 @@ class AppColors {
   static bool get isDark => brightness.value == AppBrightness.dark;
 
   static Color get bg =>
-      isDark ? const Color(0xFF0B1624) : const Color(0xFFF4F7F9);
+      isDark ? const Color(0xFF0B1220) : const Color(0xFFF9FAFB);
   static Color get card =>
-      isDark ? const Color(0xFF132235) : const Color(0xFFFFFFFF);
+      isDark ? const Color(0xFF111827) : const Color(0xFFFFFFFF);
   static Color get textDark =>
-      isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0A192F);
+      isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827);
   static Color get textMuted =>
-      isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+      isDark ? const Color(0xFF9CA3AF) : const Color(0xFF4B5563);
   static Color get border =>
-      isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+      isDark ? const Color(0xFF1F2937) : const Color(0xFFE5E7EB);
 
-  /// Primary — deep teal-navy in light mode, bright cyan on dark surfaces.
+  /// Primary - pharmacy green (MedsBharat green-700/500).
   static Color get blueDark =>
-      isDark ? const Color(0xFF00A3C4) : const Color(0xFF003B5C);
+      isDark ? const Color(0xFF22C55E) : const Color(0xFF15803D);
   static Color get blueMid =>
-      isDark ? const Color(0xFF0088B2) : const Color(0xFF00668A);
+      isDark ? const Color(0xFF16A34A) : const Color(0xFF16A34A);
   static Color get blueLight =>
-      isDark ? const Color(0xFF1E3A5F) : const Color(0xFFE0F2FE);
+      isDark ? const Color(0xFF14301F) : const Color(0xFFDCFCE7);
 
-  /// Accent — soft coral.
+  /// Accent - offers orange (orange-500 family).
   static Color get pink =>
-      isDark ? const Color(0xFFFF7A7A) : const Color(0xFFF46A6A);
+      isDark ? const Color(0xFFFB923C) : const Color(0xFFF97316);
   static Color get pinkLight =>
-      isDark ? const Color(0xFF3D1C24) : const Color(0xFFFFEBEB);
+      isDark ? const Color(0xFF3B2A14) : const Color(0xFFFFF7ED);
 
   static Color get success =>
-      isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
+      isDark ? const Color(0xFF22C55E) : const Color(0xFF16A34A);
   static Color get warning =>
-      isDark ? const Color(0xFFFBBF24) : const Color(0xFFF59E0B);
+      isDark ? const Color(0xFFFBBF24) : const Color(0xFFF97316);
   static Color get danger =>
       isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
 
   /// Button label color on primary fills.
   static Color get onPrimary =>
-      isDark ? const Color(0xFF06121F) : const Color(0xFFFFFFFF);
+      isDark ? const Color(0xFF052E16) : const Color(0xFFFFFFFF);
 
   static LinearGradient get heroGradient => LinearGradient(
-        colors: [const Color(0xFF004B6E), const Color(0xFF0A7EA4), pink],
+        colors: isDark
+            ? const [Color(0xFF166534), Color(0xFF15803D), Color(0xFF16A34A)]
+            : const [Color(0xFF15803D), Color(0xFF16A34A), Color(0xFF22C55E)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   static LinearGradient get blueGradient => LinearGradient(
         colors: isDark
-            ? [const Color(0xFF005C7A), const Color(0xFF00A3C4)]
-            : [const Color(0xFF003B5C), const Color(0xFF007A8C)],
+            ? const [Color(0xFF14532D), Color(0xFF16A34A)]
+            : const [Color(0xFF15803D), Color(0xFF22C55E)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   static LinearGradient get pinkGradient => LinearGradient(
         colors: isDark
-            ? [const Color(0xFFFF6B6B), const Color(0xFFFF9E9E)]
-            : [const Color(0xFFF46A6A), const Color(0xFFFF8E8E)],
+            ? const [Color(0xFFEA580C), Color(0xFFF97316)]
+            : const [Color(0xFFF97316), Color(0xFFFB923C)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -76,13 +80,13 @@ class AppColors {
   /// Auth/hero header gradient (three-stop for depth).
   static LinearGradient get authGradient => LinearGradient(
         colors: isDark
-            ? [const Color(0xFF005C7A), const Color(0xFF00A3C4), pink]
-            : [const Color(0xFF004B6E), const Color(0xFF0A7EA4), pink],
+            ? const [Color(0xFF166534), Color(0xFF15803D), Color(0xFF16A34A)]
+            : const [Color(0xFF15803D), Color(0xFF16A34A), Color(0xFF22C55E)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   /// Soft card shadow color.
   static Color get shadow =>
-      isDark ? const Color(0xFF000000) : const Color(0xFF0A192F);
+      isDark ? const Color(0xFF000000) : const Color(0xFF111827);
 }
