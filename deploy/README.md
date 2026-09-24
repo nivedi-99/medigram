@@ -24,7 +24,8 @@ name is globally taken by another Vercel user).
 ```powershell
 flutter build web --release
 cd build\web
-$tok = (Select-String -Path '..\..\..\deploy\vercel.env' -Pattern '^VERCEL_TOKEN=(.+)$').Matches[0].Groups[1].Value
+$env:CI = 'true'   # keeps the Vercel CLI non-interactive (skips its upgrade prompt)
+$tok = (Select-String -Path '..\..\deploy\vercel.env' -Pattern '^VERCEL_TOKEN=(.+)$').Matches[0].Groups[1].Value
 vercel link --yes --project medigram-export --token $tok   # once per checkout
 vercel deploy --prod --yes --token $tok
 ```
