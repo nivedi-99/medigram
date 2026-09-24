@@ -3,6 +3,7 @@ import '../../models/models.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
 import '../payment/payment_page.dart';
+import '../delivery_page.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 import 'notifications_page.dart';
@@ -156,6 +157,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => PaymentPage(methods: widget.paymentMethods),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              MenuTile(
+                icon: Icons.local_shipping_rounded,
+                title: 'Delivery Tracking',
+                subtitle: 'Courier, tracking ID and ETA for dispatched orders',
+                iconColor: AppColors.blueDark,
+                iconBg: AppColors.blueLight,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => Scaffold(
+                        backgroundColor: AppColors.bg,
+                        appBar: AppBar(title: const Text('Delivery Tracking')),
+                        body: DeliveryPage(orders: widget.orders),
+                      ),
                     ),
                   );
                 },

@@ -9,7 +9,6 @@ import 'cart_page.dart';
 import '../widgets/shared_widgets.dart';
 import 'quotation_page.dart';
 import 'dashboard_page.dart';
-import 'delivery_page.dart';
 import 'orders_page.dart';
 import 'products_page.dart';
 import 'profile/profile_page.dart';
@@ -192,13 +191,12 @@ class _HomeShellState extends State<HomeShell> {
                         companyName: widget.companyName,
                         unreadNotifications: _unreadCount,
                         products: _products,
-                        onOpenChatbot: () => goToTab(4),
-                        onOpenNotifications: () => goToTab(5),
-                        onOpenProfile: () => goToTab(5),
+                        onOpenChatbot: () => goToTab(3),
+                        onOpenNotifications: () => goToTab(4),
+                        onOpenProfile: () => goToTab(4),
                       ),
                       ProductsPage(products: _products, onOpenCart: _openCart),
                       OrdersPage(orders: _orders),
-                      DeliveryPage(orders: _orders),
                       const QuotationPage(),
                       ProfilePage(
                         customer: widget.customer,
@@ -231,11 +229,6 @@ class _HomeShellState extends State<HomeShell> {
                   icon: Icon(Icons.shopping_bag_outlined),
                   selectedIcon: Icon(Icons.shopping_bag_rounded),
                   label: 'Orders',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.local_shipping_outlined),
-                  selectedIcon: Icon(Icons.local_shipping_rounded),
-                  label: 'Delivery',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.request_quote_outlined),
