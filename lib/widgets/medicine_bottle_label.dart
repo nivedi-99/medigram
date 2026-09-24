@@ -40,7 +40,7 @@ class MedicineBottleLabel extends StatelessWidget {
     [Color(0xFF14B8A6), Color(0xFF0F766E)],
     [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
     [Color(0xFFEC4899), Color(0xFFBE185D)],
-    [Color(0xFF22C55E), Color(0xFF15803D)],
+    [Color(0xFF0CA678), Color(0xFF05353F)],
   ];
 
   List<Color> get _gradient =>

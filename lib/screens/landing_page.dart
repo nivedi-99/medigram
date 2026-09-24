@@ -88,10 +88,10 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  /// Orange utility bar with the region selector, like MedsBharat.
+  /// Sand utility bar with the region selector - the palette's beach accent.
   Widget _topBar() {
     return Container(
-      color: AppColors.pink,
+      color: AppColors.sand,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
@@ -102,15 +102,14 @@ class _LandingPageState extends State<LandingPage> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.place_rounded,
-                  size: 16, color: Colors.white.withValues(alpha: 0.95)),
+              Icon(Icons.place_rounded, size: 16, color: AppColors.onSand),
               const SizedBox(width: 6),
               Text(
                 'Deliver to:',
                 style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.95)),
+                    color: AppColors.onSand),
               ),
               const SizedBox(width: 8),
               const RegionPicker(),
@@ -124,10 +123,13 @@ class _LandingPageState extends State<LandingPage> {
                 style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.95)),
+                    color: AppColors.onSand),
               ),
               const SizedBox(width: 10),
-              const ThemeToggle(),
+              IconTheme(
+                data: IconThemeData(color: AppColors.onSand),
+                child: const ThemeToggle(),
+              ),
             ],
           ),
         ],
@@ -377,12 +379,12 @@ class _LandingPageState extends State<LandingPage> {
                   color: AppColors.pinkLight,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.pink.withValues(alpha: 0.35)),
+                      color: AppColors.sandDeep.withValues(alpha: 0.45)),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.local_offer_rounded,
-                        color: AppColors.pink, size: 20),
+                        color: AppColors.sandDeep, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -404,14 +406,14 @@ class _LandingPageState extends State<LandingPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.pink,
+                        color: AppColors.sand,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(code,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: Colors.white)),
+                              color: AppColors.onSand)),
                     ),
                   ],
                 ),
@@ -538,7 +540,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget _footer(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 30),
-      color: AppColors.isDark ? AppColors.card : const Color(0xFF111827),
+      color: AppColors.isDark ? AppColors.card : AppColors.deepTeal,
       padding: const EdgeInsets.fromLTRB(24, 34, 24, 26),
       child: Wrap(
         spacing: 40,
