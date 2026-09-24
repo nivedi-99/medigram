@@ -9,6 +9,7 @@ import 'cart_page.dart';
 import '../widgets/shared_widgets.dart';
 import 'quotation_page.dart';
 import 'dashboard_page.dart';
+import 'delivery_page.dart';
 import 'orders_page.dart';
 import 'products_page.dart';
 import 'profile/profile_page.dart';
@@ -189,15 +190,15 @@ class _HomeShellState extends State<HomeShell> {
                       DashboardPage(
                         customer: widget.customer,
                         companyName: widget.companyName,
-                        orders: _orders,
                         unreadNotifications: _unreadCount,
                         products: _products,
-                        onOpenChatbot: () => goToTab(3),
-                        onOpenNotifications: () => goToTab(4),
-                        onOpenProfile: () => goToTab(4),
+                        onOpenChatbot: () => goToTab(4),
+                        onOpenNotifications: () => goToTab(5),
+                        onOpenProfile: () => goToTab(5),
                       ),
                       ProductsPage(products: _products, onOpenCart: _openCart),
                       OrdersPage(orders: _orders),
+                      DeliveryPage(orders: _orders),
                       const QuotationPage(),
                       ProfilePage(
                         customer: widget.customer,
@@ -232,6 +233,11 @@ class _HomeShellState extends State<HomeShell> {
                   label: 'Orders',
                 ),
                 NavigationDestination(
+                  icon: Icon(Icons.local_shipping_outlined),
+                  selectedIcon: Icon(Icons.local_shipping_rounded),
+                  label: 'Delivery',
+                ),
+                NavigationDestination(
                   icon: Icon(Icons.request_quote_outlined),
                   selectedIcon: Icon(Icons.request_quote_rounded),
                   label: 'Quotation',
@@ -259,10 +265,5 @@ final List<SavedPaymentMethod> demoPaymentMethods = [
     label: 'Google Pay UPI',
     detail: 'jenny@okhdfcbank',
     type: PaymentType.upi,
-  ),
-  SavedPaymentMethod(
-    label: 'MediGram Wallet',
-    detail: 'Balance: ₹350.00',
-    type: PaymentType.wallet,
   ),
 ];

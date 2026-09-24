@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/models.dart';
 import '../theme/app_colors.dart';
 
 /// Rounded white card with a soft shadow, used everywhere for consistency.
@@ -380,6 +381,98 @@ class EmptyState extends StatelessWidget {
             style: TextStyle(color: AppColors.textMuted, height: 1.4),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Order progress timeline shared by the Orders sheet and the Delivery page.
+class TrackingTimeline extends StatelessWidget {
+  final OrderStatus status;
+
+  const TrackingTimeline({super.key, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = ['Processing', 'Shipped', 'Out for delivery', 'Delivered'];
+    int activeIndex;
+    switch (status) {
+      case OrderStatus.processing:
+        activeIndex = 0;
+        break;
+      case OrderStatus.shipped:
+        activeIndex = 1;
+        break;
+      case OrderStatus.delivered:
+        activeIndex = 3;
+        break;
+      case OrderStatus.cancelled:
+        activeIndex = -1;
+        break;
+    }
+
+    if (status == OrderStatus.cancelled) {
+      return SoftCard(
+        color: AppColors.isDark
+            ? AppColors.danger.withValues(alpha: 0.16)
+            : const Color(0xFFFFEDED),
+        child: Row(
+          children: [
+            Icon(Icons.cancel_rounded, color: AppColors.danger),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'This order was cancelled. Refund (if applicable) has been credited to your original payment method.',
+                style: TextStyle(color: AppColors.danger, fontSize: 12.5, height: 1.4),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return SoftCard(
+      child: Column(
+        children: List.generate(steps.length, (i) {
+          final done = i <= activeIndex;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  Container(
+                    height: 16,
+                    width: 16,
+                    decoration: BoxDecoration(
+                      color: done ? AppColors.blueDark : AppColors.blueLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: done
+                        ? const Icon(Icons.check, size: 11, color: Colors.white)
+                        : null,
+                  ),
+                  if (i != steps.length - 1)
+                    Container(
+                      height: 26,
+                      width: 2,
+                      color: done ? AppColors.blueDark : AppColors.blueLight,
+                    ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: Text(
+                  steps[i],
+                  style: TextStyle(
+                    fontWeight: done ? FontWeight.bold : FontWeight.w500,
+                    color: done ? AppColors.textDark : AppColors.textMuted,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }

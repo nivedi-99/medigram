@@ -8,10 +8,19 @@ import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
+/// A short editorial article shown in the dashboard blog strip.
+class _BlogPost {
+  final String tag;
+  final String title;
+  final String excerpt;
+  final String body;
+  final String meta;
+  const _BlogPost(this.tag, this.title, this.excerpt, this.body, this.meta);
+}
+
 class DashboardPage extends StatelessWidget {
   final Customer customer;
   final String companyName;
-  final List<MedicineOrder> orders;
   final int unreadNotifications;
   final VoidCallback onOpenChatbot;
   final VoidCallback onOpenNotifications;
@@ -22,7 +31,6 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required this.customer,
     required this.companyName,
-    required this.orders,
     required this.unreadNotifications,
     required this.products,
     required this.onOpenChatbot,
@@ -45,11 +53,6 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeOrders =
-        orders.where((o) => o.status != OrderStatus.delivered && o.status != OrderStatus.cancelled).length;
-    final deliveredOrders =
-        orders.where((o) => o.status == OrderStatus.delivered).length;
-
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
@@ -139,38 +142,18 @@ class DashboardPage extends StatelessWidget {
             child: _companyBanner(),
           ),
         ),
+        const SliverToBoxAdapter(
+          child: SectionTitle(title: 'From the MediGram Blog'),
+        ),
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.local_shipping_rounded,
-                    value: '$activeOrders',
-                    label: 'Active orders',
-                    gradient: AppColors.blueGradient,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.verified_rounded,
-                    value: '$deliveredOrders',
-                    label: 'Delivered',
-                    gradient: AppColors.pinkGradient,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatTile(
-                    icon: Icons.account_balance_wallet_rounded,
-                    value: '₹350',
-                    label: 'Wallet',
-                    gradient: AppColors.heroGradient,
-                  ),
-                ),
-              ],
+          child: SizedBox(
+            height: 200,
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              scrollDirection: Axis.horizontal,
+              itemCount: _blogPosts.length,
+              itemBuilder: (context, index) =>
+                  _blogCard(context, _blogPosts[index]),
             ),
           ),
         ),
@@ -223,6 +206,173 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  static const List<_BlogPost> _blogPosts = [
+    _BlogPost(
+      'Regulatory',
+      'WHO-GMP vs USFDA: Which Certification Does Your Market Need?',
+      'Import rules differ by destination - match the right certification to your market before you place an order.',
+      'Every country sets its own entry bar for medicines. WHO-GMP certification is the global baseline accepted across Africa, South-East Asia and Latin America, while USFDA approval unlocks the United States and is widely respected by other stringent regulators such as the UK MHRA and Health Canada.\n\nBefore you finalise a product, ask for the exact site certificate - not just the company certificate. A manufacturing site may hold WHO-GMP approval for tablets but not for injectables, and a single expired certificate can hold an entire consignment at customs.\n\nEvery MediGram catalogue listing shows the certifications attached to its manufacturing site, and our trade desk confirms the paperwork for your destination country before you commit to a purchase order.',
+      '6 min read • Oct 2026',
+    ),
+    _BlogPost(
+      'Cold Chain',
+      'Shipping Vaccines and Insulin: A 2-8°C Playbook',
+      'Temperature-controlled logistics explained - gel packs, data loggers and what happens at every hand-off.',
+      'Cold-chain products lose potency long before they look damaged. A validated 2-8°C lane uses qualified gel packs, insulated liners and pre-cooled boxes so the product never sees a temperature excursion, even when a tarmac in transit crosses 45°C.\n\nEvery shipment travels with a USB data logger. On arrival, download the log before signing acceptance: a flat line between 2°C and 8°C proves the chain held, and any excursion becomes evidence for a claim rather than a dispute.\n\nMediGram books cold-chain capacity as a default for vaccine, insulin and biologic orders, and the trade desk shares the logger report with every consignment set.',
+      '5 min read • Sep 2026',
+    ),
+    _BlogPost(
+      'Documentation',
+      'Export Paperwork 101: From Commercial Invoice to Bill of Lading',
+      'Every document in a medicine shipment, who issues it, and the sequence it arrives in.',
+      'A standard medicine export moves on five core documents: the commercial invoice, the packing list, the certificate of analysis for each batch, the certificate of pharmaceutical product (CPP) where the destination asks for one, and the airway or ocean bill of lading that titles the shipment.\n\nMost customs delays are paperwork delays - a mismatched batch number, an HS code that does not match the invoice wording, or a CPP issued for the wrong strength. Checking the five documents against each other before the flight is booked costs minutes; fixing them after arrival costs weeks.\n\nMediGram issues a complete, cross-checked document pack with every order and keeps copies in your account so audits stay a formality.',
+      '7 min read • Sep 2026',
+    ),
+    _BlogPost(
+      'Sourcing',
+      'Five Checks Before You Trust a Medicine Supplier',
+      'Verify licences, batch COAs and traceability before wiring a single rupee.',
+      'Five checks separate a reliable supplier from an expensive lesson. One: a valid wholesale or manufacturing licence you can verify with the issuing authority. Two: a batch-specific certificate of analysis, not a generic product brochure.\n\nThree: traceable batch numbers that match what the regulator database shows for that site. Four: a real pharmacovigilance or complaints contact that answers. Five: commercial transparency - a written quotation with Incoterms, lead time and validity.\n\nMediGram was built around those checks: every partner is licence-verified, every listing carries its batch documentation, and every quote is itemised and held to its validity window.',
+      '4 min read • Aug 2026',
+    ),
+  ];
+
+  Widget _blogCard(BuildContext context, _BlogPost post) {
+    return Container(
+      width: 270,
+      margin: const EdgeInsets.only(right: 12),
+      child: SoftCard(
+        onTap: () => _openPost(context, post),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.pinkLight,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(post.tag,
+                  style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.sandDeep)),
+            ),
+            const SizedBox(height: 10),
+            Text(post.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                    height: 1.25,
+                    color: AppColors.textDark)),
+            const SizedBox(height: 6),
+            Expanded(
+              child: Text(post.excerpt,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: AppColors.textMuted)),
+            ),
+            Row(
+              children: [
+                Text(post.meta,
+                    style:
+                        TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                const Spacer(),
+                Icon(Icons.arrow_forward_rounded,
+                    size: 16, color: AppColors.blueDark),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openPost(BuildContext context, _BlogPost post) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.bg,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.fromLTRB(24, 14, 24, 34),
+                children: [
+                  Center(
+                    child: Container(
+                      height: 5,
+                      width: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.blueLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.pinkLight,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(post.tag,
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.sandDeep)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(post.title,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          height: 1.3,
+                          color: AppColors.textDark)),
+                  const SizedBox(height: 6),
+                  Text(post.meta,
+                      style: TextStyle(
+                          fontSize: 12, color: AppColors.textMuted)),
+                  const Divider(height: 26),
+                  for (final paragraph in post.body.split('\n\n'))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Text(paragraph,
+                          style: TextStyle(
+                              fontSize: 13.5,
+                              height: 1.55,
+                              color: AppColors.textDark)),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
