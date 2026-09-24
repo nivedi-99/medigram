@@ -134,8 +134,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 label: 'Delivered',
               ),
             ),
-            const SizedBox(width: 12),
-            const Expanded(child: _StatBadge(value: '₹350', label: 'Wallet')),
           ],
         ),
         const SizedBox(height: 26),

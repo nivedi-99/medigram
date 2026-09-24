@@ -86,8 +86,6 @@ class _PaymentPageState extends State<PaymentPage> {
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 30),
         children: [
           _buildNotice(),
-          const SizedBox(height: 16),
-          _buildWallet(),
           const SizedBox(height: 24),
           _buildChannelsSection(),
           const SizedBox(height: 24),
@@ -187,41 +185,6 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildWallet() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: AppColors.heroGradient,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.account_balance_wallet_rounded,
-              color: Colors.white, size: 26),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('MediGram Wallet',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600)),
-                SizedBox(height: 4),
-                Text('₹350.00',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
   Widget _buildChannelsSection() {
     if (_loading) {
       return const Padding(

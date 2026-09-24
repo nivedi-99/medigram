@@ -26,7 +26,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
     },
     {
       'q': 'What payment methods are supported?',
-      'a': 'Credit/debit cards, UPI, MediGram Wallet, and Cash on Delivery '
+      'a': 'Credit/debit cards, UPI, and Cash on Delivery '
           'in select locations. Manage these in Payment Methods.',
     },
     {
