@@ -80,6 +80,7 @@ router.patch(
     try {
       const b = req.body;
       const row = {
+        ...(b.name !== undefined && { name: b.name }),
         ...(b.category !== undefined && { category: b.category }),
         ...(b.manufacturer !== undefined && { manufacturer: b.manufacturer }),
         ...(b.description !== undefined && { description: b.description }),
