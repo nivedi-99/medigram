@@ -5,7 +5,9 @@ import '../../services/api_client.dart';
 import '../../services/currency_service.dart';
 import '../../services/database_service.dart';
 import '../../services/export_service.dart';
+import '../../services/image_picker_service.dart';
 import '../../services/payments_service.dart';
+import '../../services/product_image.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/shared_widgets.dart';
 
@@ -104,7 +106,11 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       if (!mounted) return;
       setState(() {
         _clients = results[0] as List<ClientRecord>;
-        _products = results[1] as List<ProductRecord>;
+        // Deleted (soft-hidden) products stay out of the admin list — the
+        // API returns inactive rows to admins, so filter them here.
+        _products = (results[1] as List<ProductRecord>)
+            .where((p) => p.isActive)
+            .toList();
         _orderStats = results[2] as Map<String, int>;
         _orders = results[3] as List<MedicineOrder>;
         if (widget.isSuperAdmin) {
@@ -252,7 +258,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.isSuperAdmin ? 'Super Admin Console' : 'Admin Console',
+                      widget.isSuperAdmin
+                          ? 'Super Admin Console'
+                          : 'Admin Console',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 23,
@@ -473,21 +481,16 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
 
   Widget _buildProductsTab() {
     if (_products.isEmpty) {
-      return Column(
+      // Adding happens through the floating "+ Add product" button (bottom
+      // right) — the single entry point for publishing a listing.
+      return const Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: ElevatedButton.icon(
-              onPressed: _showAddProductDialog,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Add product'),
-            ),
-          ),
-          const Expanded(
+          Expanded(
             child: EmptyState(
               icon: Icons.medication_outlined,
               title: 'Catalogue is empty',
-              message: 'Use "Add product" to create the first listing.',
+              message:
+                  'Use the "+ Add product" button to create the first listing.',
             ),
           ),
         ],
@@ -504,17 +507,6 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                   '${_products.length} catalogue entries — tap one to edit',
                   style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                 ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _showAddProductDialog,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.blueDark,
-                  foregroundColor: AppColors.onPrimary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                ),
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Add'),
               ),
             ],
           ),
@@ -541,11 +533,25 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                             color: AppColors.blueLight.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: Icon(
-                            Icons.medication_rounded,
-                            color: AppColors.blueDark,
-                            size: 23,
-                          ),
+                          child: product.hasPhoto
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.network(
+                                    product.imageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Icon(
+                                      Icons.broken_image_rounded,
+                                      color: AppColors.blueDark,
+                                      size: 23,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.medication_rounded,
+                                  color: AppColors.blueDark,
+                                  size: 23,
+                                ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -739,6 +745,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       ),
     );
   }
+
   Future<void> _savePayments(PaymentsConfig config) async {
     await PaymentsService.saveConfig(config);
     if (!mounted) return;
@@ -753,28 +760,38 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     final label = TextEditingController(text: channel.label);
     final instructions = TextEditingController(text: channel.instructions);
     final details = TextEditingController(
-      text: channel.details.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+      text:
+          channel.details.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
     );
     var active = channel.active;
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Edit ${channel.key}', style: const TextStyle(fontSize: 17)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title:
+              Text('Edit ${channel.key}', style: const TextStyle(fontSize: 17)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: label, decoration: const InputDecoration(hintText: 'Label')),
+                TextField(
+                    controller: label,
+                    decoration: const InputDecoration(hintText: 'Label')),
                 const SizedBox(height: 10),
-                TextField(controller: instructions, maxLines: 3, decoration: const InputDecoration(hintText: 'Instructions')),
+                TextField(
+                    controller: instructions,
+                    maxLines: 3,
+                    decoration:
+                        const InputDecoration(hintText: 'Instructions')),
                 const SizedBox(height: 10),
                 TextField(
                     controller: details,
                     maxLines: 5,
                     decoration: const InputDecoration(
-                        hintText: 'Details, one per line:\nBeneficiary: Name\nAccount No: 0000')),
+                        hintText:
+                            'Details, one per line:\nBeneficiary: Name\nAccount No: 0000')),
                 const SizedBox(height: 10),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -786,14 +803,17 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 final detailsMap = <String, String>{};
                 for (final line in details.text.split('\n')) {
                   final idx = line.indexOf(':');
                   if (idx > 0) {
-                    detailsMap[line.substring(0, idx).trim()] = line.substring(idx + 1).trim();
+                    detailsMap[line.substring(0, idx).trim()] =
+                        line.substring(idx + 1).trim();
                   }
                 }
                 final methods = _payments!.methods
@@ -822,6 +842,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       ),
     );
   }
+
   void _showFxEditDialog() {
     final controllers = <String, TextEditingController>{
       for (final e in _payments!.fx.entries)
@@ -906,6 +927,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       ),
     );
   }
+
   void _showProductEditDialog(ProductRecord product) {
     final price = TextEditingController(text: product.price.toStringAsFixed(2));
     final moq = TextEditingController(text: product.minOrderQty.toString());
@@ -914,16 +936,48 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     final description = TextEditingController(text: product.description);
     final strength = TextEditingController(text: product.strength);
     var isActive = product.isActive;
+    PickedImage? newImage;
+    var removeImage = false;
+    var saving = false;
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text('Edit ${product.name}', style: const TextStyle(fontSize: 16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('Edit ${product.name}',
+              style: const TextStyle(fontSize: 16)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _ProductImageField(
+                  picked: newImage,
+                  existingUrl: removeImage ? '' : product.imageUrl,
+                  onPick: () async {
+                    try {
+                      final image = await pickProductImage();
+                      if (image != null && dialogContext.mounted) {
+                        setDialogState(() {
+                          newImage = image;
+                          removeImage = false;
+                        });
+                      }
+                    } catch (e) {
+                      _toast('Could not add the image: $e');
+                    }
+                  },
+                  onRemove: () {
+                    // Wrong image? Drop the pending pick, or mark the stored
+                    // photo for removal ( buyers then see the category shot).
+                    if (newImage != null) {
+                      setDialogState(() => newImage = null);
+                    } else {
+                      setDialogState(() => removeImage = true);
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
                 TextField(
                     controller: price,
                     keyboardType:
@@ -973,47 +1027,80 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 onPressed: () => Navigator.pop(dialogContext),
                 child: const Text('Cancel')),
             ElevatedButton(
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                try {
-                  final updated = await DatabaseService.updateProduct(
-                    id: product.id,
-                    category: category.text.trim(),
-                    manufacturer: manufacturer.text.trim(),
-                    description: description.text.trim(),
-                    strength: strength.text.trim(),
-                    price: double.tryParse(price.text.trim()) ?? product.price,
-                    minOrderQty:
-                        int.tryParse(moq.text.trim()) ?? product.minOrderQty,
-                    isActive: isActive,
-                  );
-                  if (!mounted) return;
-                  if (dialogContext.mounted) Navigator.pop(dialogContext);
-                  if (!mounted) return;
-                  setState(() {
-                    _products[_products.indexWhere((p) => p.id == product.id)] =
-                        updated;
-                  });
-                  messenger.showSnackBar(
-                    SnackBar(content: Text('${updated.name} updated')),
-                  );
-                } catch (_) {
-                  if (!mounted) return;
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Update failed - check your connection '
-                          'and permissions.'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Save'),
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      setDialogState(() => saving = true);
+                      try {
+                        var updated = await DatabaseService.updateProduct(
+                          id: product.id,
+                          category: category.text.trim(),
+                          manufacturer: manufacturer.text.trim(),
+                          description: description.text.trim(),
+                          strength: strength.text.trim(),
+                          price: double.tryParse(price.text.trim()) ??
+                              product.price,
+                          minOrderQty: int.tryParse(moq.text.trim()) ??
+                              product.minOrderQty,
+                          isActive: isActive,
+                        );
+                        // Photo changes: swap in a new upload, or clear the
+                        // stored photo when the admin removed it.
+                        final image = newImage;
+                        final oldUrl = product.imageUrl;
+                        if (image != null) {
+                          try {
+                            final url =
+                                await DatabaseService.uploadProductImage(image);
+                            updated = await DatabaseService.updateProduct(
+                                id: product.id, imageUrl: url);
+                            DatabaseService.deleteProductImage(oldUrl);
+                          } catch (e) {
+                            if (!mounted) return;
+                            messenger.showSnackBar(SnackBar(
+                                content: Text(
+                                    'Saved, but the new image could not be uploaded: $e')));
+                          }
+                        } else if (removeImage && oldUrl.isNotEmpty) {
+                          updated = await DatabaseService.updateProduct(
+                              id: product.id, imageUrl: '');
+                          DatabaseService.deleteProductImage(oldUrl);
+                        }
+                        if (!mounted) return;
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
+                        if (!mounted) return;
+                        setState(() {
+                          _products[_products
+                              .indexWhere((p) => p.id == product.id)] = updated;
+                        });
+                        messenger.showSnackBar(
+                          SnackBar(content: Text('${updated.name} updated')),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+                        messenger.showSnackBar(
+                          SnackBar(content: Text('Update failed: $e')),
+                        );
+                      } finally {
+                        if (dialogContext.mounted) {
+                          setDialogState(() => saving = false);
+                        }
+                      }
+                    },
+              child: saving
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2.2))
+                  : const Text('Save'),
             ),
           ],
         ),
       ),
     );
   }
+
   void _showAddProductDialog() {
     final name = TextEditingController();
     final price = TextEditingController();
@@ -1023,103 +1110,153 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     final strength = TextEditingController();
     final description = TextEditingController();
     final form = GlobalKey<FormState>();
+    PickedImage? pickedImage;
+    var saving = false;
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Add product', style: TextStyle(fontSize: 17)),
-        content: SingleChildScrollView(
-          child: Form(
-            key: form,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                    controller: name,
-                    validator: (v) =>
-                        (v == null || v.trim().length < 2) ? 'Name required' : null,
-                    decoration: const InputDecoration(
-                        hintText: 'Product name', labelText: 'Product name')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: category,
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Category required' : null,
-                    decoration: const InputDecoration(
-                        hintText: 'Category', labelText: 'Category')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: manufacturer,
-                    decoration: const InputDecoration(
-                        hintText: 'Manufacturer (optional)',
-                        labelText: 'Manufacturer')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: strength,
-                    decoration: const InputDecoration(
-                        hintText: 'e.g. 500 mg', labelText: 'Strength')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: description,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                        hintText: 'Shown on the product card',
-                        labelText: 'Description')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: price,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) => double.tryParse(v ?? '') == null
-                        ? 'Valid price required'
-                        : null,
-                    decoration: const InputDecoration(
-                        hintText: 'Price in USD', labelText: 'Price (USD)')),
-                const SizedBox(height: 10),
-                TextFormField(
-                    controller: moq,
-                    keyboardType: TextInputType.number,
-                    validator: (v) => int.tryParse(v ?? '') == null
-                        ? 'Valid MOQ required'
-                        : null,
-                    decoration: const InputDecoration(
-                        hintText: 'Minimum order qty',
-                        labelText: 'Minimum order qty')),
-              ],
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Add product', style: TextStyle(fontSize: 17)),
+          content: SingleChildScrollView(
+            child: Form(
+              key: form,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ProductImageField(
+                    picked: pickedImage,
+                    existingUrl: '',
+                    onPick: () async {
+                      try {
+                        final image = await pickProductImage();
+                        if (image != null && dialogContext.mounted) {
+                          setDialogState(() => pickedImage = image);
+                        }
+                      } catch (e) {
+                        _toast('Could not add the image: $e');
+                      }
+                    },
+                    onRemove: () => setDialogState(() => pickedImage = null),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: name,
+                      validator: (v) => (v == null || v.trim().length < 2)
+                          ? 'Name required'
+                          : null,
+                      decoration: const InputDecoration(
+                          hintText: 'Product name', labelText: 'Product name')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: category,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Category required'
+                          : null,
+                      decoration: const InputDecoration(
+                          hintText: 'Category', labelText: 'Category')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: manufacturer,
+                      decoration: const InputDecoration(
+                          hintText: 'Manufacturer (optional)',
+                          labelText: 'Manufacturer')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: strength,
+                      decoration: const InputDecoration(
+                          hintText: 'e.g. 500 mg', labelText: 'Strength')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: description,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                          hintText: 'Shown on the product card',
+                          labelText: 'Description')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: price,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) => double.tryParse(v ?? '') == null
+                          ? 'Valid price required'
+                          : null,
+                      decoration: const InputDecoration(
+                          hintText: 'Price in USD', labelText: 'Price (USD)')),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                      controller: moq,
+                      keyboardType: TextInputType.number,
+                      validator: (v) => int.tryParse(v ?? '') == null
+                          ? 'Valid MOQ required'
+                          : null,
+                      decoration: const InputDecoration(
+                          hintText: 'Minimum order qty',
+                          labelText: 'Minimum order qty')),
+                ],
+              ),
             ),
           ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      if (!form.currentState!.validate()) return;
+                      setDialogState(() => saving = true);
+                      try {
+                        var created = await DatabaseService.createProduct(
+                          name: name.text.trim(),
+                          category: category.text.trim(),
+                          manufacturer: manufacturer.text.trim(),
+                          description: description.text.trim(),
+                          strength: strength.text.trim(),
+                          price: double.parse(price.text.trim()),
+                          minOrderQty: int.parse(moq.text.trim()),
+                        );
+                        // Attach the picked photo; an upload failure must
+                        // never block the product from being created.
+                        final image = pickedImage;
+                        if (image != null) {
+                          try {
+                            final url =
+                                await DatabaseService.uploadProductImage(image);
+                            created = await DatabaseService.updateProduct(
+                                id: created.id, imageUrl: url);
+                          } catch (e) {
+                            if (!mounted) return;
+                            _toast('${created.name} was created, but the '
+                                'image could not be uploaded: $e');
+                          }
+                        }
+                        if (!mounted) return;
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
+                        setState(() => _products.insert(0, created));
+                        _toast(
+                            '${created.name} added to catalogue - it appears in '
+                            'the buyer Products tab automatically');
+                      } catch (e) {
+                        if (!mounted) return;
+                        _toast('Could not add the product: $e');
+                      } finally {
+                        if (dialogContext.mounted) {
+                          setDialogState(() => saving = false);
+                        }
+                      }
+                    },
+              child: saving
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2.2))
+                  : const Text('Create'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () async {
-              if (!form.currentState!.validate()) return;
-              try {
-                final created = await DatabaseService.createProduct(
-                  name: name.text.trim(),
-                  category: category.text.trim(),
-                  manufacturer: manufacturer.text.trim(),
-                  description: description.text.trim(),
-                  strength: strength.text.trim(),
-                  price: double.parse(price.text.trim()),
-                  minOrderQty: int.parse(moq.text.trim()),
-                );
-                if (!mounted) return;
-                if (dialogContext.mounted) Navigator.pop(dialogContext);
-                setState(() => _products.insert(0, created));
-                _toast('${created.name} added to catalogue - it appears in '
-                    'the buyer Products tab automatically');
-              } catch (_) {
-                if (!mounted) return;
-                _toast('Could not add the product - check your connection '
-                    'and permissions.');
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
   }
@@ -1163,7 +1300,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         const SizedBox(height: 4),
         Text(
           'Live data pulled from the database through the MediGram API and '
-              'downloaded as a CSV file.',
+          'downloaded as a CSV file.',
           style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
         ),
         const SizedBox(height: 14),
@@ -1232,7 +1369,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         const SizedBox(height: 6),
         Text(
           'Tip: invoices for individual orders live in the Orders tab - '
-              'tap Invoice on any order row.',
+          'tap Invoice on any order row.',
           style: TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
@@ -1381,11 +1518,14 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     try {
       await DatabaseService.deleteProduct(id: product.id);
       if (!mounted) return;
-      _toast('${product.name} deleted - hidden from buyers');
-      await _loadAll();
-    } catch (_) {
+      // Remove it from the list right away so the deletion is visible
+      // without waiting for a reload (the API soft-deletes the row; buyers
+      // and this list no longer show it).
+      setState(() => _products.removeWhere((p) => p.id == product.id));
+      _toast('${product.name} deleted - removed from the catalogue');
+    } catch (e) {
       if (!mounted) return;
-      _toast('Could not delete the product - check your connection.');
+      _toast('Could not delete the product: $e');
     }
   }
 
@@ -1456,13 +1596,12 @@ class _VerificationChip extends StatelessWidget {
       default:
         color = AppColors.warning;
     }
-    final text =
-        labels?[status] ??
+    final text = labels?[status] ??
         (status == 'verified'
             ? 'Verified'
             : status == 'rejected'
-            ? 'Rejected'
-            : 'Pending');
+                ? 'Rejected'
+                : 'Pending');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -1718,7 +1857,6 @@ class _RoleCountBadge extends StatelessWidget {
   }
 }
 
-
 /// One order row in the admin Orders tab: client, total, payment chip and
 /// actions (mark paid / download invoice).
 class _AdminOrderCard extends StatelessWidget {
@@ -1760,8 +1898,7 @@ class _AdminOrderCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: chipColor.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
-                    border:
-                        Border.all(color: chipColor.withValues(alpha: 0.4)),
+                    border: Border.all(color: chipColor.withValues(alpha: 0.4)),
                   ),
                   child: Text(
                     paid ? 'Paid' : 'Payment pending',
@@ -1817,6 +1954,129 @@ class _AdminOrderCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Image section for the Add/Edit product dialogs: a preview of the picked
+/// (or stored) photo, an "Add image" button that opens the browser file
+/// picker (local files or Google Drive), and a Remove button so a wrong
+/// image can be deleted before saving.
+class _ProductImageField extends StatelessWidget {
+  final PickedImage? picked;
+  final String existingUrl;
+  final VoidCallback onPick;
+  final VoidCallback onRemove;
+
+  const _ProductImageField({
+    required this.picked,
+    required this.existingUrl,
+    required this.onPick,
+    required this.onRemove,
+  });
+
+  bool get _hasStoredImage => picked == null && existingUrl.isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = picked != null || _hasStoredImage;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Product photo',
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (picked != null)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: SizedBox(
+              height: 150,
+              width: double.infinity,
+              child: Image.memory(picked!.bytes,
+                  fit: BoxFit.cover, key: ValueKey(picked!.filename)),
+            ),
+          )
+        else if (_hasStoredImage)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: SizedBox(
+              height: 150,
+              width: double.infinity,
+              child: Image.network(
+                existingUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: AppColors.blueLight.withValues(alpha: 0.55),
+                  alignment: Alignment.center,
+                  child: Icon(Icons.broken_image_rounded,
+                      size: 30, color: AppColors.blueMid),
+                ),
+              ),
+            ),
+          )
+        else
+          Container(
+            height: 110,
+            width: double.infinity,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.blueLight.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.blueLight, width: 1.4),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_photo_alternate_rounded,
+                    size: 30, color: AppColors.blueMid),
+                const SizedBox(height: 6),
+                Text(
+                  'No image yet - buyers see the category shot',
+                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onPick,
+                icon: Icon(picked == null && _hasStoredImage
+                    ? Icons.swap_horiz_rounded
+                    : Icons.upload_rounded),
+                label: Text(hasImage ? 'Replace image' : 'Add image'),
+              ),
+            ),
+            if (hasImage) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Remove image',
+                onPressed: onRemove,
+                icon:
+                    Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+              ),
+            ],
+          ],
+        ),
+        if (picked != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${picked!.filename} (${picked!.sizeLabel})',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+            ),
+          ),
+      ],
     );
   }
 }

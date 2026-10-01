@@ -204,7 +204,8 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
 
   String get _packingLabel => widget.packing != null ? 'Packing' : 'Min. order';
 
-  String get _packingValue => widget.packing ??
+  String get _packingValue =>
+      widget.packing ??
       '${product.minOrderQty} unit${product.minOrderQty == 1 ? '' : 's'}';
 
   @override
@@ -229,8 +230,7 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.shadow
-                    .withValues(alpha: _hover ? 0.08 : 0.05),
+                color: AppColors.shadow.withValues(alpha: _hover ? 0.08 : 0.05),
                 blurRadius: _hover ? 16 : 10,
                 offset: Offset(0, _hover ? 8 : 4),
               ),
@@ -295,8 +295,11 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                   const _DashedDivider(),
                   const SizedBox(height: 10),
                   _specRow(_packingLabel, _packingValue),
-                  _specRow('Manufacturer',
-                      product.manufacturer.isEmpty ? '-' : product.manufacturer),
+                  _specRow(
+                      'Manufacturer',
+                      product.manufacturer.isEmpty
+                          ? '-'
+                          : product.manufacturer),
                   _specRow('Category', product.category),
                   const Spacer(),
                   // --- Big price, teal, like the framed HTML card ---
@@ -356,7 +359,6 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                           Text(isPlaceholder ? 'Sample item' : 'View details'),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -401,11 +403,11 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
       ),
     );
   }
-
 }
 
-/// Rounded image tile at the top-left of the card: shows the generated
-/// labelled bottle shot for this medicine, or a soft placeholder tile.
+/// Rounded image tile at the top-left of the card: shows the photo the admin
+/// uploaded when there is one, otherwise the generated labelled bottle shot
+/// for this medicine, or a soft placeholder tile.
 class _ImageTile extends StatelessWidget {
   final ProductRecord product;
 
@@ -418,19 +420,33 @@ class _ImageTile extends StatelessWidget {
       child: SizedBox(
         width: 56,
         height: 56,
-        child: Image.network(
-          'assets/products/labels/${_slug(product.name)}.png',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: AppColors.blueLight.withValues(alpha: 0.55),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.medication_rounded,
-              size: 26,
-              color: AppColors.blueMid.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
+        child: product.hasPhoto
+            ? Image.network(
+                product.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: AppColors.blueLight.withValues(alpha: 0.55),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.medication_rounded,
+                    size: 26,
+                    color: AppColors.blueMid.withValues(alpha: 0.7),
+                  ),
+                ),
+              )
+            : Image.network(
+                'assets/products/labels/${_slug(product.name)}.png',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: AppColors.blueLight.withValues(alpha: 0.55),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.medication_rounded,
+                    size: 26,
+                    color: AppColors.blueMid.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -486,8 +502,7 @@ class _DashedDivider extends StatelessWidget {
               (i) => Container(
                 width: dash,
                 height: 1,
-                margin:
-                    EdgeInsets.only(right: i == count - 1 ? 0 : gap),
+                margin: EdgeInsets.only(right: i == count - 1 ? 0 : gap),
                 color: AppColors.textMuted.withValues(alpha: 0.45),
               ),
             ),
@@ -562,5 +577,3 @@ const List<_PlaceholderMedicine> _placeholderMedicines = [
       price: 2.00,
       moq: 10),
 ];
-
-

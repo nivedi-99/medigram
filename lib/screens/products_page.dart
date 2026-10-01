@@ -13,11 +13,23 @@ import 'product_detail_page.dart';
 /// Products render as cards - image placeholder, name and description - and
 /// each card opens the product detail page (add to order / WhatsApp
 /// quotation live there).
+///
+/// When [guestMode] is set (public catalogue for signed-out visitors),
+/// ordering actions prompt the visitor to sign in via [onRequiresLogin]
+/// instead of starting the cart flow.
 class ProductsPage extends StatefulWidget {
   final List<ProductRecord> products;
   final VoidCallback? onOpenCart;
+  final bool guestMode;
+  final VoidCallback? onRequiresLogin;
 
-  const ProductsPage({super.key, required this.products, this.onOpenCart});
+  const ProductsPage({
+    super.key,
+    required this.products,
+    this.onOpenCart,
+    this.guestMode = false,
+    this.onRequiresLogin,
+  });
 
   @override
   State<ProductsPage> createState() => _ProductsPageState();
@@ -184,8 +196,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       final width = constraints.maxWidth;
                       final columns =
                           ((width + gap) / (316 + gap)).floor().clamp(1, 4);
-                      final cardWidth =
-                          (width - gap * (columns - 1)) / columns;
+                      final cardWidth = (width - gap * (columns - 1)) / columns;
                       return Wrap(
                         spacing: gap,
                         runSpacing: gap,
@@ -197,6 +208,8 @@ class _ProductsPageState extends State<ProductsPage> {
                               child: _ProductCard(
                                 product: p,
                                 onOpenCart: widget.onOpenCart,
+                                guestMode: widget.guestMode,
+                                onRequiresLogin: widget.onRequiresLogin,
                               ),
                             ),
                         ],
@@ -225,12 +238,19 @@ String _slug(String name) => name
 
 /// One catalogue product card: image placeholder on the left, the item name,
 /// description and price on the right. Tapping opens the product detail
-/// page.
+/// page. In guest mode, ordering prompts the visitor to sign in.
 class _ProductCard extends StatefulWidget {
   final ProductRecord product;
   final VoidCallback? onOpenCart;
+  final bool guestMode;
+  final VoidCallback? onRequiresLogin;
 
-  const _ProductCard({required this.product, this.onOpenCart});
+  const _ProductCard({
+    required this.product,
+    this.onOpenCart,
+    this.guestMode = false,
+    this.onRequiresLogin,
+  });
 
   @override
   State<_ProductCard> createState() => _ProductCardState();
@@ -306,211 +326,217 @@ class _ProductCardState extends State<_ProductCard> {
             ..rotateX(_hover ? -_pointer.dy * 0.05 : 0)
             ..rotateY(_hover ? _pointer.dx * 0.07 : 0),
           child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: _hover ? AppColors.blueMid : AppColors.border,
-              width: _hover ? 1.5 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    AppColors.shadow.withValues(alpha: _hover ? 0.08 : 0.05),
-                blurRadius: _hover ? 14 : 10,
-                offset: Offset(0, _hover ? 6 : 4),
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut,
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _hover ? AppColors.blueMid : AppColors.border,
+                width: _hover ? 1.5 : 1,
               ),
-              if (_hover)
+              boxShadow: [
                 BoxShadow(
-                  color: AppColors.blueMid.withValues(alpha: 0.30),
-                  blurRadius: 14,
-                  spreadRadius: 1,
+                  color:
+                      AppColors.shadow.withValues(alpha: _hover ? 0.08 : 0.05),
+                  blurRadius: _hover ? 14 : 10,
+                  offset: Offset(0, _hover ? 6 : 4),
                 ),
-            ],
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => ProductDetailPage(product: product),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ImageTile(product: product),
-                      const Spacer(),
-                      _CardBadge(product.category.toUpperCase()),
-                    ],
+                if (_hover)
+                  BoxShadow(
+                    color: AppColors.blueMid.withValues(alpha: 0.30),
+                    blurRadius: 14,
+                    spreadRadius: 1,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textDark,
+              ],
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => ProductDetailPage(
+                      product: product,
+                      guestMode: widget.guestMode,
+                      onRequiresLogin: widget.onRequiresLogin,
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Generic: $_generic'
-                    '${product.strength.isEmpty ? '' : '  |  Strength: ${product.strength}'}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textMuted,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _ImageTile(product: product),
+                        const Spacer(),
+                        _CardBadge(product.category.toUpperCase()),
+                      ],
                     ),
-                  ),
-                  if (_packaging.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Row(
-                        children: [
-                          Icon(Icons.inventory_2_rounded,
-                              size: 13, color: AppColors.blueMid),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              _packaging,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.blueMid,
+                    const SizedBox(height: 10),
+                    Text(
+                      product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Generic: $_generic'
+                      '${product.strength.isEmpty ? '' : '  |  Strength: ${product.strength}'}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                    if (_packaging.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          children: [
+                            Icon(Icons.inventory_2_rounded,
+                                size: 13, color: AppColors.blueMid),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: Text(
+                                _packaging,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.blueMid,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    const _DashedDivider(),
+                    const SizedBox(height: 8),
+                    Text(
+                      _description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.25,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textMuted,
                       ),
                     ),
-                  const SizedBox(height: 8),
-                  const _DashedDivider(),
-                  const SizedBox(height: 8),
-                  Text(
-                    _description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      height: 1.25,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.blueGradient,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Text(
-                          CurrencyService.format(product.price),
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.blueGradient,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Text(
+                            CurrencyService.format(product.price),
+                            style: const TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '/ unit',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        'Qty (MOQ ${product.minOrderQty})',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                      const Spacer(),
-                      _QtyButton(
-                        icon: Icons.remove_rounded,
-                        onTap: _qty > product.minOrderQty
-                            ? () => setState(() => _qty--)
-                            : null,
-                      ),
-                      Container(
-                        width: 52,
-                        alignment: Alignment.center,
-                        child: Text(
-                          '$_qty',
+                        const SizedBox(width: 8),
+                        Text(
+                          '/ unit',
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                            color: AppColors.textDark,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textMuted,
                           ),
                         ),
-                      ),
-                      _QtyButton(
-                        icon: Icons.add_rounded,
-                        onTap: () => setState(() => _qty++),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 42,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        CartService.addWithQuantity(product, _qty);
-                        // Quotation & payment hub: pay now or get a quote.
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                              builder: (_) => const QuotationPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.blueDark,
-                        foregroundColor: AppColors.onPrimary,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      icon:
-                          const Icon(Icons.add_shopping_cart_rounded, size: 18),
-                      label: const Text('Add to cart'),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          'Qty (MOQ ${product.minOrderQty})',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                        const Spacer(),
+                        _QtyButton(
+                          icon: Icons.remove_rounded,
+                          onTap: _qty > product.minOrderQty
+                              ? () => setState(() => _qty--)
+                              : null,
+                        ),
+                        Container(
+                          width: 52,
+                          alignment: Alignment.center,
+                          child: Text(
+                            '$_qty',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                        ),
+                        _QtyButton(
+                          icon: Icons.add_rounded,
+                          onTap: () => setState(() => _qty++),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 42,
+                      child: ElevatedButton.icon(
+                        onPressed: widget.guestMode
+                            ? (widget.onRequiresLogin ?? () {})
+                            : () {
+                                CartService.addWithQuantity(product, _qty);
+                                // Quotation & payment hub: pay now or get a quote.
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (_) => const QuotationPage()),
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.blueDark,
+                          foregroundColor: AppColors.onPrimary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        icon: const Icon(Icons.add_shopping_cart_rounded,
+                            size: 18),
+                        label: const Text('Add to cart'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
           ),
         ),
       ),
@@ -518,9 +544,10 @@ class _ProductCardState extends State<_ProductCard> {
   }
 }
 
-/// Rounded image tile at the top-left of a catalogue card: shows the
-/// generated labelled bottle shot for this medicine, or a soft placeholder
-/// tile with a medication icon.
+/// Rounded image tile at the top-left of a catalogue card: shows the photo
+/// the admin uploaded when there is one, otherwise the generated labelled
+/// bottle shot for this medicine, or a soft placeholder tile with a
+/// medication icon.
 class _ImageTile extends StatelessWidget {
   final ProductRecord product;
 
@@ -528,24 +555,42 @@ class _ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget image;
+    if (product.hasPhoto) {
+      image = Image.network(
+        product.imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: AppColors.blueLight.withValues(alpha: 0.55),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.medication_rounded,
+            size: 26,
+            color: AppColors.blueMid.withValues(alpha: 0.7),
+          ),
+        ),
+      );
+    } else {
+      image = Image.network(
+        'assets/products/labels/${_slug(product.name)}.png',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: AppColors.blueLight.withValues(alpha: 0.55),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.medication_rounded,
+            size: 26,
+            color: AppColors.blueMid.withValues(alpha: 0.7),
+          ),
+        ),
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         width: 56,
         height: 56,
-        child: Image.network(
-          'assets/products/labels/${_slug(product.name)}.png',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: AppColors.blueLight.withValues(alpha: 0.55),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.medication_rounded,
-              size: 26,
-              color: AppColors.blueMid.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
+        child: image,
       ),
     );
   }
@@ -651,7 +696,6 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
-
 
 /// Round +/- stepper button used on catalogue cards (disabled at MOQ).
 class _QtyButton extends StatelessWidget {

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/region_picker.dart';
@@ -12,7 +12,15 @@ class LandingPage extends StatefulWidget {
   final VoidCallback onLogin;
   final VoidCallback onSignup;
 
-  const LandingPage({super.key, required this.onLogin, required this.onSignup});
+  /// Opens the public medicine catalogue (guest browse, no login needed).
+  final VoidCallback onBrowse;
+
+  const LandingPage({
+    super.key,
+    required this.onLogin,
+    required this.onSignup,
+    required this.onBrowse,
+  });
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -54,14 +62,10 @@ class _LandingPageState extends State<LandingPage> {
         'Our customer support team is available round\nthe clock to assist with your queries.'),
   ];
 
-  void _requireLogin() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Login to browse the live export catalogue.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    widget.onLogin();
+  /// Every catalogue entry (Browse Medicines, category pills/tiles, footer
+  /// links) goes straight to the live catalogue — no login required.
+  void _browse() {
+    widget.onBrowse();
   }
 
   @override
@@ -234,7 +238,7 @@ class _LandingPageState extends State<LandingPage> {
                           color: AppColors.textDark)),
                   backgroundColor: AppColors.bg,
                   side: BorderSide(color: AppColors.border),
-                  onPressed: _requireLogin,
+                  onPressed: _browse,
                 ),
               ),
           ],
@@ -282,7 +286,7 @@ class _LandingPageState extends State<LandingPage> {
             runSpacing: 10,
             children: [
               ElevatedButton.icon(
-                onPressed: _requireLogin,
+                onPressed: _browse,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: AppColors.blueDark,
@@ -445,7 +449,7 @@ class _LandingPageState extends State<LandingPage> {
                 SizedBox(
                   width: 210,
                   child: SoftCard(
-                    onTap: _requireLogin,
+                    onTap: _browse,
                     child: Row(
                       children: [
                         Container(
@@ -588,12 +592,12 @@ class _LandingPageState extends State<LandingPage> {
           _footerColumn('Quick Links', [
             ('Login', widget.onLogin),
             ('Create Account', widget.onSignup),
-            ('Browse Medicines', _requireLogin),
+            ('Browse Medicines', _browse),
           ]),
           _footerColumn('Categories', [
-            ('Women\'s Personal Use', _requireLogin),
-            ('ED Medicines', _requireLogin),
-            ('Pain Killers', _requireLogin),
+            ('Women\'s Personal Use', _browse),
+            ('ED Medicines', _browse),
+            ('Pain Killers', _browse),
           ]),
           _footerColumn('Contact Us', [
             ('Nagpur, Maharashtra, India', null),

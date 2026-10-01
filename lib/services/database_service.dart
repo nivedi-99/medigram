@@ -1,6 +1,7 @@
 import '../models/models.dart';
 import 'api_client.dart';
 import 'cart_service.dart';
+import 'product_image.dart';
 
 /// Admin-side data access. Every call goes through the MediGram API
 /// (Railway) — Row Level Security on the database stays as defense-in-depth.
@@ -19,7 +20,9 @@ class DatabaseService {
       if (verificationStatus != null) 'status': verificationStatus,
     });
     final rows = body['data'] as List<dynamic>;
-    return rows.map((r) => ClientRecord.fromMap(r as Map<String, dynamic>)).toList();
+    return rows
+        .map((r) => ClientRecord.fromMap(r as Map<String, dynamic>))
+        .toList();
   }
 
   /// P2 · verifies or rejects a client's KYC status.
@@ -27,7 +30,8 @@ class DatabaseService {
     required String clientId,
     required String status, // 'verified' | 'rejected' | 'pending'
   }) async {
-    await ApiClient.patch('/clients/$clientId/verify', body: {'status': status});
+    await ApiClient.patch('/clients/$clientId/verify',
+        body: {'status': status});
   }
 
   /// Assigns a client to an admin handler.
@@ -47,7 +51,9 @@ class DatabaseService {
   static Future<List<AdminRecord>> fetchAdmins() async {
     final body = await ApiClient.get('/admins');
     final rows = body['data']['handlers'] as List<dynamic>;
-    return rows.map((r) => AdminRecord.fromMap(r as Map<String, dynamic>)).toList();
+    return rows
+        .map((r) => AdminRecord.fromMap(r as Map<String, dynamic>))
+        .toList();
   }
 
   /// Role totals for the super-admin overview.
@@ -90,7 +96,9 @@ class DatabaseService {
   }) async {
     final body = await ApiClient.get('/products');
     final rows = body['data'] as List<dynamic>;
-    return rows.map((r) => ProductRecord.fromMap(r as Map<String, dynamic>)).toList();
+    return rows
+        .map((r) => ProductRecord.fromMap(r as Map<String, dynamic>))
+        .toList();
   }
 
   /// Lightweight order statistics for the admin dashboard.
@@ -205,6 +213,7 @@ class DatabaseService {
     String manufacturer = '',
     String description = '',
     String strength = '',
+    String imageUrl = '',
     required double price,
     int minOrderQty = 1,
   }) async {
@@ -214,11 +223,37 @@ class DatabaseService {
       'manufacturer': manufacturer,
       'description': description,
       'strength': strength,
+      if (imageUrl.isNotEmpty) 'imageUrl': imageUrl,
       'price': price,
       'currency': 'USD',
       'minOrderQty': minOrderQty,
     });
     return ProductRecord.fromMap(body['data'] as Map<String, dynamic>);
+  }
+
+  /// Uploads a product photo the admin picked in the browser and returns its
+  /// permanent public URL (POST /uploads/product-image).
+  static Future<String> uploadProductImage(PickedImage image) async {
+    final body = await ApiClient.upload(
+      '/uploads/product-image',
+      filename: image.filename,
+      bytes: image.bytes,
+      contentType: image.contentType,
+    );
+    final data = body['data'] as Map<String, dynamic>;
+    return data['url']?.toString() ?? '';
+  }
+
+  /// Best-effort storage cleanup after an admin removes/replaces a photo.
+  /// Never throws — an orphaned object must not break the UI flow.
+  static Future<void> deleteProductImage(String url) async {
+    if (url.isEmpty) return;
+    try {
+      await ApiClient.delete(
+          '/uploads/product-image?url=${Uri.encodeComponent(url)}');
+    } catch (_) {
+      // Ignore: the catalogue row is already cleared via PATCH /products/:id.
+    }
   }
 
   /// Soft-deletes a catalogue entry (DELETE /products/:id) - the row
@@ -234,6 +269,7 @@ class DatabaseService {
     String? manufacturer,
     String? description,
     String? strength,
+    String? imageUrl,
     double? price,
     int? minOrderQty,
     bool? isActive,
@@ -243,6 +279,8 @@ class DatabaseService {
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (description != null) 'description': description,
       if (strength != null) 'strength': strength,
+      // '' clears the photo, so pass it through whenever it was touched.
+      if (imageUrl != null) 'imageUrl': imageUrl,
       if (price != null) 'price': price,
       if (minOrderQty != null) 'minOrderQty': minOrderQty,
       if (isActive != null) 'isActive': isActive,

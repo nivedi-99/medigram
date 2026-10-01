@@ -7,7 +7,11 @@ import { requireRole } from '../middleware/role.js';
 import { validate, pagination } from '../middleware/validate.js';
 
 const router = Router();
-router.use(requireAuth);
+
+// NOTE: GET / is PUBLIC — signed-out visitors can browse the active export
+// catalogue from the landing page. Every write stays admin-only, and the
+// service-role client used here bypasses RLS, so no policy change is needed
+// (direct anon access to the table itself is still blocked by RLS).
 
 const createSchema = z.object({
   name: z.string().trim().min(2).max(160),
@@ -19,9 +23,70 @@ const createSchema = z.object({
   currency: z.string().trim().length(3).optional().default('USD'),
   minOrderQty: z.number().int().positive().optional().default(1),
   isActive: z.boolean().optional().default(true),
+  imageUrl: z
+    .string()
+    .trim()
+    .max(2048)
+    // '' clears the photo; otherwise it must be an http(s) public URL.
+    .refine((v) => v === '' || /^https?:\/\//i.test(v), {
+      message: 'imageUrl must be an http(s) URL',
+    })
+    .optional(),
 });
 
 const patchSchema = createSchema.partial();
+
+/**
+ * True when the live database still lacks the strength / image_url column
+ * (supabase/upgrade_strength_payments.sql, add_product_images.sql not applied
+ * yet). PostgREST reports PGRST204 / SQLSTATE 42703 for undefined columns.
+ */
+const isMissingStrengthColumn = (error) =>
+  !!error &&
+  (error.code === 'PGRST204' ||
+    error.code === '42703' ||
+    /strength/i.test(error.message ?? ''));
+
+const isMissingImageUrlColumn = (error) =>
+  !!error &&
+  (error.code === 'PGRST204' || error.code === '42703') &&
+  /image_url/i.test(error.message ?? '');
+
+/** Returns a shallow copy of the row without the strength field. */
+const omitStrength = (row) => {
+  const { strength, ...rest } = row;
+  return rest;
+};
+
+/** Returns a shallow copy of the row without the image_url field. */
+const omitImageUrl = (row) => {
+  const { image_url, ...rest } = row;
+  return rest;
+};
+
+/**
+ * Runs a PostgREST write against `row`, transparently dropping the optional
+ * strength / image_url fields when the live database predates their
+ * migrations (each failing query names one missing column, so the loop can
+ * shed up to two). Once the SQL upgrades are applied the first attempt
+ * always succeeds and nothing is dropped.
+ */
+async function writeWithColumnFallback(row, run) {
+  let payload = row;
+  let result = await run(payload);
+  for (let i = 0; i < 2 && result.error; i += 1) {
+    const { error } = result;
+    if (payload.strength !== undefined && isMissingStrengthColumn(error)) {
+      payload = omitStrength(payload);
+    } else if (payload.image_url !== undefined && isMissingImageUrlColumn(error)) {
+      payload = omitImageUrl(payload);
+    } else {
+      break;
+    }
+    result = await run(payload);
+  }
+  return result;
+}
 
 /**
  * P7 · CATALOGUE PIPELINE — GET /api/v1/products
@@ -29,7 +94,10 @@ const patchSchema = createSchema.partial();
  */
 router.get('/', async (req, res, next) => {
   try {
-    const isAdmin = ['admin', 'super_admin'].includes(req.user.role);
+    // Guests (no/invalid token) browse the same active catalogue clients see;
+    // only authenticated admins additionally see hidden rows.
+    const role = req.user?.role;
+    const isAdmin = role === 'admin' || role === 'super_admin';
     const { page, limit, offset } = pagination(req, PAGINATION.defaultLimit, PAGINATION.maxLimit);
 
     let query = admin.from('products').select('*', { count: 'exact' });
@@ -46,7 +114,7 @@ router.get('/', async (req, res, next) => {
 });
 
 /** POST /api/v1/products — create a catalogue entry (admin). */
-router.post('/', requireRole('admin'), validate({ body: createSchema }), async (req, res, next) => {
+router.post('/', requireAuth, requireRole('admin'), validate({ body: createSchema }), async (req, res, next) => {
   try {
     const b = req.body;
     // PostgREST speaks snake_case - map the camelCase API body.
@@ -62,8 +130,13 @@ router.post('/', requireRole('admin'), validate({ body: createSchema }), async (
       // Omitted when empty so inserts also work before the strength
       // migration has been applied to the live database.
       ...(b.strength ? { strength: b.strength } : {}),
+      // Admin-uploaded product photo (empty = no photo, so the key is
+      // omitted rather than stored as '').
+      ...(b.imageUrl ? { image_url: b.imageUrl } : {}),
     };
-    const { data, error } = await admin.from('products').insert(row).select().single();
+    let { data, error } = await writeWithColumnFallback(row, (payload) =>
+      admin.from('products').insert(payload).select().single(),
+    );
     if (error) return next(mapDbError(error));
     res.status(201).json({ data });
   } catch (err) {
@@ -74,6 +147,7 @@ router.post('/', requireRole('admin'), validate({ body: createSchema }), async (
 /** PATCH /api/v1/products/:id — edit a catalogue entry (admin). */
 router.patch(
   '/:id',
+  requireAuth,
   requireRole('admin'),
   validate({ body: patchSchema }),
   async (req, res, next) => {
@@ -91,13 +165,17 @@ router.patch(
         ...(b.currency !== undefined && { currency: b.currency }),
         ...(b.minOrderQty !== undefined && { min_order_qty: b.minOrderQty }),
         ...(b.isActive !== undefined && { is_active: b.isActive }),
+        // Sent on every image edit — including '' which clears the photo.
+        ...(b.imageUrl !== undefined && { image_url: b.imageUrl }),
       };
-      const { data, error } = await admin
-        .from('products')
-        .update(row)
-        .eq('id', req.params.id)
-        .select()
-        .single();
+      let { data, error } = await writeWithColumnFallback(row, (payload) =>
+        admin
+          .from('products')
+          .update(payload)
+          .eq('id', req.params.id)
+          .select()
+          .single(),
+      );
       if (error) return next(mapDbError(error));
       if (!data) return next(errors.notFound('Product'));
       res.json({ data });
@@ -111,7 +189,7 @@ router.patch(
  * DELETE /api/v1/products/:id — SOFT delete only (is_active=false).
  * Hard deletes would orphan historical order_items (P7 guarantee).
  */
-router.delete('/:id', requireRole('admin'), async (req, res, next) => {
+router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
     const { data, error } = await admin
       .from('products')

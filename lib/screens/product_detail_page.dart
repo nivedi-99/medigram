@@ -14,10 +14,20 @@ import '../widgets/whatsapp_chat_button.dart';
 /// Shows the category product shot, brand/molecule identity, the strengths
 /// and supplier details (kept verbatim from the catalogue description), MOQ
 /// and price, plus add-to-order and a pre-filled WhatsApp quotation inquiry.
+///
+/// In guest mode (public catalogue), "Add to order" prompts the visitor to
+/// sign in via [onRequiresLogin]; the WhatsApp quotation stays available.
 class ProductDetailPage extends StatelessWidget {
   final ProductRecord product;
+  final bool guestMode;
+  final VoidCallback? onRequiresLogin;
 
-  const ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({
+    super.key,
+    required this.product,
+    this.guestMode = false,
+    this.onRequiresLogin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +64,7 @@ class ProductDetailPage extends StatelessWidget {
                     _buildHeader(context),
                     const SizedBox(height: 12),
                     _ProductImage(
-                        asset: product.imageAsset, label: product.name),
+                        source: product.imageSrc, label: product.name),
                     const SizedBox(height: 18),
                     Text(
                       product.name,
@@ -234,13 +244,16 @@ class ProductDetailPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton.icon(
-          onPressed: () {
-            CartService.add(product);
-            // Quotation & payment hub: pay now or request a quotation.
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const QuotationPage()),
-            );
-          },
+          onPressed: guestMode
+              ? (onRequiresLogin ?? () {})
+              : () {
+                  CartService.add(product);
+                  // Quotation & payment hub: pay now or request a quotation.
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                        builder: (_) => const QuotationPage()),
+                  );
+                },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blueDark,
             foregroundColor: AppColors.onPrimary,
@@ -285,13 +298,15 @@ class ProductDetailPage extends StatelessWidget {
   }
 }
 
-/// Category product shot with the same loading/error treatment as the
-/// catalogue cards (spinner, then a first-letter fallback avatar).
+/// Product photo with the same loading/error treatment as the catalogue
+/// cards (spinner, then a first-letter fallback avatar). `source` is the
+/// admin-uploaded photo URL when one exists, otherwise the bundled
+/// category product shot.
 class _ProductImage extends StatelessWidget {
-  final String asset;
+  final String source;
   final String label;
 
-  const _ProductImage({required this.asset, required this.label});
+  const _ProductImage({required this.source, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +315,7 @@ class _ProductImage extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 16 / 9,
         child: Image.network(
-          asset,
+          source,
           fit: BoxFit.cover,
           width: double.infinity,
           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>

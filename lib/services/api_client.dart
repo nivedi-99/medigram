@@ -76,9 +76,11 @@ class ApiClient {
         body: jsonEncode({'refreshToken': refresh}),
       );
       if (res.statusCode != 200) return false;
-      final body = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      final body =
+          jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       final data = body['data'] as Map<String, dynamic>;
-      await _persist(data['accessToken'] as String, data['refreshToken'] as String?);
+      await _persist(
+          data['accessToken'] as String, data['refreshToken'] as String?);
       return true;
     } catch (_) {
       return false;
@@ -116,7 +118,8 @@ class ApiClient {
             body: body, query: query, auth: auth, retryOn401: false);
       }
       await clearSession();
-      throw const ApiException(401, 'UNAUTHORIZED', 'Session expired — please sign in again.');
+      throw const ApiException(
+          401, 'UNAUTHORIZED', 'Session expired — please sign in again.');
     }
 
     final text = await res.stream.bytesToString();
@@ -139,8 +142,6 @@ class ApiClient {
     }
     return decoded;
   }
-
-
 
   static Future<Map<String, dynamic>> get(String path,
           {Map<String, String>? query}) =>
@@ -175,7 +176,6 @@ class ApiClient {
     return utf8.decode(res.bodyBytes);
   }
 
-
   static Future<Map<String, dynamic>> post(String path,
           {Map<String, dynamic>? body}) =>
       _send('POST', path, body: body);
@@ -190,4 +190,61 @@ class ApiClient {
 
   static Future<Map<String, dynamic>> delete(String path) =>
       _send('DELETE', path);
+
+  /// Uploads a binary file (product photos) as a raw POST body. The API
+  /// reads it with `express.raw({ type: 'image/*' })`, so the file's real
+  /// MIME type must be the request content-type; the original filename
+  /// travels in `x-filename` (ASCII-sanitised for the header). Uses the same
+  /// session + 401 -> refresh -> single-retry behaviour as [_send].
+  static Future<Map<String, dynamic>> upload(
+    String path, {
+    required String filename,
+    required List<int> bytes,
+    required String contentType,
+    bool retryOn401 = true,
+  }) async {
+    final uri = ApiConfig.uri(path);
+    final safeName = filename.replaceAll(RegExp(r'[^\x20-\x7E]'), '_');
+    final headers = <String, String>{
+      'Content-Type': contentType,
+      'x-filename': safeName,
+      if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
+    };
+
+    final res = await _client
+        .post(uri, headers: headers, body: bytes)
+        .timeout(const Duration(seconds: 60));
+
+    if (res.statusCode == 401 && retryOn401) {
+      final refreshed = await refreshSession();
+      if (refreshed) {
+        return upload(path,
+            filename: filename,
+            bytes: bytes,
+            contentType: contentType,
+            retryOn401: false);
+      }
+      await clearSession();
+      throw const ApiException(
+          401, 'UNAUTHORIZED', 'Session expired — please sign in again.');
+    }
+
+    Map<String, dynamic> decoded = {};
+    if (res.body.isNotEmpty) {
+      try {
+        decoded = jsonDecode(res.body) as Map<String, dynamic>;
+      } catch (_) {
+        decoded = {'raw': res.body};
+      }
+    }
+    if (res.statusCode >= 400) {
+      final err = decoded['error'] as Map<String, dynamic>?;
+      throw ApiException(
+        res.statusCode,
+        err?['code']?.toString() ?? 'HTTP_${res.statusCode}',
+        err?['message']?.toString() ?? 'Upload failed (${res.statusCode})',
+      );
+    }
+    return decoded;
+  }
 }

@@ -104,8 +104,8 @@ class MedicineOrder {
     return MedicineOrder(
       uuid: (map['id'] ?? '') as String,
       id: (map['order_number'] ?? '') as String,
-      date:
-          DateTime.tryParse(map['created_at']?.toString() ?? '') ?? DateTime.now(),
+      date: DateTime.tryParse(map['created_at']?.toString() ?? '') ??
+          DateTime.now(),
       items: items,
       status: statusFromApi(map['status']?.toString()),
       paymentMethod: (map['payment_method'] ?? '') as String,
@@ -152,7 +152,8 @@ class AppNotification {
       id: (map['id'] ?? '') as String,
       title: (map['title'] ?? '') as String,
       subtitle: (map['body'] ?? '') as String,
-      time: DateTime.tryParse(map['created_at']?.toString() ?? '') ?? DateTime.now(),
+      time: DateTime.tryParse(map['created_at']?.toString() ?? '') ??
+          DateTime.now(),
       unread: !(map['is_read'] as bool? ?? false),
       kind: kindFromApi(map['kind']?.toString()),
     );
@@ -358,6 +359,7 @@ class ProductRecord {
   final String manufacturer;
   final String description;
   final String strength;
+  final String imageUrl;
   final double price;
   final int minOrderQty;
   final bool isActive;
@@ -369,6 +371,7 @@ class ProductRecord {
     this.manufacturer = '',
     this.description = '',
     this.strength = '',
+    this.imageUrl = '',
     this.price = 0,
     this.minOrderQty = 1,
     this.isActive = true,
@@ -382,6 +385,7 @@ class ProductRecord {
       manufacturer: map['manufacturer']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
       strength: map['strength']?.toString() ?? '',
+      imageUrl: map['image_url']?.toString() ?? '',
       price: (map['price'] as num?)?.toDouble() ?? 0,
       minOrderQty: (map['min_order_qty'] as num?)?.toInt() ?? 1,
       isActive: map['is_active'] as bool? ?? true,
@@ -398,5 +402,12 @@ class ProductRecord {
         .replaceAll(RegExp(r'^-+|-+$'), '');
     return 'assets/products/$slug.jpg';
   }
-}
 
+  /// Best image source for this product: the photo the admin uploaded
+  /// (Supabase Storage URL) when present, otherwise the bundled category
+  /// product shot.
+  String get imageSrc => imageUrl.isNotEmpty ? imageUrl : imageAsset;
+
+  /// True when this product has an admin-uploaded photo attached.
+  bool get hasPhoto => imageUrl.isNotEmpty;
+}

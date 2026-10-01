@@ -18,6 +18,7 @@ import notificationsRoutes from './src/routes/notifications.routes.js';
 import reportsRoutes from './src/routes/reports.routes.js';
 import paymentsRoutes from './src/routes/payments.routes.js';
 import exportsRoutes from './src/routes/exports.routes.js';
+import uploadsRoutes from './src/routes/uploads.routes.js';
 
 const app = express();
 
@@ -60,6 +61,7 @@ v1.use('/notifications', apiLimiter, notificationsRoutes);
 v1.use('/reports', apiLimiter, reportsRoutes);
 v1.use('/payments', apiLimiter, paymentsRoutes);
 v1.use('/exports', apiLimiter, exportsRoutes);
+v1.use('/uploads', apiLimiter, uploadsRoutes);
 
 app.use('/api/v1', v1);
 

@@ -4,6 +4,7 @@ import 'models/models.dart';
 import 'screens/admin/admin_dashboard_page.dart';
 import 'screens/auth/login_page.dart';
 import 'screens/auth/signup_page.dart';
+import 'screens/guest_catalogue_page.dart';
 import 'screens/home_shell.dart';
 import 'screens/landing_page.dart';
 import 'services/api_client.dart';
@@ -63,6 +64,15 @@ class _MediGramAppState extends State<MediGramApp> {
     setState(() => _user = user);
   }
 
+  /// Opens the login page on the root navigator; completes when it closes
+  /// (login swaps the root home on success and pops itself).
+  Future<void> _openLogin() {
+    return _navigatorKey.currentState!.push(
+      MaterialPageRoute(
+          builder: (_) => LoginPage(onLoginSuccess: _onLoginSuccess)),
+    );
+  }
+
   Future<void> _onLogout() async {
     await AuthService.signOut();
     if (!mounted) return;
@@ -95,11 +105,17 @@ class _MediGramAppState extends State<MediGramApp> {
     final user = _user;
     if (user == null) {
       return LandingPage(
-        onLogin: () => _navigatorKey.currentState!.push(
-          MaterialPageRoute(builder: (_) => LoginPage(onLoginSuccess: _onLoginSuccess)),
-        ),
+        onLogin: () => _openLogin(),
         onSignup: () => _navigatorKey.currentState!.push(
-          MaterialPageRoute(builder: (_) => SignUpPage(onSignUpSuccess: _onLoginSuccess)),
+          MaterialPageRoute(
+              builder: (_) => SignUpPage(onSignUpSuccess: _onLoginSuccess)),
+        ),
+        // Browse Medicines / category entries open the live catalogue
+        // directly — signed-out visitors browse as guests.
+        onBrowse: () => _navigatorKey.currentState!.push(
+          MaterialPageRoute(
+            builder: (_) => GuestCataloguePage(onLogin: _openLogin),
+          ),
         ),
       );
     }
