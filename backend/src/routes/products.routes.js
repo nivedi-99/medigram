@@ -134,9 +134,14 @@ router.post('/', requireAuth, requireRole('admin'), validate({ body: createSchem
       // omitted rather than stored as '').
       ...(b.imageUrl ? { image_url: b.imageUrl } : {}),
     };
+    // NOTE: .select() on purpose, never .single() — .single() mangles write
+    // errors (e.g. the missing-column PGRST204 below) into an opaque
+    // "Cannot coerce the result to a single JSON object" failure. The insert
+    // targets exactly one row, so take the first returned row.
     let { data, error } = await writeWithColumnFallback(row, (payload) =>
-      admin.from('products').insert(payload).select().single(),
+      admin.from('products').insert(payload).select(),
     );
+    data = Array.isArray(data) ? (data[0] ?? null) : data;
     if (error) return next(mapDbError(error));
     res.status(201).json({ data });
   } catch (err) {
@@ -168,14 +173,16 @@ router.patch(
         // Sent on every image edit — including '' which clears the photo.
         ...(b.imageUrl !== undefined && { image_url: b.imageUrl }),
       };
+      // Same .select() note as POST — keep write errors parseable so the
+      // missing-column fallback below can actually see them.
       let { data, error } = await writeWithColumnFallback(row, (payload) =>
         admin
           .from('products')
           .update(payload)
           .eq('id', req.params.id)
-          .select()
-          .single(),
+          .select(),
       );
+      data = Array.isArray(data) ? (data[0] ?? null) : data;
       if (error) return next(mapDbError(error));
       if (!data) return next(errors.notFound('Product'));
       res.json({ data });
@@ -191,15 +198,17 @@ router.patch(
  */
 router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
+    // .select() without .single() — same reason as POST/PATCH: keep write
+    // errors parseable and treat an empty result as "not found".
     const { data, error } = await admin
       .from('products')
       .update({ is_active: false })
       .eq('id', req.params.id)
-      .select()
-      .single();
+      .select();
+    const row = Array.isArray(data) ? (data[0] ?? null) : data;
     if (error) return next(mapDbError(error));
-    if (!data) return next(errors.notFound('Product'));
-    res.json({ data });
+    if (!row) return next(errors.notFound('Product'));
+    res.json({ data: row });
   } catch (err) {
     next(err);
   }

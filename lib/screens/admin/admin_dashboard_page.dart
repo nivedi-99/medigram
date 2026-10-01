@@ -1055,7 +1055,20 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                 await DatabaseService.uploadProductImage(image);
                             updated = await DatabaseService.updateProduct(
                                 id: product.id, imageUrl: url);
-                            DatabaseService.deleteProductImage(oldUrl);
+                            if (updated.hasPhoto) {
+                              DatabaseService.deleteProductImage(oldUrl);
+                            } else {
+                              // The API dropped the photo because the
+                              // products.image_url column is not applied yet.
+                              await DatabaseService.deleteProductImage(url);
+                              messenger.showSnackBar(const SnackBar(
+                                content: Text('Saved without the photo - apply '
+                                    'supabase/add_product_images.sql in the '
+                                    'Supabase SQL Editor, then set the photo '
+                                    'again'),
+                                behavior: SnackBarBehavior.floating,
+                              ));
+                            }
                           } catch (e) {
                             if (!mounted) return;
                             messenger.showSnackBar(SnackBar(
@@ -1227,6 +1240,15 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                 await DatabaseService.uploadProductImage(image);
                             created = await DatabaseService.updateProduct(
                                 id: created.id, imageUrl: url);
+                            if (!created.hasPhoto) {
+                              // The API dropped the photo because the
+                              // products.image_url column is not applied yet.
+                              await DatabaseService.deleteProductImage(url);
+                              _toast('Saved without the photo - apply '
+                                  'supabase/add_product_images.sql in the '
+                                  'Supabase SQL Editor, then set the photo '
+                                  'again');
+                            }
                           } catch (e) {
                             if (!mounted) return;
                             _toast('${created.name} was created, but the '
