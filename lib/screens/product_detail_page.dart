@@ -35,16 +35,13 @@ class ProductDetailPage extends StatelessWidget {
         product.manufacturer.isEmpty ? 'General' : product.manufacturer;
 
     // Catalogue description stores strengths and supplier/notes separated by
-    // a pipe character (built via fromCharCode to keep this file pipe-free).
+    // a pipe character — shown to buyers as separate description lines.
     final sep = String.fromCharCode(124);
     final parts = product.description
         .split(sep)
         .map((p) => p.trim())
         .where((p) => p.isNotEmpty)
         .toList();
-    final strengths = parts.isEmpty ? product.strength : parts.first;
-    final rest = parts.skip(1).toList();
-    final supplier = rest.isEmpty ? '' : rest.join('' '');
 
     final quotationMessage = 'Hello MediGram! Please send me a quotation for '
         '${product.name} ($generic), MOQ: ${product.minOrderQty} units.';
@@ -63,12 +60,45 @@ class ProductDetailPage extends StatelessWidget {
                   children: [
                     _buildHeader(context),
                     const SizedBox(height: 12),
-                    _ProductImage(
-                        source: product.imageUrl.isNotEmpty
-                            ? product.imageUrl
-                            : product.imageAsset,
-                        fallbackAsset: product.imageAsset,
-                        label: product.name),
+                    GestureDetector(
+                      onTap: () => _openImageViewer(context),
+                      child: Stack(
+                        children: [
+                          _ProductImage(
+                              source: _photoSource,
+                              fallbackAsset: product.imageAsset,
+                              label: product.name),
+                          Positioned(
+                            right: 10,
+                            bottom: 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.zoom_in_rounded,
+                                      size: 14, color: Colors.white),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'Tap to enlarge',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 18),
                     Text(
                       product.name,
@@ -119,13 +149,37 @@ class ProductDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (strengths.isNotEmpty) ...[
+                    if (product.strength.isNotEmpty ||
+                        product.manufacturer.isNotEmpty ||
+                        product.description.isNotEmpty) ...[
                       const SizedBox(height: 14),
-                      _detailCard('Strengths / Variants', strengths),
+                      _infoCard('Product information', [
+                        if (product.manufacturer.isNotEmpty)
+                          _infoRow(Icons.factory_rounded, 'Manufacturer',
+                              product.manufacturer),
+                        _infoRow(Icons.category_rounded, 'Category',
+                            product.category),
+                        if (product.strength.isNotEmpty)
+                          _infoRow(Icons.medication_rounded, 'Strength',
+                              product.strength),
+                        _infoRow(
+                          Icons.inventory_2_rounded,
+                          'Min. order quantity',
+                          '${product.minOrderQty} unit${product.minOrderQty == 1 ? '' : 's'}',
+                        ),
+                        _infoRow(Icons.sell_rounded, 'Unit price',
+                            CurrencyService.priceLine(product.price)),
+                      ]),
                     ],
-                    if (rest.isNotEmpty) ...[
+                    if (product.description.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      _detailCard('Supplier & Notes', supplier),
+                      _detailCard(
+                        'Description',
+                        parts.isEmpty
+                            ? 'Details available on request - contact the '
+                                'MediGram trade desk.'
+                            : parts.map((p) => '•  $p').join('\n'),
+                      ),
                     ],
                     const SizedBox(height: 26),
                     _buildActions(context, quotationMessage),
@@ -134,6 +188,70 @@ class ProductDetailPage extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Best available photo: the admin-uploaded image when present, otherwise
+  /// the bundled category product shot.
+  String get _photoSource =>
+      product.imageUrl.isNotEmpty ? product.imageUrl : product.imageAsset;
+
+  /// Fullscreen, pinch-zoomable view of the product photo.
+  void _openImageViewer(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              maxScale: 4,
+              child: Center(
+                child: Image.network(
+                  _photoSource,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Image.network(
+                    product.imageAsset,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: AppColors.blueLight.withValues(alpha: 0.55),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        product.name.isEmpty
+                            ? '?'
+                            : product.name.substring(0, 1).toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 72,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.blueDark,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                tooltip: 'Close',
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                  foregroundColor: Colors.white,
+                ),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -207,6 +325,67 @@ class ProductDetailPage extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w800,
               color: AppColors.textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Grouped "Product information" card with icon-labelled detail rows.
+  Widget _infoCard(String title, List<Widget> rows) {
+    return SoftCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+              color: AppColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 4),
+          ...rows,
+        ],
+      ),
+    );
+  }
+
+  /// One icon + label + value row inside the product information card.
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 17, color: AppColors.blueMid),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -322,7 +501,7 @@ class _ProductImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: AspectRatio(
-        aspectRatio: 16 / 9,
+        aspectRatio: 4 / 3,
         child: Image.network(
           source,
           fit: BoxFit.cover,
