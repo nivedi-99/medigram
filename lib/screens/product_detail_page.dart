@@ -64,7 +64,11 @@ class ProductDetailPage extends StatelessWidget {
                     _buildHeader(context),
                     const SizedBox(height: 12),
                     _ProductImage(
-                        source: product.imageSrc, label: product.name),
+                        source: product.imageUrl.isNotEmpty
+                            ? product.imageUrl
+                            : product.imageAsset,
+                        fallbackAsset: product.imageAsset,
+                        label: product.name),
                     const SizedBox(height: 18),
                     Text(
                       product.name,
@@ -298,15 +302,20 @@ class ProductDetailPage extends StatelessWidget {
   }
 }
 
-/// Product photo with the same loading/error treatment as the catalogue
-/// cards (spinner, then a first-letter fallback avatar). `source` is the
-/// admin-uploaded photo URL when one exists, otherwise the bundled
-/// category product shot.
+/// Product photo with layered fallbacks: the admin-uploaded photo (or its
+/// canonical storage path) first, then the bundled category product shot,
+/// then a first-letter avatar — same loading/error treatment as the
+/// catalogue cards.
 class _ProductImage extends StatelessWidget {
   final String source;
+  final String fallbackAsset;
   final String label;
 
-  const _ProductImage({required this.source, required this.label});
+  const _ProductImage({
+    required this.source,
+    required this.fallbackAsset,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -339,15 +348,20 @@ class _ProductImage extends StatelessWidget {
               ),
             );
           },
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: AppColors.blueLight.withValues(alpha: 0.55),
-            alignment: Alignment.center,
-            child: Text(
-              label.isEmpty ? '?' : label.substring(0, 1).toUpperCase(),
-              style: TextStyle(
-                fontSize: 64,
-                fontWeight: FontWeight.w800,
-                color: AppColors.blueDark,
+          errorBuilder: (context, error, stackTrace) => Image.network(
+            fallbackAsset,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: AppColors.blueLight.withValues(alpha: 0.55),
+              alignment: Alignment.center,
+              child: Text(
+                label.isEmpty ? '?' : label.substring(0, 1).toUpperCase(),
+                style: TextStyle(
+                  fontSize: 64,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.blueDark,
+                ),
               ),
             ),
           ),

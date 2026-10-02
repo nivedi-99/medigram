@@ -232,13 +232,19 @@ class DatabaseService {
   }
 
   /// Uploads a product photo the admin picked in the browser and returns its
-  /// permanent public URL (POST /uploads/product-image).
-  static Future<String> uploadProductImage(PickedImage image) async {
+  /// permanent public URL (POST /uploads/product-image). The photo is pinned
+  /// to the product's canonical storage path, so it resolves even before the
+  /// products.image_url column exists.
+  static Future<String> uploadProductImage(
+    PickedImage image, {
+    required String productId,
+  }) async {
     final body = await ApiClient.upload(
       '/uploads/product-image',
       filename: image.filename,
       bytes: image.bytes,
       contentType: image.contentType,
+      headers: {'x-product-id': productId},
     );
     final data = body['data'] as Map<String, dynamic>;
     return data['url']?.toString() ?? '';

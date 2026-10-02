@@ -541,7 +541,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                     fit: BoxFit.cover,
                                     errorBuilder:
                                         (context, error, stackTrace) => Icon(
-                                      Icons.broken_image_rounded,
+                                      Icons.medication_rounded,
                                       color: AppColors.blueDark,
                                       size: 23,
                                     ),
@@ -954,6 +954,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 _ProductImageField(
                   picked: newImage,
                   existingUrl: removeImage ? '' : product.imageUrl,
+                  hasStoredPhoto: product.hasStoredPhoto,
                   onPick: () async {
                     try {
                       final image = await pickProductImage();
@@ -1052,20 +1053,21 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         if (image != null) {
                           try {
                             final url =
-                                await DatabaseService.uploadProductImage(image);
+                                await DatabaseService.uploadProductImage(image,
+                                    productId: product.id);
                             updated = await DatabaseService.updateProduct(
                                 id: product.id, imageUrl: url);
-                            if (updated.hasPhoto) {
+                            // Only clean up the previous object when the
+                            // photo now lives somewhere else.
+                            if (oldUrl.isNotEmpty && oldUrl != url) {
                               DatabaseService.deleteProductImage(oldUrl);
-                            } else {
-                              // The API dropped the photo because the
-                              // products.image_url column is not applied yet.
-                              await DatabaseService.deleteProductImage(url);
+                            }
+                            if (!updated.hasStoredPhoto) {
                               messenger.showSnackBar(const SnackBar(
-                                content: Text('Saved without the photo - apply '
-                                    'supabase/add_product_images.sql in the '
-                                    'Supabase SQL Editor, then set the photo '
-                                    'again'),
+                                content: Text('Photo attached and live for '
+                                    'buyers. Tip: apply '
+                                    'supabase/add_product_images.sql to also '
+                                    'record it in the database'),
                                 behavior: SnackBarBehavior.floating,
                               ));
                             }
@@ -1141,6 +1143,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                   _ProductImageField(
                     picked: pickedImage,
                     existingUrl: '',
+                    hasStoredPhoto: false,
                     onPick: () async {
                       try {
                         final image = await pickProductImage();
@@ -1237,17 +1240,14 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         if (image != null) {
                           try {
                             final url =
-                                await DatabaseService.uploadProductImage(image);
+                                await DatabaseService.uploadProductImage(image,
+                                    productId: created.id);
                             created = await DatabaseService.updateProduct(
                                 id: created.id, imageUrl: url);
-                            if (!created.hasPhoto) {
-                              // The API dropped the photo because the
-                              // products.image_url column is not applied yet.
-                              await DatabaseService.deleteProductImage(url);
-                              _toast('Saved without the photo - apply '
-                                  'supabase/add_product_images.sql in the '
-                                  'Supabase SQL Editor, then set the photo '
-                                  'again');
+                            if (!created.hasStoredPhoto) {
+                              _toast('Photo attached and live for buyers. Tip: '
+                                  'apply supabase/add_product_images.sql to '
+                                  'also record it in the database');
                             }
                           } catch (e) {
                             if (!mounted) return;
@@ -1987,21 +1987,26 @@ class _AdminOrderCard extends StatelessWidget {
 class _ProductImageField extends StatelessWidget {
   final PickedImage? picked;
   final String existingUrl;
+  final bool hasStoredPhoto;
   final VoidCallback onPick;
   final VoidCallback onRemove;
 
   const _ProductImageField({
     required this.picked,
     required this.existingUrl,
+    required this.hasStoredPhoto,
     required this.onPick,
     required this.onRemove,
   });
 
-  bool get _hasStoredImage => picked == null && existingUrl.isNotEmpty;
+  bool get _hasStoredImage =>
+      picked == null && hasStoredPhoto && existingUrl.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = picked != null || _hasStoredImage;
+    // A photo counts as "present" when one was just picked, is recorded in
+    // the database, or the canonical storage URL resolves (photo uploaded
+    // while the image_url column is not applied yet).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2024,7 +2029,7 @@ class _ProductImageField extends StatelessWidget {
                   fit: BoxFit.cover, key: ValueKey(picked!.filename)),
             ),
           )
-        else if (_hasStoredImage)
+        else if (existingUrl.isNotEmpty)
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
             child: SizedBox(
@@ -2033,51 +2038,27 @@ class _ProductImageField extends StatelessWidget {
               child: Image.network(
                 existingUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.blueLight.withValues(alpha: 0.55),
-                  alignment: Alignment.center,
-                  child: Icon(Icons.broken_image_rounded,
-                      size: 30, color: AppColors.blueMid),
-                ),
+                errorBuilder: (context, error, stackTrace) => _emptyPreview(),
               ),
             ),
           )
         else
-          Container(
-            height: 110,
-            width: double.infinity,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.blueLight.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.blueLight, width: 1.4),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_photo_alternate_rounded,
-                    size: 30, color: AppColors.blueMid),
-                const SizedBox(height: 6),
-                Text(
-                  'No image yet - buyers see the category shot',
-                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
-                ),
-              ],
-            ),
-          ),
+          _emptyPreview(),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: onPick,
-                icon: Icon(picked == null && _hasStoredImage
+                icon: Icon(_hasStoredImage || picked != null
                     ? Icons.swap_horiz_rounded
                     : Icons.upload_rounded),
-                label: Text(hasImage ? 'Replace image' : 'Add image'),
+                label: Text(_hasStoredImage || picked != null
+                    ? 'Replace image'
+                    : 'Add image'),
               ),
             ),
-            if (hasImage) ...[
+            if (_hasStoredImage || picked != null) ...[
               const SizedBox(width: 8),
               IconButton(
                 tooltip: 'Remove image',
@@ -2099,6 +2080,33 @@ class _ProductImageField extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  /// Dashed placeholder shown when the product has no photo (the canonical
+  /// URL 404s for products that were never given one).
+  Widget _emptyPreview() {
+    return Container(
+      height: 110,
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.blueLight.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.blueLight, width: 1.4),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.add_photo_alternate_rounded,
+              size: 30, color: AppColors.blueMid),
+          const SizedBox(height: 6),
+          Text(
+            'No image yet - buyers see the category shot',
+            style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }

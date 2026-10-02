@@ -1,17 +1,35 @@
-import { Router } from 'express';
+import express from 'express';
 import { z } from 'zod';
-import { admin, PAGINATION } from '../config.js';
+import { admin, env, PAGINATION } from '../config.js';
 import { errors, mapDbError } from '../errors.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireRole } from '../middleware/role.js';
 import { validate, pagination } from '../middleware/validate.js';
 
-const router = Router();
+const router = express.Router();
 
 // NOTE: GET / is PUBLIC — signed-out visitors can browse the active export
 // catalogue from the landing page. Every write stays admin-only, and the
 // service-role client used here bypasses RLS, so no policy change is needed
 // (direct anon access to the table itself is still blocked by RLS).
+
+/** Public bucket photos live in (see supabase/add_product_images.sql). */
+const PHOTO_BUCKET = 'product-images';
+
+/**
+ * Photo resolution for a product row: the URL stored in the database when
+ * present, otherwise the canonical storage path `products/<id>` — which
+ * exists as soon as an admin uploaded a photo, even while the image_url
+ * column is not applied yet. Products without a photo get the canonical URL
+ * too; it simply 404s and the app falls back to the category product shot.
+ */
+const withPhotoUrl = (row) => ({
+  ...row,
+  image_url:
+    row.image_url ||
+    `${env.SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/products/${row.id}`,
+  has_stored_photo: Boolean(row.image_url),
+});
 
 const createSchema = z.object({
   name: z.string().trim().min(2).max(160),
@@ -65,6 +83,28 @@ const omitImageUrl = (row) => {
 };
 
 /**
+ * Photo column detection (cached 60s): the API cannot run DDL, so until
+ * supabase/add_product_images.sql is applied we must not send `image_url`
+ * to the database at all — the write then never fails on the missing
+ * column and photos keep working through the canonical storage path.
+ */
+let photoColumnProbedAt = 0;
+let photoColumnExists = true;
+
+async function hasPhotoColumn() {
+  if (Date.now() - photoColumnProbedAt < 60_000) return photoColumnExists;
+  photoColumnProbedAt = Date.now();
+  const { error } = await admin.from('products').select('image_url').limit(1);
+  if (!error) {
+    photoColumnExists = true;
+  } else if (isMissingImageUrlColumn(error)) {
+    photoColumnExists = false;
+  }
+  // On any other (transient) error keep the optimistic default.
+  return photoColumnExists;
+}
+
+/**
  * Runs a PostgREST write against `row`, transparently dropping the optional
  * strength / image_url fields when the live database predates their
  * migrations (each failing query names one missing column, so the loop can
@@ -107,7 +147,9 @@ router.get('/', async (req, res, next) => {
 
     const { data, error, count } = await query.order('name').range(offset, offset + limit - 1);
     if (error) return next(mapDbError(error));
-    res.json({ data, page: { page, limit, total: count ?? data.length } });
+    // Attach photo URLs (stored link, or the canonical storage path).
+    const rows = (data ?? []).map(withPhotoUrl);
+    res.json({ data: rows, page: { page, limit, total: count ?? rows.length } });
   } catch (err) {
     next(err);
   }
@@ -131,8 +173,12 @@ router.post('/', requireAuth, requireRole('admin'), validate({ body: createSchem
       // migration has been applied to the live database.
       ...(b.strength ? { strength: b.strength } : {}),
       // Admin-uploaded product photo (empty = no photo, so the key is
-      // omitted rather than stored as '').
-      ...(b.imageUrl ? { image_url: b.imageUrl } : {}),
+      // omitted rather than stored as ''). Skipped while the image_url
+      // column is not applied — the canonical storage path serves the
+      // photo regardless.
+      ...(b.imageUrl && (await hasPhotoColumn())
+        ? { image_url: b.imageUrl }
+        : {}),
     };
     // NOTE: .select() on purpose, never .single() — .single() mangles write
     // errors (e.g. the missing-column PGRST204 below) into an opaque
@@ -158,6 +204,7 @@ router.patch(
   async (req, res, next) => {
     try {
       const b = req.body;
+      const id = String(req.params.id ?? '').trim();
       const row = {
         ...(b.name !== undefined && { name: b.name }),
         ...(b.category !== undefined && { category: b.category }),
@@ -170,22 +217,28 @@ router.patch(
         ...(b.currency !== undefined && { currency: b.currency }),
         ...(b.minOrderQty !== undefined && { min_order_qty: b.minOrderQty }),
         ...(b.isActive !== undefined && { is_active: b.isActive }),
-        // Sent on every image edit — including '' which clears the photo.
-        ...(b.imageUrl !== undefined && { image_url: b.imageUrl }),
+        // Sent on every image edit — including '' which clears the photo —
+        // but only when the live database can actually store it (the
+        // canonical storage path keeps photos working without the column).
+        ...(b.imageUrl !== undefined && (await hasPhotoColumn())
+          ? { image_url: b.imageUrl }
+          : {}),
       };
-      // Same .select() note as POST — keep write errors parseable so the
-      // missing-column fallback below can actually see them.
-      let { data, error } = await writeWithColumnFallback(row, (payload) =>
-        admin
-          .from('products')
-          .update(payload)
-          .eq('id', req.params.id)
-          .select(),
-      );
-      data = Array.isArray(data) ? (data[0] ?? null) : data;
+      // Write and read in two steps: interpreting the update's own return
+      // proved fragile (missing columns / odd row shapes could surface as a
+      // false "not found"), so the update is fired and the row is then
+      // fetched fresh by its primary key.
+      const { error } = await admin.from('products').update(row).eq('id', id);
       if (error) return next(mapDbError(error));
+
+      const { data, error: fetchError } = await admin
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if (fetchError) return next(mapDbError(fetchError));
       if (!data) return next(errors.notFound('Product'));
-      res.json({ data });
+      res.json({ data: withPhotoUrl(data) });
     } catch (err) {
       next(err);
     }
@@ -198,17 +251,21 @@ router.patch(
  */
 router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) => {
   try {
-    // .select() without .single() — same reason as POST/PATCH: keep write
-    // errors parseable and treat an empty result as "not found".
-    const { data, error } = await admin
+    // Two-step write-then-fetch, as in PATCH: the update's own return is
+    // not interpreted, the row is read fresh afterwards.
+    const { error } = await admin
       .from('products')
       .update({ is_active: false })
-      .eq('id', req.params.id)
-      .select();
-    const row = Array.isArray(data) ? (data[0] ?? null) : data;
+      .eq('id', req.params.id);
     if (error) return next(mapDbError(error));
-    if (!row) return next(errors.notFound('Product'));
-    res.json({ data: row });
+    const { data, error: fetchError } = await admin
+      .from('products')
+      .select('*')
+      .eq('id', req.params.id)
+      .maybeSingle();
+    if (fetchError) return next(mapDbError(fetchError));
+    if (!data) return next(errors.notFound('Product'));
+    res.json({ data: withPhotoUrl(data) });
   } catch (err) {
     next(err);
   }

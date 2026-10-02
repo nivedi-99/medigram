@@ -201,18 +201,20 @@ class ApiClient {
     required String filename,
     required List<int> bytes,
     required String contentType,
+    Map<String, String>? headers,
     bool retryOn401 = true,
   }) async {
     final uri = ApiConfig.uri(path);
     final safeName = filename.replaceAll(RegExp(r'[^\x20-\x7E]'), '_');
-    final headers = <String, String>{
+    final requestHeaders = <String, String>{
       'Content-Type': contentType,
       'x-filename': safeName,
       if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
+      ...?headers,
     };
 
     final res = await _client
-        .post(uri, headers: headers, body: bytes)
+        .post(uri, headers: requestHeaders, body: bytes)
         .timeout(const Duration(seconds: 60));
 
     if (res.statusCode == 401 && retryOn401) {
@@ -222,6 +224,7 @@ class ApiClient {
             filename: filename,
             bytes: bytes,
             contentType: contentType,
+            headers: headers,
             retryOn401: false);
       }
       await clearSession();

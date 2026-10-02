@@ -424,13 +424,17 @@ class _ImageTile extends StatelessWidget {
             ? Image.network(
                 product.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.blueLight.withValues(alpha: 0.55),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.medication_rounded,
-                    size: 26,
-                    color: AppColors.blueMid.withValues(alpha: 0.7),
+                errorBuilder: (context, error, stackTrace) => Image.network(
+                  'assets/products/labels/${_slug(product.name)}.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppColors.blueLight.withValues(alpha: 0.55),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.medication_rounded,
+                      size: 26,
+                      color: AppColors.blueMid.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               )

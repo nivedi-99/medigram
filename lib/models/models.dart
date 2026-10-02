@@ -360,6 +360,7 @@ class ProductRecord {
   final String description;
   final String strength;
   final String imageUrl;
+  final bool hasStoredPhoto;
   final double price;
   final int minOrderQty;
   final bool isActive;
@@ -372,12 +373,14 @@ class ProductRecord {
     this.description = '',
     this.strength = '',
     this.imageUrl = '',
+    this.hasStoredPhoto = false,
     this.price = 0,
     this.minOrderQty = 1,
     this.isActive = true,
   });
 
   factory ProductRecord.fromMap(Map<String, dynamic> map) {
+    final storedUrl = map['image_url']?.toString() ?? '';
     return ProductRecord(
       id: map['id']?.toString() ?? '',
       name: map['name']?.toString() ?? '',
@@ -385,7 +388,12 @@ class ProductRecord {
       manufacturer: map['manufacturer']?.toString() ?? '',
       description: map['description']?.toString() ?? '',
       strength: map['strength']?.toString() ?? '',
-      imageUrl: map['image_url']?.toString() ?? '',
+      imageUrl: storedUrl,
+      // True only when the photo link is recorded in the database
+      // (requires supabase/add_product_images.sql). Without it the API
+      // still resolves photos via the canonical storage path.
+      hasStoredPhoto:
+          (map['has_stored_photo'] as bool?) ?? storedUrl.isNotEmpty,
       price: (map['price'] as num?)?.toDouble() ?? 0,
       minOrderQty: (map['min_order_qty'] as num?)?.toInt() ?? 1,
       isActive: map['is_active'] as bool? ?? true,
