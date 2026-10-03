@@ -38,9 +38,31 @@ class ProductsPage extends StatefulWidget {
   State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _ProductsPageState extends State<ProductsPage> {
+class _ProductsPageState extends State<ProductsPage>
+    with WidgetsBindingObserver {
   String? selectedCategory;
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-refresh whenever the buyer returns to this tab: photos and
+    // products uploaded by admins appear without a manual reload.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      widget.onRefresh?.call();
+    }
+  }
 
   /// Derived on every build so the category filter chips stay in sync with
   /// the live catalogue (e.g. when a super admin adds a new product).
