@@ -16,12 +16,14 @@ import 'product_detail_page.dart';
 ///
 /// When [guestMode] is set (public catalogue for signed-out visitors),
 /// ordering actions prompt the visitor to sign in via [onRequiresLogin]
-/// instead of starting the cart flow.
+/// instead of starting the cart flow. Pull down to refresh the catalogue
+/// via [onRefresh] (newly added products and photos appear instantly).
 class ProductsPage extends StatefulWidget {
   final List<ProductRecord> products;
   final VoidCallback? onOpenCart;
   final bool guestMode;
   final VoidCallback? onRequiresLogin;
+  final Future<void> Function()? onRefresh;
 
   const ProductsPage({
     super.key,
@@ -29,6 +31,7 @@ class ProductsPage extends StatefulWidget {
     this.onOpenCart,
     this.guestMode = false,
     this.onRequiresLogin,
+    this.onRefresh,
   });
 
   @override
@@ -63,164 +66,170 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   Widget build(BuildContext context) {
     final items = _filtered;
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
-            child: Text(
-              'Export Catalogue',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
+    return RefreshIndicator(
+      onRefresh: () async => widget.onRefresh?.call(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+              child: Text(
+                'Export Catalogue',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark,
+                ),
               ),
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    onChanged: (v) => setState(() => _query = v),
-                    decoration: const InputDecoration(
-                      hintText: 'Search products...',
-                      prefixIcon: Icon(Icons.search_rounded),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (v) => setState(() => _query = v),
+                      decoration: const InputDecoration(
+                        hintText: 'Search products...',
+                        prefixIcon: Icon(Icons.search_rounded),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                const RegionPicker(),
-                const SizedBox(width: 6),
-                IconButton(
-                  tooltip: 'Labelled medicines',
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) =>
-                            MedicineLabelsPage(products: widget.products),
-                      ),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.medication_rounded,
-                    color: AppColors.blueDark,
-                  ),
-                ),
-                ValueListenableBuilder<int>(
-                  valueListenable: CartService.count,
-                  builder: (context, count, _) => Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      IconButton(
-                        tooltip: 'Your order',
-                        onPressed: widget.onOpenCart,
-                        icon: Icon(
-                          Icons.shopping_cart_rounded,
-                          color: AppColors.blueDark,
+                  const SizedBox(width: 10),
+                  const RegionPicker(),
+                  const SizedBox(width: 6),
+                  IconButton(
+                    tooltip: 'Labelled medicines',
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) =>
+                              MedicineLabelsPage(products: widget.products),
                         ),
-                      ),
-                      if (count != 0)
-                        Positioned(
-                          right: -2,
-                          top: 2,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.pink,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '$count',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                      );
+                    },
+                    icon: Icon(
+                      Icons.medication_rounded,
+                      color: AppColors.blueDark,
+                    ),
+                  ),
+                  ValueListenableBuilder<int>(
+                    valueListenable: CartService.count,
+                    builder: (context, count, _) => Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          tooltip: 'Your order',
+                          onPressed: widget.onOpenCart,
+                          icon: Icon(
+                            Icons.shopping_cart_rounded,
+                            color: AppColors.blueDark,
+                          ),
+                        ),
+                        if (count != 0)
+                          Positioned(
+                            right: -2,
+                            top: 2,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.pink,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '$count',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 44,
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              scrollDirection: Axis.horizontal,
-              children: [
-                _FilterChip(
-                  label: 'All',
-                  selected: selectedCategory == null,
-                  onTap: () => setState(() => selectedCategory = null),
-                ),
-                ..._categories.map(
-                  (c) => _FilterChip(
-                    label: c,
-                    selected: selectedCategory == c,
-                    onTap: () => setState(() => selectedCategory = c),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (items.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(
-              child: Text(
-                'No products match your search.',
-                style: TextStyle(color: AppColors.textMuted),
+                ],
               ),
             ),
-          )
-        else
+          ),
           SliverToBoxAdapter(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1160),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      const gap = 16.0;
-                      final width = constraints.maxWidth;
-                      final columns =
-                          ((width + gap) / (316 + gap)).floor().clamp(1, 4);
-                      final cardWidth = (width - gap * (columns - 1)) / columns;
-                      return Wrap(
-                        spacing: gap,
-                        runSpacing: gap,
-                        children: [
-                          for (final p in items)
-                            SizedBox(
-                              width: cardWidth,
-                              height: 412,
-                              child: _ProductCard(
-                                product: p,
-                                onOpenCart: widget.onOpenCart,
-                                guestMode: widget.guestMode,
-                                onRequiresLogin: widget.onRequiresLogin,
+            child: SizedBox(
+              height: 44,
+              child: ListView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _FilterChip(
+                    label: 'All',
+                    selected: selectedCategory == null,
+                    onTap: () => setState(() => selectedCategory = null),
+                  ),
+                  ..._categories.map(
+                    (c) => _FilterChip(
+                      label: c,
+                      selected: selectedCategory == c,
+                      onTap: () => setState(() => selectedCategory = c),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (items.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Text(
+                  'No products match your search.',
+                  style: TextStyle(color: AppColors.textMuted),
+                ),
+              ),
+            )
+          else
+            SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1160),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        const gap = 16.0;
+                        final width = constraints.maxWidth;
+                        final columns =
+                            ((width + gap) / (316 + gap)).floor().clamp(1, 4);
+                        final cardWidth =
+                            (width - gap * (columns - 1)) / columns;
+                        return Wrap(
+                          spacing: gap,
+                          runSpacing: gap,
+                          children: [
+                            for (final p in items)
+                              SizedBox(
+                                width: cardWidth,
+                                height: 412,
+                                child: _ProductCard(
+                                  product: p,
+                                  onOpenCart: widget.onOpenCart,
+                                  guestMode: widget.guestMode,
+                                  onRequiresLogin: widget.onRequiresLogin,
+                                ),
                               ),
-                            ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -59,6 +59,18 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
     }
   }
 
+  /// Pull-to-refresh: re-fetches the catalogue without the full-screen
+  /// spinner so the page keeps its content while updating.
+  Future<void> _refresh() async {
+    try {
+      final products = await DatabaseService.fetchProducts();
+      if (!mounted) return;
+      setState(() => _products = products);
+    } catch (_) {
+      /* silent — keep the current catalogue */
+    }
+  }
+
   /// Opens login; when the visitor signs in, the root home swaps to their
   /// portal, so this page pops itself out of the way.
   Future<void> _openLogin() async {
@@ -129,6 +141,7 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
                           products: _products,
                           guestMode: true,
                           onRequiresLogin: _promptLogin,
+                          onRefresh: _refresh,
                         ),
             ),
           ],
