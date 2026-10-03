@@ -204,7 +204,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           for (final p in items)
                             SizedBox(
                               width: cardWidth,
-                              height: 372,
+                              height: 412,
                               child: _ProductCard(
                                 product: p,
                                 onOpenCart: widget.onOpenCart,
@@ -570,7 +570,7 @@ class _ImageTile extends StatelessWidget {
             alignment: Alignment.center,
             child: Icon(
               Icons.medication_rounded,
-              size: 26,
+              size: 34,
               color: AppColors.blueMid.withValues(alpha: 0.7),
             ),
           ),
@@ -585,17 +585,17 @@ class _ImageTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Icon(
             Icons.medication_rounded,
-            size: 26,
+            size: 34,
             color: AppColors.blueMid.withValues(alpha: 0.7),
           ),
         ),
       );
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: SizedBox(
-        width: 56,
-        height: 56,
+        width: 96,
+        height: 96,
         child: image,
       ),
     );

@@ -17,18 +17,48 @@ const router = express.Router();
 const PHOTO_BUCKET = 'product-images';
 
 /**
+ * Cached index (60s) of product ids that actually have a photo object in
+ * storage, regardless of whether the image_url column has been applied.
+ * One storage list call per minute serves the whole catalogue.
+ */
+let photoIndexAt = 0;
+let photoIndexIds = new Set();
+
+async function productIdsWithPhotos() {
+  if (Date.now() - photoIndexAt < 60_000) return photoIndexIds;
+  photoIndexAt = Date.now();
+  try {
+    const { data, error } = await admin.storage
+      .from(PHOTO_BUCKET)
+      .list('products', { limit: 1000 });
+    if (!error && Array.isArray(data)) {
+      // Canonical names are `products/<productId>` (no extension); strip any
+      // extension so legacy uploads still match.
+      photoIndexIds = new Set(
+        data.map((o) => String(o.name).replace(/\.[a-z0-9]+$/i, '')),
+      );
+    }
+  } catch {
+    // Keep the previous index on transient failures.
+  }
+  return photoIndexIds;
+}
+
+/**
  * Photo resolution for a product row: the URL stored in the database when
  * present, otherwise the canonical storage path `products/<id>` — which
  * exists as soon as an admin uploaded a photo, even while the image_url
- * column is not applied yet. Products without a photo get the canonical URL
- * too; it simply 404s and the app falls back to the category product shot.
+ * column is not applied yet. `has_photo` tells the app whether the photo
+ * actually exists so it can fall back to the category product shot instead
+ * of requesting a missing file.
  */
-const withPhotoUrl = (row) => ({
+const withPhotoUrl = (row, hasObject) => ({
   ...row,
   image_url:
     row.image_url ||
     `${env.SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/products/${row.id}`,
   has_stored_photo: Boolean(row.image_url),
+  has_photo: Boolean(row.image_url) || hasObject,
 });
 
 const createSchema = z.object({
@@ -147,8 +177,10 @@ router.get('/', async (req, res, next) => {
 
     const { data, error, count } = await query.order('name').range(offset, offset + limit - 1);
     if (error) return next(mapDbError(error));
-    // Attach photo URLs (stored link, or the canonical storage path).
-    const rows = (data ?? []).map(withPhotoUrl);
+    // Attach photo URLs (stored link, or the canonical storage path) and an
+    // accurate has_photo flag from the storage index.
+    const photoIds = await productIdsWithPhotos();
+    const rows = (data ?? []).map((r) => withPhotoUrl(r, photoIds.has(String(r.id))));
     res.json({ data: rows, page: { page, limit, total: count ?? rows.length } });
   } catch (err) {
     next(err);
@@ -189,6 +221,10 @@ router.post('/', requireAuth, requireRole('admin'), validate({ body: createSchem
     );
     data = Array.isArray(data) ? (data[0] ?? null) : data;
     if (error) return next(mapDbError(error));
+    if (data) {
+      const photoIds = await productIdsWithPhotos();
+      data = withPhotoUrl(data, photoIds.has(String(data.id)));
+    }
     res.status(201).json({ data });
   } catch (err) {
     next(err);
@@ -238,7 +274,8 @@ router.patch(
         .maybeSingle();
       if (fetchError) return next(mapDbError(fetchError));
       if (!data) return next(errors.notFound('Product'));
-      res.json({ data: withPhotoUrl(data) });
+      const photoIds = await productIdsWithPhotos();
+      res.json({ data: withPhotoUrl(data, photoIds.has(String(data.id))) });
     } catch (err) {
       next(err);
     }
@@ -265,7 +302,8 @@ router.delete('/:id', requireAuth, requireRole('admin'), async (req, res, next) 
       .maybeSingle();
     if (fetchError) return next(mapDbError(fetchError));
     if (!data) return next(errors.notFound('Product'));
-    res.json({ data: withPhotoUrl(data) });
+    const photoIds = await productIdsWithPhotos();
+    res.json({ data: withPhotoUrl(data, photoIds.has(String(data.id))) });
   } catch (err) {
     next(err);
   }

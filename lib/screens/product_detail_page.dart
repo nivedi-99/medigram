@@ -65,9 +65,37 @@ class ProductDetailPage extends StatelessWidget {
                       child: Stack(
                         children: [
                           _ProductImage(
-                              source: _photoSource,
+                              source: product.hasPhoto
+                                  ? product.imageUrl
+                                  : product.imageAsset,
                               fallbackAsset: product.imageAsset,
                               label: product.name),
+                          Positioned(
+                            left: 12,
+                            bottom: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 7),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 460),
+                                child: Text(
+                                  product.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                           Positioned(
                             right: 10,
                             bottom: 10,
@@ -181,6 +209,22 @@ class ProductDetailPage extends StatelessWidget {
                             : parts.map((p) => '•  $p').join('\n'),
                       ),
                     ],
+                    const SizedBox(height: 12),
+                    _detailCard(
+                        'Typical uses', _usesForCategory(product.category)),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Category information is provided for general export '
+                      'guidance only. Always confirm indications, dosage and '
+                      'regulatory suitability with a qualified professional '
+                      'and the MediGram trade desk before ordering.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        height: 1.4,
+                        fontStyle: FontStyle.italic,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                     const SizedBox(height: 26),
                     _buildActions(context, quotationMessage),
                   ],
@@ -196,7 +240,7 @@ class ProductDetailPage extends StatelessWidget {
   /// Best available photo: the admin-uploaded image when present, otherwise
   /// the bundled category product shot.
   String get _photoSource =>
-      product.imageUrl.isNotEmpty ? product.imageUrl : product.imageAsset;
+      product.hasPhoto ? product.imageUrl : product.imageAsset;
 
   /// Fullscreen, pinch-zoomable view of the product photo.
   void _openImageViewer(BuildContext context) {
@@ -548,4 +592,87 @@ class _ProductImage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Deep, buyer-friendly "typical uses" guidance for a catalogue category.
+/// General export guidance — not medical advice (a disclaimer is shown
+/// alongside it on the detail page).
+String _usesForCategory(String category) {
+  final c = category.toLowerCase();
+  if (c.contains('pain') || c.contains('analges')) {
+    return 'Pain Killers combine analgesic and anti-inflammatory actives that '
+        'are commonly used to relieve mild to moderate pain, reduce fever and '
+        'control inflammation associated with headaches, musculoskeletal '
+        'strain, dental pain and post-procedural recovery. Formulations are '
+        'supplied for institutional, retail and export programmes.';
+  }
+  if (c.contains('ed ') || c.contains('erectile')) {
+    return 'ED Medicines contain PDE-5 inhibitors that are commonly used for '
+        'the treatment of erectile dysfunction in adult men, improving '
+        'blood-flow response when sexually stimulated. Supply is intended for '
+        'licensed pharmaceutical distributors and requires a valid '
+        'prescription in the destination market.';
+  }
+  if (c.contains('anxiety') || c.contains('depress')) {
+    return 'Anti-Anxiety medicines are commonly used for the short-term '
+        'management of generalised anxiety, stress-related disorders, panic '
+        'symptoms and associated sleep disturbance, under the supervision of '
+        'a qualified medical professional.';
+  }
+  if (c.contains('antibiotic') || c.contains('antibacterial')) {
+    return 'Antibiotics are commonly used for the treatment of confirmed '
+        'bacterial infections, including respiratory, urinary, skin and '
+        'gastrointestinal presentations. Responsible-use guidance and a '
+        'completed prescription course are strongly advised.';
+  }
+  if (c.contains('diabet')) {
+    return 'Anti-Diabetic medicines are commonly used to help control blood '
+        'sugar levels in type 2 diabetes mellitus, supporting long-term '
+        'glycaemic management alongside diet, exercise and routine '
+        'monitoring.';
+  }
+  if (c.contains('parasit') || c.contains('worm')) {
+    return 'Anti-Parasitic medicines are commonly used for the treatment and '
+        'control of intestinal and tissue parasitic infections, including '
+        'mass-administration and public-health programmes.';
+  }
+  if (c.contains('allerg') || c.contains('histam')) {
+    return 'Anti-Allergic medicines are commonly used to relieve allergy '
+        'symptoms such as sneezing, runny nose, allergic rhinitis, itching '
+        'and hives, and are supplied for both retail and institutional '
+        'export packs.';
+  }
+  if (c.contains('cardio') || c.contains('heart') || c.contains('cardiac')) {
+    return 'Cardio Care medicines are commonly used in the management of '
+        'high blood pressure, cholesterol and other cardiovascular '
+        'conditions, supporting long-term heart-health therapy under '
+        'medical supervision.';
+  }
+  if (c.contains('vitamin') ||
+      c.contains('supplement') ||
+      c.contains('nutri')) {
+    return 'Vitamins and Supplements are commonly used to correct nutritional '
+        'deficiencies, support bone health, immunity and general wellbeing, '
+        'and are supplied in export-ready packs for retail and institutional '
+        'programmes.';
+  }
+  if (c.contains('neuro') || c.contains('epilep')) {
+    return 'Neurology medicines are commonly used to support the management '
+        'of neuropathic pain, seizures and other neurological conditions '
+        'under specialist supervision.';
+  }
+  if (c.contains('derma') || c.contains('skin')) {
+    return 'Dermatology medicines are commonly used for the treatment of '
+        'skin conditions such as infections, inflammation, acne and fungal '
+        'presentations, in topical and oral formulations.';
+  }
+  if (c.contains('gastro') || c.contains('acidity') || c.contains('ulcer')) {
+    return 'Gastro medicines are commonly used to manage acidity, heartburn, '
+        'ulcers and other stomach-related conditions, supporting digestive '
+        'health under medical guidance.';
+  }
+  return 'This category covers quality-assured medicines sourced from '
+      'WHO-GMP certified manufacturers for institutional and export supply. '
+      'Contact the MediGram trade desk for the complete product profile, '
+      'composition and regulatory documentation.';
 }

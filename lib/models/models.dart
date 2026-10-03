@@ -361,6 +361,7 @@ class ProductRecord {
   final String strength;
   final String imageUrl;
   final bool hasStoredPhoto;
+  final bool hasPhoto;
   final double price;
   final int minOrderQty;
   final bool isActive;
@@ -374,6 +375,7 @@ class ProductRecord {
     this.strength = '',
     this.imageUrl = '',
     this.hasStoredPhoto = false,
+    this.hasPhoto = false,
     this.price = 0,
     this.minOrderQty = 1,
     this.isActive = true,
@@ -394,6 +396,11 @@ class ProductRecord {
       // still resolves photos via the canonical storage path.
       hasStoredPhoto:
           (map['has_stored_photo'] as bool?) ?? storedUrl.isNotEmpty,
+      // True when a photo actually exists for this product (stored link or
+      // an object at the canonical storage path).
+      hasPhoto: (map['has_photo'] as bool?) ??
+          (map['has_stored_photo'] as bool?) ??
+          storedUrl.isNotEmpty,
       price: (map['price'] as num?)?.toDouble() ?? 0,
       minOrderQty: (map['min_order_qty'] as num?)?.toInt() ?? 1,
       isActive: map['is_active'] as bool? ?? true,
@@ -415,7 +422,4 @@ class ProductRecord {
   /// (Supabase Storage URL) when present, otherwise the bundled category
   /// product shot.
   String get imageSrc => imageUrl.isNotEmpty ? imageUrl : imageAsset;
-
-  /// True when this product has an admin-uploaded photo attached.
-  bool get hasPhoto => imageUrl.isNotEmpty;
 }
