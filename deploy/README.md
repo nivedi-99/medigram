@@ -1,20 +1,20 @@
-# Deploying MediGram to Vercel
+# Deploying MediGram
 
 ## LIVE STATUS (deployed)
 
 | Layer | URL |
 |---|---|
 | **Frontend (Flutter web)** | https://medigram-seven.vercel.app |
-
-> NOTE: https://medigram-export.vercel.app belongs to a DIFFERENT Vercel
-> account (team `unicorn23` has no access) and is NOT updated by this
-> workflow. Production for this project is always medigram-seven.vercel.app.
-| **Backend (Railway)** | https://medigram-api-production.up.railway.app |
+| **Backend (Render)** | https://medigram-api.onrender.com |
 | **Database (Supabase)** | project ref `hcoperadzsrcpkftetug` (ap-south-1) |
 
-Production verification: **27/27 smoke checks GREEN against the live
-Railway URL**, CORS preflight from the Vercel origin returns 204 + the
-`access-control-allow-origin` header, and disallowed origins get 403.
+> NOTE: https://medigram-export.vercel.app belongs to a DIFFERENT Vercel
+> account and is NOT updated by this workflow. Production for this project
+> is always medigram-seven.vercel.app.
+>
+> The backend moved from Railway (trial expired, service removed) to Render
+> (web service `medigram-api`, service id srv-db32l9gm7kps73cqeqkg). The old
+> Railway URL medigram-api-production.up.railway.app is retired.
 
 ## Redeploying the frontend
 
@@ -30,34 +30,42 @@ vercel link --yes --project medigram-export --token $tok   # once per checkout
 vercel deploy --prod --yes --token $tok
 ```
 
-## Redeploying the backend (Railway)
+## Redeploying the backend (Render)
 
-Deploy from the clean path `C:\Users\nived\medigram-deploy` (the CLI fails
-on paths containing spaces/parentheses):
-
-```powershell
-# refresh the deploy copy from the repo
-Remove-Item C:\Users\nived\medigram-deploy -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory C:\Users\nived\medigram-deploy | Out-Null
-Copy-Item 'c:\Users\nived\Downloads\medigram_app (1)\medigram_app\backend\*' C:\Users\nived\medigram-deploy\ -Recurse -Exclude node_modules
-
-cd C:\Users\nived\medigram-deploy
-railway up --detach --yes
-railway status        # wait for ● Online
-```
-
-## Full production verification
+The Render web service **auto-deploys from GitHub**: every push to
+`master` on nivedi-99/medigram triggers a new deploy (backend lives in
+`rootDir: backend`). Verify with:
 
 ```powershell
-cd backend
-powershell -ExecutionPolicy Bypass -File scripts\smoke-test.ps1 `
-  -ApiBase https://medigram-api-production.up.railway.app
+curl https://medigram-api.onrender.com/api/v1/health
+curl "https://medigram-api.onrender.com/api/v1/products?limit=1"
 ```
+
+Manual deploy trigger via the Render API (if ever needed):
+
+```powershell
+$tok = 'rnd_...'   # Render API key (dashboard -> Account Settings -> API Keys)
+curl.exe -s -X POST "https://api.render.com/v1/services/srv-db32l9gm7kps73cqeqkg/deploys" `
+  -H "Authorization: Bearer $tok" -H "Accept: application/json"
+```
+
+Backend environment variables live in the Render dashboard
+(medigram-api -> Environment): NODE_ENV=production, SUPABASE_URL,
+SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, CORS_ORIGINS (must include
+https://medigram-seven.vercel.app). The server binds to Render's injected
+PORT automatically; health check path is /api/v1/health.
+
+## Free-tier caveat
+
+The Render free instance spins down after ~15 minutes idle. The first
+request after idle takes ~50 seconds (cold start) — sign-in may feel slow
+once in a while. The Starter plan ($7/mo) keeps the service always on.
 
 ## Security notes
 
 - `deploy/vercel.env` and `supabase/server.env` are excluded from git.
 - If a token/secret is ever exposed, revoke it immediately:
   - Vercel: Dashboard → Settings → Tokens → Delete
-  - Railway: railway.com/account/tokens → delete
+  - Render: Account Settings → API Keys → Delete (rotate the key shared
+    during the migration)
   - Supabase: Dashboard → Settings → API → Reset service role key

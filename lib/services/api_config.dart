@@ -7,9 +7,12 @@ import 'package:flutter/foundation.dart';
 class ApiConfig {
   ApiConfig._();
 
-  /// Production API (Railway).
-  static const String productionUrl =
-      'https://medigram-api-production.up.railway.app';
+  /// Production API (Render).
+  static const String productionUrl = 'https://medigram-api.onrender.com';
+
+  /// Previous host (Railway) — retired after the trial ended.
+  // static const String productionUrl =
+  //     'https://medigram-api-production.up.railway.app';
 
   /// Local development override (uncomment while developing):
   // static const String productionUrl = 'http://localhost:4000';
