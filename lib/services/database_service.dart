@@ -4,7 +4,7 @@ import 'cart_service.dart';
 import 'product_image.dart';
 
 /// Admin-side data access. Every call goes through the MediGram API
-/// (Railway) — Row Level Security on the database stays as defense-in-depth.
+/// (Render) — Row Level Security on the database stays as defense-in-depth.
 class DatabaseService {
   DatabaseService._();
 

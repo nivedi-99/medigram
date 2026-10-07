@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// Points the Flutter app at the deployed MediGram API.
 ///
 /// The app holds NO Supabase keys — every request goes through the
-/// Express API on Railway, which is the only holder of the service-role key.
+/// Express API on Render, which is the only holder of the service-role key.
 class ApiConfig {
   ApiConfig._();
 

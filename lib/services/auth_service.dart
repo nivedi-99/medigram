@@ -1,7 +1,7 @@
 import '../models/models.dart';
 import 'api_client.dart';
 
-/// Authentication service — talks to the MediGram API (Railway).
+/// Authentication service — talks to the MediGram API (Render).
 ///
 /// Method signatures match the previous Supabase-backed implementation so
 /// the screens did not change. Exceptions are [ApiException].
