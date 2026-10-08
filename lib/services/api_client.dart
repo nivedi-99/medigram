@@ -109,7 +109,9 @@ class ApiClient {
         .send(http.Request(method, uri)
           ..headers.addAll(headers)
           ..body = body == null ? '' : jsonEncode(body))
-        .timeout(const Duration(seconds: 30));
+        // 90s: generous enough for the Render free instance's cold start
+        // (~50s wake-up after idle) so the first sign-in never fails on it.
+        .timeout(const Duration(seconds: 90));
 
     if (res.statusCode == 401 && auth && retryOn401) {
       final refreshed = await refreshSession();
