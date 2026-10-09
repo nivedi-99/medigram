@@ -237,6 +237,7 @@ class _ProductsPageState extends State<ProductsPage>
                                 height: 412,
                                 child: _ProductCard(
                                   product: p,
+                                  catalogue: widget.products,
                                   onOpenCart: widget.onOpenCart,
                                   guestMode: widget.guestMode,
                                   onRequiresLogin: widget.onRequiresLogin,
@@ -272,12 +273,17 @@ String _slug(String name) => name
 /// page. In guest mode, ordering prompts the visitor to sign in.
 class _ProductCard extends StatefulWidget {
   final ProductRecord product;
+
+  /// Full catalogue, passed on to the detail page for the similar-products
+  /// side bar.
+  final List<ProductRecord> catalogue;
   final VoidCallback? onOpenCart;
   final bool guestMode;
   final VoidCallback? onRequiresLogin;
 
   const _ProductCard({
     required this.product,
+    this.catalogue = const [],
     this.onOpenCart,
     this.guestMode = false,
     this.onRequiresLogin,
@@ -388,6 +394,7 @@ class _ProductCardState extends State<_ProductCard> {
                   MaterialPageRoute<void>(
                     builder: (_) => ProductDetailPage(
                       product: product,
+                      catalogue: widget.catalogue,
                       guestMode: widget.guestMode,
                       onRequiresLogin: widget.onRequiresLogin,
                     ),

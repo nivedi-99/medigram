@@ -3,7 +3,7 @@
     "short_name": "MediGram",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#EDDC82",
+    "background_color": "#04262C",
     "theme_color": "#05353F",
     "description": "B2B platform for sourcing certified pharmaceuticals and managing export orders worldwide.",
     "orientation": "portrait-primary",

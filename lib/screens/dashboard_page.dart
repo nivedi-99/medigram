@@ -7,16 +7,19 @@ import 'quotation_page.dart';
 import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
+import '../widgets/export_video_view.dart';
 
-/// A short editorial article shown in the dashboard blog strip.
-class _BlogPost {
-  final String tag;
-  final String title;
-  final String excerpt;
-  final String body;
-  final String meta;
-  const _BlogPost(this.tag, this.title, this.excerpt, this.body, this.meta);
-}
+/// Lemon-yellow canvas behind the logged-in dashboard (light mode only).
+/// Dark mode keeps the deep-teal palette from [AppColors].
+const Color _lemonBg = Color(0xFFFFF176);
+
+/// Export/promo film embedded in the dashboard video card.
+///
+/// Swap this for your own video: a direct MP4/WebM link plays in an inline
+/// HTML5 player, and a YouTube link (`youtube.com` / `youtu.be`) plays in an
+/// embedded iframe.
+const String kExportVideoUrl =
+    'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
 class DashboardPage extends StatelessWidget {
   final Customer customer;
@@ -47,332 +50,194 @@ class DashboardPage extends StatelessWidget {
     return seen.toList();
   }
 
-  /// First few live products for the featured section.
+  /// Medicines highlighted in the horizontal strip.
   List<ProductRecord> get _featured => products.take(4).toList();
 
+  /// Medicines laid out in the responsive grid below.
+  List<ProductRecord> get _gridProducts => products.take(8).toList();
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hello ${customer.name}',
-                        style: TextStyle(
-                          fontSize: 24,
+    final Color pageBg = AppColors.isDark ? AppColors.bg : _lemonBg;
+    return Container(
+      color: pageBg,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello ${customer.name}',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your health, our priority',
+                          style: TextStyle(
+                              fontSize: 13.5, color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: onOpenProfile,
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: AppColors.blueDark,
+                      child: Text(
+                        customer.initials,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Your health, our priority',
-                        style: TextStyle(fontSize: 13.5, color: AppColors.textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onOpenProfile,
-                  child: CircleAvatar(
-                    radius: 22,
-                    backgroundColor: AppColors.blueDark,
-                    child: Text(
-                      customer.initials,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                const RegionPicker(),
-                const SizedBox(width: 6),
-                const ThemeToggle(),
-                _NotificationBell(
-                  count: unreadNotifications,
-                  onTap: onOpenNotifications,
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search medicines, categories...',
-                      prefixIcon: Icon(Icons.search_rounded),
-                    ),
+                  const SizedBox(width: 10),
+                  const RegionPicker(),
+                  const SizedBox(width: 6),
+                  const ThemeToggle(),
+                  _NotificationBell(
+                    count: unreadNotifications,
+                    onTap: onOpenNotifications,
                   ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  height: 54,
-                  width: 54,
-                  decoration: BoxDecoration(
-                    color: AppColors.blueDark,
-                    borderRadius: BorderRadius.circular(17),
-                  ),
-                  child: IconButton(
-                    onPressed: onOpenChatbot,
-                    icon: const Icon(Icons.smart_toy_rounded, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _companyBanner(),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: SectionTitle(title: 'From the MediGram Blog'),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 200,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              scrollDirection: Axis.horizontal,
-              itemCount: _blogPosts.length,
-              itemBuilder: (context, index) =>
-                  _blogCard(context, _blogPosts[index]),
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: SectionTitle(title: 'Medicine Categories'),
-        ),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 48,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 17),
-                  decoration: BoxDecoration(
-                    color: AppColors.card,
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _categories[index],
-                      style: TextStyle(
-                        color: AppColors.blueDark,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(
-          child: SectionTitle(title: 'Featured Medicine Information'),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => _medicineCard(context, _featured[index]),
-            childCount: _featured.length,
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-            child: _safetyNotice(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  static const List<_BlogPost> _blogPosts = [
-    _BlogPost(
-      'Regulatory',
-      'WHO-GMP vs USFDA: Which Certification Does Your Market Need?',
-      'Import rules differ by destination - match the right certification to your market before you place an order.',
-      'Every country sets its own entry bar for medicines. WHO-GMP certification is the global baseline accepted across Africa, South-East Asia and Latin America, while USFDA approval unlocks the United States and is widely respected by other stringent regulators such as the UK MHRA and Health Canada.\n\nBefore you finalise a product, ask for the exact site certificate - not just the company certificate. A manufacturing site may hold WHO-GMP approval for tablets but not for injectables, and a single expired certificate can hold an entire consignment at customs.\n\nEvery MediGram catalogue listing shows the certifications attached to its manufacturing site, and our trade desk confirms the paperwork for your destination country before you commit to a purchase order.',
-      '6 min read • Oct 2026',
-    ),
-    _BlogPost(
-      'Cold Chain',
-      'Shipping Vaccines and Insulin: A 2-8°C Playbook',
-      'Temperature-controlled logistics explained - gel packs, data loggers and what happens at every hand-off.',
-      'Cold-chain products lose potency long before they look damaged. A validated 2-8°C lane uses qualified gel packs, insulated liners and pre-cooled boxes so the product never sees a temperature excursion, even when a tarmac in transit crosses 45°C.\n\nEvery shipment travels with a USB data logger. On arrival, download the log before signing acceptance: a flat line between 2°C and 8°C proves the chain held, and any excursion becomes evidence for a claim rather than a dispute.\n\nMediGram books cold-chain capacity as a default for vaccine, insulin and biologic orders, and the trade desk shares the logger report with every consignment set.',
-      '5 min read • Sep 2026',
-    ),
-    _BlogPost(
-      'Documentation',
-      'Export Paperwork 101: From Commercial Invoice to Bill of Lading',
-      'Every document in a medicine shipment, who issues it, and the sequence it arrives in.',
-      'A standard medicine export moves on five core documents: the commercial invoice, the packing list, the certificate of analysis for each batch, the certificate of pharmaceutical product (CPP) where the destination asks for one, and the airway or ocean bill of lading that titles the shipment.\n\nMost customs delays are paperwork delays - a mismatched batch number, an HS code that does not match the invoice wording, or a CPP issued for the wrong strength. Checking the five documents against each other before the flight is booked costs minutes; fixing them after arrival costs weeks.\n\nMediGram issues a complete, cross-checked document pack with every order and keeps copies in your account so audits stay a formality.',
-      '7 min read • Sep 2026',
-    ),
-    _BlogPost(
-      'Sourcing',
-      'Five Checks Before You Trust a Medicine Supplier',
-      'Verify licences, batch COAs and traceability before wiring a single rupee.',
-      'Five checks separate a reliable supplier from an expensive lesson. One: a valid wholesale or manufacturing licence you can verify with the issuing authority. Two: a batch-specific certificate of analysis, not a generic product brochure.\n\nThree: traceable batch numbers that match what the regulator database shows for that site. Four: a real pharmacovigilance or complaints contact that answers. Five: commercial transparency - a written quotation with Incoterms, lead time and validity.\n\nMediGram was built around those checks: every partner is licence-verified, every listing carries its batch documentation, and every quote is itemised and held to its validity window.',
-      '4 min read • Aug 2026',
-    ),
-  ];
-
-  Widget _blogCard(BuildContext context, _BlogPost post) {
-    return Container(
-      width: 270,
-      margin: const EdgeInsets.only(right: 12),
-      child: SoftCard(
-        onTap: () => _openPost(context, post),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.pinkLight,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(post.tag,
-                  style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.sandDeep)),
-            ),
-            const SizedBox(height: 10),
-            Text(post.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                    height: 1.25,
-                    color: AppColors.textDark)),
-            const SizedBox(height: 6),
-            Expanded(
-              child: Text(post.excerpt,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontSize: 12,
-                      height: 1.35,
-                      color: AppColors.textMuted)),
-            ),
-            Row(
-              children: [
-                Text(post.meta,
-                    style:
-                        TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                const Spacer(),
-                Icon(Icons.arrow_forward_rounded,
-                    size: 16, color: AppColors.blueDark),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _openPost(BuildContext context, _BlogPost post) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          expand: false,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: AppColors.bg,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.fromLTRB(24, 14, 24, 34),
-                children: [
-                  Center(
-                    child: Container(
-                      height: 5,
-                      width: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.blueLight,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.pinkLight,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(post.tag,
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.sandDeep)),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(post.title,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          height: 1.3,
-                          color: AppColors.textDark)),
-                  const SizedBox(height: 6),
-                  Text(post.meta,
-                      style: TextStyle(
-                          fontSize: 12, color: AppColors.textMuted)),
-                  const Divider(height: 26),
-                  for (final paragraph in post.body.split('\n\n'))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Text(paragraph,
-                          style: TextStyle(
-                              fontSize: 13.5,
-                              height: 1.55,
-                              color: AppColors.textDark)),
-                    ),
                 ],
               ),
-            );
-          },
-        );
-      },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search medicines, categories...',
+                        prefixIcon: Icon(Icons.search_rounded),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    height: 54,
+                    width: 54,
+                    decoration: BoxDecoration(
+                      color: AppColors.blueDark,
+                      borderRadius: BorderRadius.circular(17),
+                    ),
+                    child: IconButton(
+                      onPressed: onOpenChatbot,
+                      icon: const Icon(Icons.smart_toy_rounded,
+                          color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _companyBanner(),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SectionTitle(title: 'Featured Medicines'),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 202,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemCount: _featured.length,
+                itemBuilder: (context, index) =>
+                    _MedicineStripCard(product: _featured[index]),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SectionTitle(title: 'Export Video'),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _exportVideoCard(),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              child: Row(
+                children: [
+                  Icon(Icons.movie_rounded,
+                      size: 16, color: AppColors.textMuted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'From our export floor — packaging, QA checks and dispatch, end to end.',
+                      style: TextStyle(
+                          fontSize: 12.5, color: AppColors.textMuted),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SectionTitle(title: 'Medicine Categories'),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 48,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                scrollDirection: Axis.horizontal,
+                itemCount: _categories.length,
+                itemBuilder: (context, index) =>
+                    _HoverChip(label: _categories[index]),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SectionTitle(title: 'Featured Medicine Information'),
+          ),
+          SliverLayoutBuilder(
+            builder: (context, constraints) {
+              final double width = constraints.crossAxisExtent;
+              final int columns = width < 620 ? 2 : (width < 1000 ? 3 : 4);
+              return SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    mainAxisExtent: 262,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) =>
+                        _MedicineGridCard(product: _gridProducts[index]),
+                    childCount: _gridProducts.length,
+                  ),
+                ),
+              );
+            },
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 26)),
+        ],
+      ),
     );
   }
 
@@ -414,7 +279,8 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(height: 7),
                 const Text(
                   'Trusted healthcare products, expert guidance and reliable delivery.',
-                  style: TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+                  style: TextStyle(
+                      color: Colors.white, fontSize: 13, height: 1.4),
                 ),
               ],
             ),
@@ -424,158 +290,474 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _medicineCard(BuildContext context, ProductRecord product) {
-    final initial = product.name.isEmpty
-        ? '?'
-        : product.name.substring(0, 1).toUpperCase();
-    final hasPrice = product.price > 0;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 15),
-      child: SoftCard(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Opening ${product.name}...')),
-          );
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 75,
-              width: 75,
-              decoration: BoxDecoration(
-                color: AppColors.blueLight.withValues(alpha: 0.55),
-                borderRadius: BorderRadius.circular(18),
+  /// Rounded 16:9 card embedding the export/promo video.
+  Widget _exportVideoCard() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow.withValues(alpha: 0.14),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ColoredBox(
+                color: AppColors.isDark
+                    ? const Color(0xFF04262C)
+                    : const Color(0xFF05353F),
               ),
-              alignment: Alignment.center,
-              child: Text(
-                initial,
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.blueDark,
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  if (product.description.isNotEmpty)
-                    Text(
-                      product.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        height: 1.35,
-                        fontSize: 12.5,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product.manufacturer.isEmpty
-                        ? product.category
-                        : product.manufacturer,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.blueDark,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        hasPrice
-                            ? '${CurrencyService.format(product.price)} / unit'
-                            : 'Price on request',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'MOQ ${product.minOrderQty}',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        height: 34,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            CartService.add(product);
-                            // Quotation & payment hub: pay now or get a quote.
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                  builder: (_) => const QuotationPage()),
-                            );
-                          },
-                          icon: const Icon(Icons.add_shopping_cart_rounded,
-                              size: 16),
-                          label: const Text('Add'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.pink,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 14),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+              buildExportVideoPlayer(videoUrl: kExportVideoUrl),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _safetyNotice() {
-    final noticeBg = AppColors.isDark ? const Color(0xFF2E2A1A) : const Color(0xFFFFF4D9);
-    final noticeFg = AppColors.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB87900);
-    final noticeText = AppColors.isDark ? const Color(0xFFE8D9A8) : const Color(0xFF735400);
-    return Container(
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: noticeBg,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline_rounded, color: noticeFg),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Medicine information is for educational purposes. Consult a qualified healthcare professional and upload a valid prescription before ordering prescription-only medicines.',
-              style: TextStyle(color: noticeText, height: 1.35, fontSize: 13),
+/// Horizontal highlight-strip medicine card with hover VFX
+/// (lift + glow + photo zoom + arrow reveal).
+class _MedicineStripCard extends StatefulWidget {
+  final ProductRecord product;
+
+  const _MedicineStripCard({required this.product});
+
+  @override
+  State<_MedicineStripCard> createState() => _MedicineStripCardState();
+}
+
+class _MedicineStripCardState extends State<_MedicineStripCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ProductRecord p = widget.product;
+    final bool hasPrice = p.price > 0;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedScale(
+        scale: _hover ? 1.035 : 1,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          width: 212,
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _hover
+                  ? AppColors.emerald.withValues(alpha: 0.45)
+                  : AppColors.border,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    AppColors.shadow.withValues(alpha: _hover ? 0.16 : 0.06),
+                blurRadius: _hover ? 20 : 12,
+                offset: Offset(0, _hover ? 8 : 5),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(19),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Opening ${p.name}...')),
+                  );
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 112,
+                      width: double.infinity,
+                      child: AnimatedScale(
+                        scale: _hover ? 1.08 : 1,
+                        duration: const Duration(milliseconds: 260),
+                        curve: Curves.easeOut,
+                        child: _productImage(p),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            p.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            p.manufacturer.isEmpty
+                                ? p.category
+                                : p.manufacturer,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.blueDark,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text(
+                                hasPrice
+                                    ? CurrencyService.format(p.price)
+                                    : 'On request',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const Spacer(),
+                              AnimatedOpacity(
+                                opacity: _hover ? 1 : 0,
+                                duration: const Duration(milliseconds: 200),
+                                child: const Icon(Icons.arrow_forward_rounded,
+                                    size: 18, color: AppColors.emerald),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
+/// Grid medicine card: photo header, category badge, price + MOQ and an
+/// add-to-quotation button, with hover VFX (lift + glow + photo zoom).
+class _MedicineGridCard extends StatefulWidget {
+  final ProductRecord product;
+
+  const _MedicineGridCard({required this.product});
+
+  @override
+  State<_MedicineGridCard> createState() => _MedicineGridCardState();
+}
+
+class _MedicineGridCardState extends State<_MedicineGridCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ProductRecord p = widget.product;
+    final bool hasPrice = p.price > 0;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(0, _hover ? -6 : 0, 0),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _hover
+                ? AppColors.emerald.withValues(alpha: 0.45)
+                : AppColors.border,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadow.withValues(alpha: _hover ? 0.18 : 0.06),
+              blurRadius: _hover ? 24 : 12,
+              offset: Offset(0, _hover ? 12 : 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Opening ${p.name}...')),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height: 112,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        AnimatedScale(
+                          scale: _hover ? 1.08 : 1,
+                          duration: const Duration(milliseconds: 260),
+                          curve: Curves.easeOut,
+                          child: _productImage(p),
+                        ),
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.94),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: AppColors.warning
+                                    .withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: Text(
+                              p.category.toUpperCase(),
+                              maxLines: 1,
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                                color: Color(0xFFB9971F),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            p.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            p.manufacturer.isEmpty
+                                ? p.category
+                                : p.manufacturer,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.blueDark,
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  hasPrice
+                                      ? '${CurrencyService.format(p.price)} / unit'
+                                      : 'Price on request',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.textDark,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'MOQ ${p.minOrderQty}',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 34,
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                CartService.add(p);
+                                // Quotation & payment hub: pay now or get a quote.
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                      builder: (_) => const QuotationPage()),
+                                );
+                              },
+                              icon: const Icon(Icons.add_shopping_cart_rounded,
+                                  size: 15),
+                              label: const Text('Add'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    _hover ? AppColors.blueMid : AppColors.pink,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                textStyle: const TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Category chip with hover VFX (lift + tint + glow).
+class _HoverChip extends StatefulWidget {
+  final String label;
+
+  const _HoverChip({required this.label});
+
+  @override
+  State<_HoverChip> createState() => _HoverChipState();
+}
+
+class _HoverChipState extends State<_HoverChip> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 13),
+        transform: Matrix4.translationValues(0, _hover ? -3 : 0, 0),
+        decoration: BoxDecoration(
+          color: _hover ? AppColors.pinkLight : AppColors.card,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: _hover
+                ? AppColors.emerald.withValues(alpha: 0.5)
+                : AppColors.border,
+          ),
+          boxShadow: _hover
+              ? [
+                  BoxShadow(
+                    color: AppColors.shadow.withValues(alpha: 0.12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : const [],
+        ),
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            widget.label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: _hover ? AppColors.blueMid : AppColors.blueDark,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Product photo with graceful fallbacks: admin upload → labelled bottle
+/// shot → category shot → soft medication-icon tile.
+Widget _productImage(ProductRecord product) {
+  Widget iconTile() => Container(
+        color: AppColors.blueLight.withValues(alpha: 0.55),
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.medication_rounded,
+          size: 34,
+          color: AppColors.blueMid.withValues(alpha: 0.7),
+        ),
+      );
+
+  Widget categoryShot() => Image.network(
+        product.imageAsset,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => iconTile(),
+      );
+
+  Widget labelledShot() => Image.network(
+        'assets/products/labels/${_slug(product.name)}.png',
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => categoryShot(),
+      );
+
+  if (product.hasPhoto && product.imageUrl.isNotEmpty) {
+    return Image.network(
+      product.imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => labelledShot(),
+    );
+  }
+  return labelledShot();
+}
+
+/// Mirrors the asset slug convention used by the generated bottle labels.
+String _slug(String name) => name
+    .toLowerCase()
+    .replaceAll(RegExp(r"[^a-z0-9]+"), '-')
+    .replaceAll(RegExp(r'^-+|-+$'), '');
 
 class _NotificationBell extends StatelessWidget {
   final int count;
@@ -590,7 +772,8 @@ class _NotificationBell extends StatelessWidget {
         color: AppColors.card,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
         ],
       ),
       child: Stack(
@@ -598,7 +781,8 @@ class _NotificationBell extends StatelessWidget {
         children: [
           IconButton(
             onPressed: onTap,
-            icon: Icon(Icons.notifications_none_rounded, color: AppColors.blueDark),
+            icon: Icon(Icons.notifications_none_rounded,
+                color: AppColors.blueDark),
           ),
           if (count > 0)
             Positioned(
@@ -618,3 +802,9 @@ class _NotificationBell extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+

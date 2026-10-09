@@ -31,7 +31,9 @@ class MedicineLabelsPage extends StatelessWidget {
               child: products.isEmpty
                   ? _buildSampleCatalogue()
                   : _buildGrid(
-                      products.map((p) => _CardItem(p)).toList(),
+                      products
+                          .map((p) => _CardItem(p, null, products))
+                          .toList(),
                       samples: false,
                     ),
             ),
@@ -89,19 +91,20 @@ class MedicineLabelsPage extends StatelessWidget {
   /// source catalogue) rendered as the same framed cards while the live
   /// catalogue is empty.
   Widget _buildSampleCatalogue() {
-    final items = _placeholderMedicines
-        .map((m) => _CardItem(
-              ProductRecord(
-                id: 'sample-${m.name}',
-                name: m.name,
-                category: m.category,
-                manufacturer: m.manufacturer,
-                price: m.price,
-                minOrderQty: m.moq,
-              ),
-              m.packing,
+    final records = _placeholderMedicines
+        .map((m) => ProductRecord(
+              id: 'sample-${m.name}',
+              name: m.name,
+              category: m.category,
+              manufacturer: m.manufacturer,
+              price: m.price,
+              minOrderQty: m.moq,
             ))
         .toList();
+    final items = <_CardItem>[
+      for (var i = 0; i < records.length; i++)
+        _CardItem(records[i], _placeholderMedicines[i].packing, records),
+    ];
     return Column(
       children: [
         Padding(
@@ -146,6 +149,7 @@ class MedicineLabelsPage extends StatelessWidget {
                       child: _MedicineLabelCard(
                         product: item.product,
                         packing: item.packing,
+                        catalogue: item.catalogue ?? const [],
                         isPlaceholder: samples,
                       ),
                     ),
@@ -160,11 +164,14 @@ class MedicineLabelsPage extends StatelessWidget {
 }
 
 /// One catalogue item for the grid: the record plus an optional packing
-/// string (sample medicines carry '1 x 10' from the pharmaexport source).
+/// string (sample medicines carry '1 x 10' from the pharmaexport source)
+/// and the catalogue passed on to the detail page's similar-products side
+/// bar.
 class _CardItem {
   final ProductRecord product;
   final String? packing;
-  const _CardItem(this.product, [this.packing]);
+  final List<ProductRecord>? catalogue;
+  const _CardItem(this.product, [this.packing, this.catalogue]);
 }
 
 /// Maps a medicine name to its generated image slug:
@@ -181,11 +188,15 @@ String _slug(String name) => name
 class _MedicineLabelCard extends StatefulWidget {
   final ProductRecord product;
   final String? packing;
+
+  /// Catalogue for the detail page's similar-products side bar.
+  final List<ProductRecord> catalogue;
   final bool isPlaceholder;
 
   const _MedicineLabelCard({
     required this.product,
     this.packing,
+    this.catalogue = const [],
     this.isPlaceholder = false,
   });
 
@@ -249,7 +260,10 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                 : () {
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => ProductDetailPage(product: product),
+                        builder: (_) => ProductDetailPage(
+                          product: product,
+                          catalogue: widget.catalogue,
+                        ),
                       ),
                     );
                   },
@@ -336,8 +350,10 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                           : () {
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(
-                                  builder: (_) =>
-                                      ProductDetailPage(product: product),
+                                  builder: (_) => ProductDetailPage(
+                                    product: product,
+                                    catalogue: widget.catalogue,
+                                  ),
                                 ),
                               );
                             },
