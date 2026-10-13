@@ -181,6 +181,15 @@ router.post(
 
       const objectPath = proofPathFor(req.user.id, contentType);
 
+      // Optional payment metadata sent by the client (headers keep the
+      // raw-body protocol unchanged).
+      const amountHeader = String(req.get('x-amount') ?? '').trim();
+      const reference =
+        String(req.get('x-reference') ?? '').trim().slice(0, 120);
+      const orderId = String(req.get('x-order-id') ?? '').trim();
+      const amountInr =
+        amountHeader === '' ? NaN : Number.parseFloat(amountHeader);
+
       await ensureProofBucket();
 
       const { error } = await admin.storage
@@ -193,7 +202,33 @@ router.post(
         return next(new ApiError(502, 'STORAGE_UPLOAD_FAILED', error.message));
       }
 
-      res.status(201).json({ data: { url: proofPublicUrlFor(objectPath) } });
+      const url = proofPublicUrlFor(objectPath);
+
+      // Persist the payment record (best-effort — the screenshot itself is
+      // already stored, so a table hiccup must not fail the upload).
+      let record = null;
+      try {
+        const { data, error: dbError } = await admin
+          .from('payment_proofs')
+          .insert({
+            user_id: req.user.id,
+            url,
+            amount_inr: Number.isFinite(amountInr) && amountInr > 0 ? amountInr : null,
+            reference,
+            order_id: /^[0-9a-f-]{36}$/i.test(orderId) ? orderId : null,
+          })
+          .select('id, status, created_at')
+          .single();
+        if (!dbError) {
+          record = data;
+        } else {
+          console.error('[uploads] payment_proofs insert failed:', dbError.message);
+        }
+      } catch (dbErr) {
+        console.error('[uploads] payment_proofs insert threw:', dbErr.message);
+      }
+
+      res.status(201).json({ data: { url, record } });
     } catch (err) {
       next(err);
     }

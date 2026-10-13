@@ -8,10 +8,11 @@ import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 import '../widgets/export_video_view.dart';
+import '../widgets/med_background.dart';
 
-/// Lemon-yellow canvas behind the logged-in dashboard (light mode only).
+/// Cream canvas behind the logged-in dashboard (light mode only).
 /// Dark mode keeps the deep-teal palette from [AppColors].
-const Color _lemonBg = Color(0xFFFFF176);
+const Color _lemonBg = Color(0xFFFFFDD7);
 
 /// Export/promo film embedded in the dashboard video card.
 ///
@@ -59,8 +60,8 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color pageBg = AppColors.isDark ? AppColors.bg : _lemonBg;
-    return Container(
-      color: pageBg,
+    return MedBackgroundVfx(
+      baseColor: pageBg,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

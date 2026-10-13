@@ -36,3 +36,38 @@ create policy "Buyers write own payment proofs"
     bucket_id = 'payment-proofs'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- ---------------------------------------------------------------------------
+-- 4. payment_proofs — persisted record for every uploaded screenshot so the
+--    trade desk can review and verify INR payments
+--    (status: pending | verified | rejected). The API inserts the row with
+--    the service-role key after a successful upload; buyers can read their
+--    own rows directly.
+-- ---------------------------------------------------------------------------
+create table if not exists public.payment_proofs (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null,
+  url        text not null,
+  amount_inr numeric(14, 2) check (amount_inr is null or amount_inr >= 0),
+  reference  text not null default '',
+  order_id   uuid,
+  status     text not null default 'pending',
+  created_at timestamptz not null default now()
+);
+
+create index if not exists payment_proofs_user_idx
+  on public.payment_proofs (user_id, created_at desc);
+
+alter table public.payment_proofs enable row level security;
+
+drop policy if exists "Buyers read own payment proofs" on public.payment_proofs;
+create policy "Buyers read own payment proofs"
+  on public.payment_proofs for select
+  to authenticated
+  using (user_id = auth.uid());
+
+drop policy if exists "Buyers insert own payment proofs" on public.payment_proofs;
+create policy "Buyers insert own payment proofs"
+  on public.payment_proofs for insert
+  to authenticated
+  with check (user_id = auth.uid());

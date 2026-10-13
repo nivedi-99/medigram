@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../widgets/med_background.dart';
 import '../widgets/region_picker.dart';
 import '../widgets/shared_widgets.dart';
 import '../widgets/theme_toggle.dart';
@@ -72,20 +73,23 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _topBar(),
-            _header(),
-            _categoryNav(),
-            _hero(context),
-            _perksStrip(),
-            _offersStrip(),
-            _categoriesSection(context),
-            _whyUsSection(),
-            _footer(context),
-          ],
+      body: MedBackgroundVfx(
+        baseColor: AppColors.bg,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _topBar(),
+              _header(),
+              _categoryNav(),
+              _hero(context),
+              _perksStrip(),
+              _offersStrip(),
+              _categoriesSection(context),
+              _whyUsSection(),
+              _footer(context),
+            ],
+          ),
         ),
       ),
       floatingActionButton: const WhatsAppChatButton(),
@@ -544,7 +548,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget _footer(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 30),
-      color: AppColors.isDark ? AppColors.card : AppColors.deepTeal,
+      color: AppColors.isDark ? AppColors.card : AppColors.tealDeep,
       padding: const EdgeInsets.fromLTRB(24, 34, 24, 26),
       child: Wrap(
         spacing: 40,

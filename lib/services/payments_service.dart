@@ -97,13 +97,24 @@ class PaymentsService {
   }
 
   /// POST /api/v1/uploads/payment-proof — uploads the buyer's payment
-  /// screenshot and returns its permanent public URL.
-  static Future<String> uploadPaymentProof(PickedImage image) async {
+  /// screenshot, persists the payment record on Supabase and returns the
+  /// permanent public URL. [amountInr] / [reference] travel as optional
+  /// headers and are saved alongside the proof.
+  static Future<String> uploadPaymentProof(
+    PickedImage image, {
+    double? amountInr,
+    String reference = '',
+  }) async {
     final body = await ApiClient.upload(
       '/uploads/payment-proof',
       filename: image.filename,
       bytes: image.bytes,
       contentType: image.contentType,
+      headers: {
+        if (amountInr != null && amountInr > 0)
+          'x-amount': amountInr.toStringAsFixed(2),
+        if (reference.trim().isNotEmpty) 'x-reference': reference.trim(),
+      },
     );
     final data = body['data'] as Map<String, dynamic>? ?? {};
     return data['url']?.toString() ?? '';

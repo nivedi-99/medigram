@@ -31,6 +31,15 @@ class _PaymentPageState extends State<PaymentPage> {
   bool _uploadingProof = false;
   String? _proofUrl;
   String? _proofError;
+  final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _referenceController = TextEditingController();
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _referenceController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -292,7 +301,13 @@ class _PaymentPageState extends State<PaymentPage> {
       _proofError = null;
     });
     try {
-      final url = await PaymentsService.uploadPaymentProof(image);
+      final amount = double.tryParse(
+          _amountController.text.replaceAll(',', '').trim());
+      final url = await PaymentsService.uploadPaymentProof(
+        image,
+        amountInr: amount,
+        reference: _referenceController.text,
+      );
       if (!mounted) return;
       setState(() {
         _uploadingProof = false;
@@ -357,6 +372,32 @@ class _PaymentPageState extends State<PaymentPage> {
               ],
             ),
             const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _amountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                      hintText: 'Amount paid (₹)',
+                      prefixIcon: Icon(Icons.currency_rupee_rounded, size: 20),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: _referenceController,
+                    decoration: const InputDecoration(
+                      hintText: 'UTR / TxID reference',
+                      prefixIcon: Icon(Icons.receipt_rounded, size: 20),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             if (_proofUrl != null) ...[
               Container(
                 width: double.infinity,
@@ -375,8 +416,8 @@ class _PaymentPageState extends State<PaymentPage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Screenshot received. Our trade desk will verify it '
-                        'and confirm your order shortly.',
+                        'Screenshot received & saved to our records. Our '
+                        'trade desk will verify it and confirm your order.',
                         style:
                             TextStyle(fontSize: 12, color: AppColors.textDark),
                       ),
