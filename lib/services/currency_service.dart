@@ -3,13 +3,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Regional display pricing for the MediGram catalogue.
+/// Display pricing for the MediGram catalogue.
 ///
-/// * Prices are authored in USD.
-/// * The display region comes from the header selector (persisted per
-///   device) or, when untouched, from the signed-in user's country.
-/// * Conversion uses the admin-managed FX table (/api/v1/payments).
-/// * Settlement is always quoted in INR separately.
+/// * Prices are authored in USD, but every buyer — domestic or international
+///   (US / EU / UK / AU / …) — sees prices and settles payments in INR (₹).
+/// * The header selector only records the buyer's region for context; it no
+///   longer changes the display currency.
+/// * INR conversion uses the admin-managed FX table (/api/v1/payments).
 
 class RegionOption {
   final String country;
@@ -24,22 +24,13 @@ class CurrencyService {
 
   static const _prefsKey = 'mg_region';
 
-  static const Set<String> _euCountries = {
-    'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech republic',
-    'czechia', 'denmark', 'estonia', 'finland', 'france', 'germany', 'greece',
-    'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg',
-    'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia',
-    'slovenia', 'spain', 'sweden',
-  };
-
-  /// Regions offered in the header selector.
+  /// Regions offered in the header selector. Gulf/Arab markets (UAE, Saudi
+  /// Arabia, Qatar, Kuwait, Oman, Bahrain) and Canada are not served.
   static const List<RegionOption> regions = [
     RegionOption('United States', 'USD', r'$'),
-    RegionOption('Canada', 'CAD', r'CA$'),
     RegionOption('United Kingdom', 'GBP', '£'),
     RegionOption('European Union', 'EUR', '€'),
     RegionOption('India', 'INR', '₹'),
-    RegionOption('United Arab Emirates', 'AED', 'AED '),
     RegionOption('Australia', 'AUD', r'A$'),
   ];
 
@@ -50,11 +41,9 @@ class CurrencyService {
   static String? _override;
   static Map<String, double> _rates = const {
     'USD': 1,
-    'CAD': 1.36,
     'EUR': 0.92,
     'GBP': 0.79,
     'INR': 83.5,
-    'AED': 3.67,
     'AUD': 1.52,
   };
 
@@ -102,47 +91,9 @@ class CurrencyService {
     return _regionCountry.isEmpty ? 'United States' : _regionCountry;
   }
 
-  static bool get _isUs {
-    final c = _regionCountry.toLowerCase();
-    return c.contains('united states') ||
-        c.trim() == 'usa' ||
-        c.trim() == 'us' ||
-        c.contains('america');
-  }
-
-  static bool get _isUk {
-    final c = _regionCountry.toLowerCase().trim();
-    return c == 'uk' ||
-        c.contains('united kingdom') ||
-        c.contains('england') ||
-        c.contains('scotland') ||
-        c.contains('wales');
-  }
-
-  static bool get _isEurope {
-    final c = _regionCountry.toLowerCase().trim();
-    if (c == 'eu' || c.contains('european union')) return true;
-    if (_euCountries.contains(c)) return true;
-    return _euCountries.any((e) => c.isNotEmpty && c.contains(e));
-  }
-
-  /// The display currency for this session.
-  static String get currencyCode {
-    if (_isUs) return 'USD';
-    if (_isUk) return 'GBP';
-    if (_isEurope) return 'EUR';
-    final c = _regionCountry.toLowerCase();
-    if (c.contains('canada')) return 'CAD';
-    if (c.contains('india')) return 'INR';
-    if (c.contains('emirates') ||
-        c.contains('uae') ||
-        c.contains('dubai') ||
-        c.contains('abu dhabi')) {
-      return 'AED';
-    }
-    if (c.contains('australia')) return 'AUD';
-    return 'USD';
-  }
+  /// The display/settlement currency — always INR. All buyers (US, EU, UK,
+  /// AU, India, …) see prices and must pay in Indian Rupees.
+  static String get currencyCode => 'INR';
 
   static String get currencySymbol {
     for (final r in regions) {
@@ -155,10 +106,10 @@ class CurrencyService {
 
   static double get inrPerUsd => _rates['INR'] ?? 83.5;
 
-  /// Converts a USD catalogue price into the display currency.
+  /// Converts a USD catalogue price into the display currency (INR).
   static double convert(double usd) => usd * _fxToDisplay;
 
-  /// Formats a USD catalogue price in the display currency: `$12.50` / `€11.50`.
+  /// Formats a USD catalogue price in the display currency (INR): `₹417.50`.
   static String format(double usd) {
     final converted = convert(usd);
     final whole = converted.floor();
@@ -170,7 +121,8 @@ class CurrencyService {
     return '$currencySymbol$wholeStr.${frac.toString().padLeft(2, '0')}';
   }
 
-  /// Formats a USD price with its regional conversion annotation.
+  /// Formats a price as the INR amount with the USD catalogue price in
+  /// parentheses, e.g. `₹417.50 / unit ($5.00)`.
   static String priceLine(double usd) {
     if (usd <= 0) return 'Price on request';
     final base = r'$' + usd.toStringAsFixed(2);

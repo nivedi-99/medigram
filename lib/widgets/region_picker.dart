@@ -3,8 +3,9 @@
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
 
-/// Compact region/currency selector for page headers. Changing the region
-/// converts every displayed price via [CurrencyService].
+/// Compact region selector for page headers (records the buyer's region for
+/// context). Displayed prices and payments are always in INR via
+/// [CurrencyService].
 class RegionPicker extends StatelessWidget {
   const RegionPicker({super.key});
 
@@ -32,7 +33,7 @@ class RegionPicker extends StatelessWidget {
                   DropdownMenuItem(
                     value: r.country,
                     child: Text(
-                      '${r.country}  (${r.symbol.trim()})',
+                      r.country,
                       style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,

@@ -169,6 +169,13 @@ class _QuotationPageState extends State<QuotationPage> {
               const SizedBox(height: 6),
               Center(
                 child: Text(
+                  'All payments are collected in INR (₹) — international buyers included.',
+                  style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Center(
+                child: Text(
                   'Our trade desk replies within minutes on working hours.',
                   style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                 ),

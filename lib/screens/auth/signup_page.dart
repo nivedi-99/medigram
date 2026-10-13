@@ -35,7 +35,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   static final _countries = [
     'United States', 'United Kingdom', 'Germany', 'France', 'Netherlands',
-    'United Arab Emirates', 'Saudi Arabia', 'Nigeria', 'Kenya', 'South Africa',
+    'Nigeria', 'Kenya', 'South Africa',
     'Brazil', 'Mexico', 'Australia', 'Japan', 'Singapore', 'India', 'Other',
   ];
 

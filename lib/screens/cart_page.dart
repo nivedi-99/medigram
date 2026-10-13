@@ -438,7 +438,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
             const SizedBox(height: 4),
             Center(
               child: Text(
-                'Payment is settled per contract after order confirmation.',
+                'All payments must be made in INR (₹) — settled per contract '
+                'after order confirmation.',
                 style: TextStyle(fontSize: 11, color: AppColors.textMuted),
               ),
             ),

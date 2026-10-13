@@ -1,4 +1,5 @@
 import 'api_client.dart';
+import 'product_image.dart';
 
 /// A global settlement channel (wire, Western Union, Remitly, crypto, ...).
 class PaymentChannel {
@@ -93,5 +94,18 @@ class PaymentsService {
   /// PUT /api/v1/payments — replace the whole config (admin only).
   static Future<void> saveConfig(PaymentsConfig config) async {
     await ApiClient.put('/payments', body: config.toMap());
+  }
+
+  /// POST /api/v1/uploads/payment-proof — uploads the buyer's payment
+  /// screenshot and returns its permanent public URL.
+  static Future<String> uploadPaymentProof(PickedImage image) async {
+    final body = await ApiClient.upload(
+      '/uploads/payment-proof',
+      filename: image.filename,
+      bytes: image.bytes,
+      contentType: image.contentType,
+    );
+    final data = body['data'] as Map<String, dynamic>? ?? {};
+    return data['url']?.toString() ?? '';
   }
 }
