@@ -103,7 +103,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: BackButton(color: AppColors.textDark),
+        leading: const BackButton(color: AppColors.textDark),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -115,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> {
               Container(
                 height: 64,
                 width: 64,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: AppColors.heroGradient,
                   shape: BoxShape.circle,
                 ),
@@ -126,7 +126,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               const SizedBox(height: 18),
-              Text(
+              const Text(
                 'Register your business',
                 style: TextStyle(
                   fontSize: 25,
@@ -135,7 +135,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 'Create a B2B client account to source pharmaceuticals,\nrequest export quotes and track shipments worldwide.',
                 style: TextStyle(color: AppColors.textMuted, height: 1.4),
               ),
@@ -184,7 +184,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     : null,
               ),
               const SizedBox(height: 7),
-              Text(
+              const Text(
                 'Country',
                 style: TextStyle(
                   fontSize: 13,
@@ -195,7 +195,7 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 7),
               DropdownButtonFormField<String>(
                 initialValue: _selectedCountry,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Select your country',
                   prefixIcon: Icon(
                     Icons.public_rounded,
@@ -246,9 +246,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     activeColor: AppColors.blueDark,
                     onChanged: (v) => setState(() => _agreed = v ?? false),
                   ),
-                  Expanded(
+                  const Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 12),
+                      padding: EdgeInsets.only(top: 12),
                       child: Text.rich(
                         TextSpan(
                           text: 'I agree to the ',
@@ -264,7 +264,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const TextSpan(text: ' and '),
+                            TextSpan(text: ' and '),
                             TextSpan(
                               text: 'Privacy Policy',
                               style: TextStyle(
@@ -297,13 +297,13 @@ class _SignUpPageState extends State<SignUpPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Already have an account?',
                     style: TextStyle(color: AppColors.textMuted),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
+                    child: const Text(
                       'Sign in',
                       style: TextStyle(
                         color: AppColors.pink,

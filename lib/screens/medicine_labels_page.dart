@@ -52,10 +52,10 @@ class MedicineLabelsPage extends StatelessWidget {
           IconButton(
             tooltip: 'Back to catalogue',
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
+            icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
           ),
           const SizedBox(width: 4),
-          Expanded(
+          const Expanded(
             child: Text(
               'Labelled medicines',
               style: TextStyle(
@@ -76,7 +76,7 @@ class MedicineLabelsPage extends StatelessWidget {
               products.isEmpty
                   ? 'Sample showcase'
                   : '${products.length} medicine${products.length == 1 ? '' : 's'}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 color: AppColors.blueDark,
@@ -108,8 +108,8 @@ class MedicineLabelsPage extends StatelessWidget {
     ];
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 2, 20, 6),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, 2, 20, 6),
           child: Text(
             'Placeholder cards - sample medicines shown until the live '
             'catalogue loads.',
@@ -297,7 +297,7 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       height: 1.15,
                       fontWeight: FontWeight.w800,
@@ -309,7 +309,7 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                     'Generic: $_generic',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textMuted,
@@ -333,14 +333,14 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
                     children: [
                       Text(
                         CurrencyService.format(product.price),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: AppColors.blueDark,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Text(
+                      const Text(
                         '/ unit',
                         style: TextStyle(
                           fontSize: 11.5,
@@ -404,7 +404,7 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textMuted,
@@ -418,7 +418,7 @@ class _MedicineLabelCardState extends State<_MedicineLabelCard> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textDark,
@@ -472,7 +472,7 @@ class _Badge extends StatelessWidget {
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.8,

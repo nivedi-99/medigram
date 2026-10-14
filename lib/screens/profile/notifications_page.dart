@@ -174,7 +174,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           Expanded(
                             child: Text(
                               n.title,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                                 color: AppColors.textDark,
@@ -185,7 +185,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             Container(
                               height: 8,
                               width: 8,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: AppColors.pink,
                                 shape: BoxShape.circle,
                               ),
@@ -195,7 +195,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       const SizedBox(height: 4),
                       Text(
                         n.subtitle,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12.5,
                           color: AppColors.textMuted,
                           height: 1.35,
@@ -204,7 +204,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       const SizedBox(height: 6),
                       Text(
                         _timeAgo(n.time),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textMuted,
                         ),

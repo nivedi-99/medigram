@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: _handleForgotPassword,
-                        child: Text(
+                        child: const Text(
                           'Forgot password?',
                           style: TextStyle(
                             color: AppColors.blueDark,
@@ -175,24 +175,24 @@ class _LoginPageState extends State<LoginPage> {
                           : const Text('Sign In'),
                     ),
                     const SizedBox(height: 18),
-                    Row(
+                    const Row(
                       children: [
-                        const Expanded(child: Divider()),
+                        Expanded(child: Divider()),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
                             'or',
                             style: TextStyle(color: AppColors.textMuted),
                           ),
                         ),
-                        const Expanded(child: Divider()),
+                        Expanded(child: Divider()),
                       ],
                     ),
                     const SizedBox(height: 18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           "Don't have an account?",
                           style: TextStyle(color: AppColors.textMuted),
                         ),
@@ -206,7 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             );
                           },
-                          child: Text(
+                          child: const Text(
                             'Create one',
                             style: TextStyle(
                               color: AppColors.pink,

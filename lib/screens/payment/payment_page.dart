@@ -109,7 +109,7 @@ class _PaymentPageState extends State<PaymentPage> {
           const SizedBox(height: 24),
           _buildProofSection(),
           const SizedBox(height: 24),
-          Text(
+          const Text(
             'Saved Methods',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -138,13 +138,13 @@ class _PaymentPageState extends State<PaymentPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(m.label,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13.5,
                                   color: AppColors.textDark)),
                           const SizedBox(height: 3),
                           Text(m.detail,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12, color: AppColors.textMuted)),
                         ],
                       ),
@@ -157,7 +157,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           color: AppColors.blueLight,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text('Default',
+                        child: const Text('Default',
                             style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
@@ -186,11 +186,11 @@ class _PaymentPageState extends State<PaymentPage> {
         color: AppColors.blueLight.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline_rounded, size: 18, color: AppColors.blueDark),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               'All payments must be made in INR (₹). Choose any global channel '
@@ -217,7 +217,7 @@ class _PaymentPageState extends State<PaymentPage> {
       return Column(
         children: [
           Text(_error!,
-              style: TextStyle(fontSize: 12.5, color: AppColors.danger)),
+              style: const TextStyle(fontSize: 12.5, color: AppColors.danger)),
           const SizedBox(height: 8),
           TextButton(onPressed: _loadConfig, child: const Text('Retry')),
         ],
@@ -251,7 +251,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 children: [
                   Text(
                     channel.label,
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13.5,
                         color: AppColors.textDark),
@@ -260,14 +260,14 @@ class _PaymentPageState extends State<PaymentPage> {
                     const SizedBox(height: 3),
                     Text(
                       channel.tagline,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 11.5, color: AppColors.textMuted),
                     ),
                   ],
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -348,7 +348,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -359,7 +359,7 @@ class _PaymentPageState extends State<PaymentPage> {
                             fontSize: 13.5,
                             color: AppColors.textDark),
                       ),
-                      const SizedBox(height: 3),
+                      SizedBox(height: 3),
                       Text(
                         'After remitting in INR, upload the receipt so we can '
                         'confirm your payment.',
@@ -408,12 +408,12 @@ class _PaymentPageState extends State<PaymentPage> {
                   border: Border.all(
                       color: AppColors.success.withValues(alpha: 0.4)),
                 ),
-                child: Row(
+                child: const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.check_circle_rounded,
                         size: 18, color: AppColors.success),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Screenshot received & saved to our records. Our '
@@ -454,12 +454,12 @@ class _PaymentPageState extends State<PaymentPage> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border, width: 1.2),
                     ),
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.upload_file_rounded,
                             size: 30, color: AppColors.textMuted),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           'Tap to choose your payment screenshot',
                           style: TextStyle(
@@ -482,7 +482,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 const SizedBox(height: 8),
                 Text(
                   '${_proof!.filename} · ${_proof!.sizeLabel}',
-                  style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -516,7 +516,7 @@ class _PaymentPageState extends State<PaymentPage> {
             if (_proofError != null) ...[
               const SizedBox(height: 10),
               Text(_proofError!,
-                  style: TextStyle(fontSize: 12, color: AppColors.danger)),
+                  style: const TextStyle(fontSize: 12, color: AppColors.danger)),
             ],
           ],
         ),
@@ -556,7 +556,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     Expanded(
                       child: Text(
                         channel.label,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark),
@@ -575,7 +575,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     'Example: ${CurrencyService.format(usdExample)} invoice '
                     'settles to about $inr (admin-managed FX rate).',
                     style:
-                        TextStyle(fontSize: 12.5, color: AppColors.textDark),
+                        const TextStyle(fontSize: 12.5, color: AppColors.textDark),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -589,7 +589,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           width: 130,
                           child: Text(
                               e.key,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textMuted)),
@@ -597,7 +597,7 @@ class _PaymentPageState extends State<PaymentPage> {
                         Expanded(
                           child: Text(
                               e.value,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textDark)),
@@ -609,7 +609,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 const SizedBox(height: 8),
                 Text(
                   channel.instructions,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 12.5, height: 1.5, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 18),
@@ -643,7 +643,7 @@ class _PaymentPageState extends State<PaymentPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Add Card', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+              const Text('Add Card', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
               const SizedBox(height: 18),
               LabeledField(
                 label: 'Cardholder name',

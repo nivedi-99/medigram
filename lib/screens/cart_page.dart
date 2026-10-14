@@ -84,11 +84,11 @@ class _CartPageState extends State<CartPage> {
             context: context,
             builder: (dialogContext) => AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: Row(
+              title: const Row(
                 children: [
                   Icon(Icons.check_circle_rounded, color: AppColors.success),
-                  const SizedBox(width: 8),
-                  const Text('Order placed'),
+                  SizedBox(width: 8),
+                  Text('Order placed'),
                 ],
               ),
               content: Text(
@@ -150,7 +150,7 @@ class _CartPageState extends State<CartPage> {
                         item.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.5,
                           color: AppColors.textDark,
@@ -160,7 +160,7 @@ class _CartPageState extends State<CartPage> {
                     IconButton(
                       tooltip: 'Remove',
                       onPressed: () => _remove(index),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.delete_outline_rounded,
                         size: 20,
                         color: AppColors.danger,
@@ -170,7 +170,7 @@ class _CartPageState extends State<CartPage> {
                 ),
                 Text(
                   '${CurrencyService.format(item.unitPrice)} / unit  •  MOQ ${item.minOrderQty}',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -184,7 +184,7 @@ class _CartPageState extends State<CartPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         '${item.quantity}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
@@ -198,7 +198,7 @@ class _CartPageState extends State<CartPage> {
                     const Spacer(),
                     Text(
                       CurrencyService.format(item.lineTotal),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
@@ -222,7 +222,7 @@ class _CartPageState extends State<CartPage> {
           children: [
             Row(
               children: [
-                Text(
+                const Text(
                   'Order total',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -233,7 +233,7 @@ class _CartPageState extends State<CartPage> {
                 const Spacer(),
                 Text(
                   CurrencyService.format(CartService.total),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
                     color: AppColors.blueDark,
@@ -320,8 +320,8 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
       if (!mounted) return;
       setState(() => _placing = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Could not place the order. Please try again.'),
+        const SnackBar(
+          content: Text('Could not place the order. Please try again.'),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -348,9 +348,9 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                 Container(
                   height: 42,
                   width: 42,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: AppColors.heroGradient,
-                    borderRadius: const BorderRadius.all(Radius.circular(13)),
+                    borderRadius: BorderRadius.all(Radius.circular(13)),
                   ),
                   child: const Icon(
                     Icons.local_shipping_rounded,
@@ -359,7 +359,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Checkout — export order',
                     style: TextStyle(
@@ -375,7 +375,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
             Text(
               'Total: ${CurrencyService.format(CartService.total)} for ${CartService.items.length} line(s)'
               '  -  INR approx ${CurrencyService.settlementInr(CartService.total)}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.blueDark,
               ),
@@ -453,7 +453,7 @@ class _CheckoutSheetState extends State<_CheckoutSheet> {
               ),
             ),
             const SizedBox(height: 4),
-            Center(
+            const Center(
               child: Text(
                 'All payments must be made in INR (₹) — settled per contract '
                 'after order confirmation.',

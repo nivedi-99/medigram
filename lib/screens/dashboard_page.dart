@@ -50,7 +50,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color pageBg = AppColors.bg;
+    const Color pageBg = AppColors.bg;
     return MedBackgroundVfx(
       baseColor: pageBg,
       child: CustomScrollView(
@@ -66,14 +66,14 @@ class DashboardPage extends StatelessWidget {
                       children: [
                         Text(
                           'Hello ${customer.name}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        const Text(
                           'Your health, our priority',
                           style: TextStyle(
                               fontSize: 13.5, color: AppColors.textMuted),
@@ -287,7 +287,7 @@ class _MedicineStripCardState extends State<_MedicineStripCard> {
                             p.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14.5,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
@@ -300,7 +300,7 @@ class _MedicineStripCardState extends State<_MedicineStripCard> {
                                 : p.manufacturer,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppColors.blueDark,
@@ -313,7 +313,7 @@ class _MedicineStripCardState extends State<_MedicineStripCard> {
                                 hasPrice
                                     ? CurrencyService.format(p.price)
                                     : 'On request',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.textDark,
@@ -447,7 +447,7 @@ class _MedicineGridCardState extends State<_MedicineGridCard> {
                             p.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
@@ -460,7 +460,7 @@ class _MedicineGridCardState extends State<_MedicineGridCard> {
                                 : p.manufacturer,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppColors.blueDark,
@@ -476,7 +476,7 @@ class _MedicineGridCardState extends State<_MedicineGridCard> {
                                       : 'Price on request',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.textDark,
@@ -486,7 +486,7 @@ class _MedicineGridCardState extends State<_MedicineGridCard> {
                               const SizedBox(width: 6),
                               Text(
                                 'MOQ ${p.minOrderQty}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textMuted,
@@ -627,7 +627,7 @@ class _NotificationBell extends StatelessWidget {
         children: [
           IconButton(
             onPressed: onTap,
-            icon: Icon(Icons.notifications_none_rounded,
+            icon: const Icon(Icons.notifications_none_rounded,
                 color: AppColors.blueDark),
           ),
           if (count > 0)
@@ -637,7 +637,7 @@ class _NotificationBell extends StatelessWidget {
               child: Container(
                 height: 9,
                 width: 9,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.pink,
                   shape: BoxShape.circle,
                 ),
@@ -674,7 +674,7 @@ class _CartBadge extends StatelessWidget {
             onPressed: onTap,
             tooltip: 'Your order',
             icon:
-                Icon(Icons.shopping_cart_rounded, color: AppColors.blueDark),
+                const Icon(Icons.shopping_cart_rounded, color: AppColors.blueDark),
           ),
           if (count > 0)
             Positioned(

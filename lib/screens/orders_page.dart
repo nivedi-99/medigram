@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
@@ -27,9 +27,9 @@ class OrdersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+            padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
             child: Text(
               'Your Orders',
               style: TextStyle(
@@ -68,7 +68,7 @@ class OrdersPage extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   order.id,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                     color: AppColors.textDark,
@@ -84,14 +84,14 @@ class OrdersPage extends StatelessWidget {
                           const SizedBox(height: 6),
                           Text(
                             '${order.items.length} item(s) â€¢ ${_formatDate(order.date)}',
-                            style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                            style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                           ),
                           const Divider(height: 22),
                           Row(
                             children: [
                               Text(
                                 'â‚¹${order.total.toStringAsFixed(2)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                   color: AppColors.textDark,
@@ -152,9 +152,9 @@ class OrdersPage extends StatelessWidget {
           expand: false,
           builder: (context, scrollController) {
             return Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.bg,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
               child: ListView(
                 controller: scrollController,
@@ -176,7 +176,7 @@ class OrdersPage extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Order ${order.id}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark,
@@ -192,7 +192,7 @@ class OrdersPage extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Placed on ${_formatDate(order.date)} â€¢ Paid via ${order.paymentMethod}',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5),
                   ),
                   const SizedBox(height: 20),
                   SoftCard(
@@ -222,7 +222,7 @@ class OrdersPage extends StatelessWidget {
                             const Spacer(),
                             Text(
                               'â‚¹${order.total.toStringAsFixed(2)}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.blueDark,
                                 fontSize: 16,

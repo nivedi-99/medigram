@@ -3,41 +3,51 @@
 /// Global UI brightness for the palette (light / dark).
 enum AppBrightness { light, dark }
 
-/// MediGram design tokens - unified "Deep Ocean" palette.
+/// MediGram design tokens - light "Medina" palette.
 ///
-/// Every page shares the radiant deep-teal canvas (#04262C) with glowing
-/// seafoam-teal primaries so product imagery pops. The theme toggle stays
-/// for compatibility; both modes render this same luminous palette.
+/// A clean medical-marketplace look: white surfaces, slate text, soft
+/// light-gray section alternation and a sky-blue accent. The theme toggle
+/// stays for compatibility; both modes render this same light palette.
+/// Every token is a compile-time const so widgets can use it anywhere.
 class AppColors {
   AppColors._();
 
   // ---- Palette swatches --------------------------------------------------
-  /// Brand teal - primary actions, gradients and accents.
+  /// Brand teal - soft accents and background VFX tint.
   static const Color brandTeal = Color(0xFF539692);
 
-  /// Deep teal ink - accents on bright surfaces.
-  static const Color tealDeep = Color(0xFF2F5E5B);
+  /// Deep azure - strong accents on bright surfaces.
+  static const Color tealDeep = Color(0xFF1F6E9C);
 
-  /// Soft teal - gradient highlight stops.
-  static const Color tealSoft = Color(0xFF6FB3AE);
+  /// Light sky - gradient highlight stops.
+  static const Color tealSoft = Color(0xFF79CCF2);
 
-  /// Warm cream (reserved accents; the canvas is deep teal).
-  static const Color cream = Color(0xFFFFFDD7);
+  /// Warm cream (reserved accents).
+  static const Color cream = Color(0xFFFFF6E3);
 
-  /// Muted gold - pairs with teal for highlights.
-  static const Color gold = Color(0xFFB9971F);
+  /// Amber accent - highlights and ratings.
+  static const Color gold = Color(0xFFF3A43D);
 
-  /// Shore break - secondary teal.
-  static const Color darkTeal = Color(0xFF0A6C5E);
+  /// Sky blue - secondary accent in gradients.
+  static const Color darkTeal = Color(0xFF1D82BF);
 
-  /// Jade water - vivid success/accent tone.
-  static const Color emerald = Color(0xFF0CA678);
+  /// Azure - the app's primary accent.
+  static const Color emerald = Color(0xFF2A93C9);
 
-  /// Foam green - the glowing primary on the deep canvas.
-  static const Color seafoam = Color(0xFF63BC98);
+  /// Primary accent alias (sky blue).
+  static const Color seafoam = Color(0xFF2A93C9);
 
-  /// Teal-tinted highlight surface (header strips, badges).
-  static const Color sand = Color(0xFF0F4046);
+  /// Pale blue highlight surface (header strips, badges).
+  static const Color sand = Color(0xFFEAF4FB);
+
+  /// Alternating section surface.
+  static const Color surfaceAlt = Color(0xFFF5F5F5);
+
+  /// Dark band - header/footer strips.
+  static const Color darkBand = Color(0xFF191919);
+
+  /// Muted text on [darkBand].
+  static const Color darkBandMuted = Color(0xFFBDBDBD);
 
   /// Toggled by the theme controller; kept for API compatibility.
   static final ValueNotifier<AppBrightness> brightness =
@@ -45,67 +55,64 @@ class AppColors {
 
   static bool get isDark => brightness.value == AppBrightness.dark;
 
-  /// App-wide canvas - radiant deep ocean teal.
-  static Color get bg => const Color(0xFF04262C);
+  /// App-wide canvas - soft light neutral so white cards read clearly.
+  static const Color bg = Color(0xFFF7F9FA);
 
-  static Color get card => const Color(0xFF0A343B);
-  static Color get textDark => const Color(0xFFEAF5F1);
-  static Color get textMuted => const Color(0xFF8FB3AA);
-  static Color get border => const Color(0xFF155057);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color textDark = Color(0xFF434445);
+  static const Color textMuted = Color(0xFF868686);
+  static const Color border = Color(0xFFE5E5E5);
 
-  /// Primary - glowing seafoam teal.
-  static Color get blueDark => seafoam;
+  /// Primary - sky blue.
+  static const Color blueDark = emerald;
 
-  /// Secondary teal used for seeds and gradients.
-  static Color get blueMid => emerald;
+  /// Secondary blue used for seeds and gradients.
+  static const Color blueMid = emerald;
 
   /// Soft tint behind primary icon chips.
-  static Color get blueLight => const Color(0xFF0F4046);
+  static const Color blueLight = Color(0xFFE3F2FB);
 
-  /// Accent - bright jade; safe under dark labels.
-  static Color get pink => const Color(0xFF2FD3A5);
+  /// Bright sky accent - icons and links.
+  static const Color pink = Color(0xFF55BBEB);
 
-  /// Deep gold-tinted surface behind accent chips and offer cards.
-  static Color get pinkLight => const Color(0xFF33301A);
+  /// Pale blue surface behind accent chips and offer cards.
+  static const Color pinkLight = Color(0xFFEAF6FE);
 
-  /// Bright gold for icons and borders on [pinkLight] surfaces.
-  static Color get sandDeep => const Color(0xFFD9BC4A);
+  /// Bright amber for icons and borders on [pinkLight] surfaces.
+  static const Color sandDeep = Color(0xFFF3A43D);
 
   /// Text/icon color on [sand] surfaces.
-  static Color get onSand => const Color(0xFFEAF5F1);
+  static const Color onSand = Color(0xFF1F5F86);
 
-  static Color get success => const Color(0xFF2FD3A5);
-  static Color get warning => const Color(0xFFFACC15);
-  static Color get danger => const Color(0xFFF87171);
+  static const Color success = Color(0xFF149A66);
+  static const Color warning = Color(0xFFE5A50A);
+  static const Color danger = Color(0xFFE5484D);
 
   /// Button label color on primary fills.
-  static Color get onPrimary => const Color(0xFF04262C);
+  static const Color onPrimary = Color(0xFFFFFFFF);
 
-  static LinearGradient get heroGradient => const LinearGradient(
-        colors: [Color(0xFF03333B), Color(0xFF05454E), darkTeal],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  /// Hero banner - deep azure gradient (white text reads on it).
+  static const LinearGradient heroGradient = LinearGradient(
+    colors: [Color(0xFF125E93), Color(0xFF1D82BF), Color(0xFF2A93C9)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
-  static LinearGradient get blueGradient => const LinearGradient(
-        colors: [darkTeal, emerald],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  static const LinearGradient blueGradient = LinearGradient(
+    colors: [emerald, Color(0xFF55BBEB)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
-  static LinearGradient get pinkGradient => const LinearGradient(
-        colors: [Color(0xFF0E8A68), darkTeal],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  static const LinearGradient pinkGradient = LinearGradient(
+    colors: [Color(0xFF1D82BF), Color(0xFF125E93)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   /// Auth/hero header gradient (three-stop for depth).
-  static LinearGradient get authGradient => const LinearGradient(
-        colors: [Color(0xFF03333B), Color(0xFF05454E), darkTeal],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  static const LinearGradient authGradient = heroGradient;
 
   /// Soft card shadow color.
-  static Color get shadow => const Color(0xFF000000);
+  static const Color shadow = Color(0xFF000000);
 }

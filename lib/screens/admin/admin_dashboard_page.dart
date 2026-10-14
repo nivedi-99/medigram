@@ -241,9 +241,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         20,
         0,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppColors.authGradient,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
@@ -400,7 +400,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           padding: const EdgeInsets.only(bottom: 12),
           child: Text(
             'Total orders: ${_orderStats['total'] ?? 0}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13.5,
               color: AppColors.textMuted,
               fontWeight: FontWeight.w600,
@@ -426,7 +426,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                   Expanded(
                     child: Text(
                       '${label[0].toUpperCase()}${label.substring(1)} orders',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14.5,
                         color: AppColors.textDark,
@@ -446,7 +446,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             ),
           ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Recent orders - mark payments and download invoices',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -505,7 +505,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
               Expanded(
                 child: Text(
                   '${_products.length} catalogue entries — tap one to edit',
-                  style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                 ),
               ),
             ],
@@ -540,14 +540,14 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                     product.imageUrl,
                                     fit: BoxFit.cover,
                                     errorBuilder:
-                                        (context, error, stackTrace) => Icon(
+                                        (context, error, stackTrace) => const Icon(
                                       Icons.medication_rounded,
                                       color: AppColors.blueDark,
                                       size: 23,
                                     ),
                                   ),
                                 )
-                              : Icon(
+                              : const Icon(
                                   Icons.medication_rounded,
                                   color: AppColors.blueDark,
                                   size: 23,
@@ -560,7 +560,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                             children: [
                               Text(
                                 product.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.5,
                                   color: AppColors.textDark,
@@ -569,7 +569,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                               const SizedBox(height: 3),
                               Text(
                                 '${product.category} • MOQ ${product.minOrderQty}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.textMuted,
                                 ),
@@ -582,7 +582,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                           children: [
                             Text(
                               CurrencyService.format(product.price),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textDark,
                               ),
@@ -602,7 +602,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         IconButton(
                           tooltip: 'Delete product',
                           onPressed: () => _confirmDeleteProduct(product),
-                          icon: Icon(Icons.delete_outline_rounded,
+                          icon: const Icon(Icons.delete_outline_rounded,
                               color: AppColors.danger),
                         ),
                       ],
@@ -657,7 +657,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
         children: [
-          Text(
+          const Text(
             'Settlement channels',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -665,7 +665,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 color: AppColors.textDark),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'Channels clients use to remit globally to your Indian account. '
             'Details are placeholders — replace with real receiving details.',
             style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -687,13 +687,13 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     color: m.active ? AppColors.success : AppColors.textMuted,
                   ),
                   title: Text(m.label,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 13.5,
                           color: AppColors.textDark)),
                   subtitle: Text(
                       '${m.details.length} detail field(s) • tap to edit',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 11.5, color: AppColors.textMuted)),
                   trailing: const Icon(Icons.edit_rounded, size: 18),
                 ),
@@ -701,7 +701,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             ),
           ),
           const Divider(height: 30),
-          Text(
+          const Text(
             'FX rates (units per 1 USD)',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -716,7 +716,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 .map((e) => Chip(
                       label: Text(
                           '${e.key} ${e.value < 0.01 ? e.value.toStringAsFixed(8) : e.value.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 12, color: AppColors.textDark)),
                     ))
                 .toList(),
@@ -728,7 +728,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             label: const Text('Edit FX rates'),
           ),
           const Divider(height: 30),
-          Text(
+          const Text(
             'WhatsApp business number',
             style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -1311,7 +1311,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
       children: [
-        Text(
+        const Text(
           'Data exports (CSV)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -1320,7 +1320,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        const Text(
           'Live data pulled from the database through the MediGram API and '
           'downloaded as a CSV file.',
           style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
@@ -1350,7 +1350,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         children: [
                           Text(
                             label,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14.5,
                               color: AppColors.textDark,
@@ -1359,7 +1359,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                           const SizedBox(height: 2),
                           Text(
                             note,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 11.5, color: AppColors.textMuted),
                           ),
                         ],
@@ -1389,7 +1389,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             ),
           ),
         const SizedBox(height: 6),
-        Text(
+        const Text(
           'Tip: invoices for individual orders live in the Orders tab - '
           'tap Invoice on any order row.',
           style: TextStyle(fontSize: 12, color: AppColors.textMuted),
@@ -1684,7 +1684,7 @@ class _ClientCard extends StatelessWidget {
                       client.companyName.isEmpty
                           ? 'Unnamed company'
                           : client.companyName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                         color: AppColors.textDark,
@@ -1693,7 +1693,7 @@ class _ClientCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       '${client.country.isEmpty ? '—' : client.country} • ${client.contactEmail}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textMuted,
                       ),
@@ -1708,7 +1708,7 @@ class _ClientCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'License: ${client.businessLicenseNo}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textMuted,
               ),
@@ -1782,7 +1782,7 @@ class _AdminCard extends StatelessWidget {
                   children: [
                     Text(
                       admin.fullName.isEmpty ? admin.email : admin.fullName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
                         color: AppColors.textDark,
@@ -1791,7 +1791,7 @@ class _AdminCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       '${admin.email} • ${admin.department}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textMuted,
                       ),
@@ -1858,7 +1858,7 @@ class _RoleCountBadge extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '$count',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.textDark,
@@ -1867,7 +1867,7 @@ class _RoleCountBadge extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: AppColors.textMuted,
               fontWeight: FontWeight.w600,
@@ -1907,7 +1907,7 @@ class _AdminOrderCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${order.id}  |  ${order.date.toIso8601String().substring(0, 10)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                       color: AppColors.textDark,
@@ -1938,14 +1938,14 @@ class _AdminOrderCard extends StatelessWidget {
               order.clientEmail.isEmpty
                   ? '${order.items.length} item(s) | ${order.paymentMethod}'
                   : '${order.clientEmail} | ${order.items.length} item(s) | ${order.paymentMethod}',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
             const SizedBox(height: 8),
             Row(
               children: [
                 Text(
                   CurrencyService.format(order.total),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
                     color: AppColors.blueDark,
@@ -2010,7 +2010,7 @@ class _ProductImageField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Product photo',
           style: TextStyle(
             fontSize: 12.5,
@@ -2064,7 +2064,7 @@ class _ProductImageField extends StatelessWidget {
                 tooltip: 'Remove image',
                 onPressed: onRemove,
                 icon:
-                    Icon(Icons.delete_outline_rounded, color: AppColors.danger),
+                    const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
               ),
             ],
           ],
@@ -2076,7 +2076,7 @@ class _ProductImageField extends StatelessWidget {
               '${picked!.filename} (${picked!.sizeLabel})',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
           ),
       ],
@@ -2095,12 +2095,12 @@ class _ProductImageField extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.blueLight, width: 1.4),
       ),
-      child: Column(
+      child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.add_photo_alternate_rounded,
               size: 30, color: AppColors.blueMid),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             'No image yet - buyers see the category shot',
             style: TextStyle(fontSize: 11, color: AppColors.textMuted),

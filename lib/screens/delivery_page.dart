@@ -67,9 +67,9 @@ class DeliveryPage extends StatelessWidget {
     final shipments = _shipments;
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+            padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
             child: Text(
               'Delivery',
               style: TextStyle(
@@ -116,7 +116,7 @@ class DeliveryPage extends StatelessWidget {
                 Expanded(
                   child: Text(
                     order.id,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                       color: AppColors.textDark,
@@ -132,7 +132,7 @@ class DeliveryPage extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               '${order.items.length} item(s) • dispatched from Nagpur, IN',
-              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+              style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             ),
             const Divider(height: 22),
             _infoRow(
@@ -158,7 +158,7 @@ class DeliveryPage extends StatelessWidget {
             width: 78,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textMuted,
@@ -168,7 +168,7 @@ class DeliveryPage extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textDark,

@@ -68,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Text(
                     customer.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
@@ -77,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 3),
                   Text(
                     customer.email,
-                    style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                    style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -86,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: AppColors.pinkLight.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Verified Customer',
                       style: TextStyle(
                         fontSize: 10.5,
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
                 if (updated != null) setState(() => customer = updated);
               },
-              icon: Icon(Icons.edit_outlined, color: AppColors.blueDark),
+              icon: const Icon(Icons.edit_outlined, color: AppColors.blueDark),
             ),
           ],
         ),
@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
         const SizedBox(height: 26),
-        Text(
+        const Text(
           'Account',
           style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark, fontSize: 15),
         ),
@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         const SizedBox(height: 10),
-        Center(
+        const Center(
           child: Text(
             'MediGram v1.0.0',
             style: TextStyle(color: AppColors.textMuted, fontSize: 11.5),
@@ -300,13 +300,13 @@ class _InfoRow extends StatelessWidget {
             child: Icon(icon, size: 17, color: AppColors.blueDark),
           ),
           const SizedBox(width: 12),
-          Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 12.5)),
+          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5)),
           const Spacer(),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textDark),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textDark),
             ),
           ),
         ],
@@ -329,10 +329,10 @@ class _StatBadge extends StatelessWidget {
         children: [
           Text(
             value,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.textDark),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: AppColors.textDark),
           ),
           const SizedBox(height: 3),
-          Text(label, style: TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+          Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
@@ -34,7 +34,7 @@ class RegionPicker extends StatelessWidget {
                     value: r.country,
                     child: Text(
                       r.country,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textDark),
@@ -44,7 +44,7 @@ class RegionPicker extends StatelessWidget {
               onChanged: (v) {
                 if (v != null) CurrencyService.setRegion(v);
               },
-              icon: Icon(Icons.expand_more_rounded,
+              icon: const Icon(Icons.expand_more_rounded,
                   size: 18, color: AppColors.textMuted),
               borderRadius: BorderRadius.circular(14),
             ),

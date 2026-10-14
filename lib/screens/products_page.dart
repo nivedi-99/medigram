@@ -93,9 +93,9 @@ class _ProductsPageState extends State<ProductsPage>
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+              padding: EdgeInsets.fromLTRB(20, 18, 20, 4),
               child: Text(
                 'Export Catalogue',
                 style: TextStyle(
@@ -133,7 +133,7 @@ class _ProductsPageState extends State<ProductsPage>
                         ),
                       );
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.medication_rounded,
                       color: AppColors.blueDark,
                     ),
@@ -146,7 +146,7 @@ class _ProductsPageState extends State<ProductsPage>
                         IconButton(
                           tooltip: 'Your order',
                           onPressed: widget.onOpenCart,
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.shopping_cart_rounded,
                             color: AppColors.blueDark,
                           ),
@@ -157,7 +157,7 @@ class _ProductsPageState extends State<ProductsPage>
                             top: 2,
                             child: Container(
                               padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: AppColors.pink,
                                 shape: BoxShape.circle,
                               ),
@@ -203,7 +203,7 @@ class _ProductsPageState extends State<ProductsPage>
             ),
           ),
           if (items.isEmpty)
-            SliverFillRemaining(
+            const SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
                 child: Text(
@@ -411,7 +411,7 @@ class _ProductCardState extends State<_ProductCard> {
                       product.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textDark,
@@ -423,7 +423,7 @@ class _ProductCardState extends State<_ProductCard> {
                       '${product.strength.isEmpty ? '' : '  |  Strength: ${product.strength}'}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textMuted,
@@ -434,7 +434,7 @@ class _ProductCardState extends State<_ProductCard> {
                         padding: const EdgeInsets.only(top: 6),
                         child: Row(
                           children: [
-                            Icon(Icons.inventory_2_rounded,
+                            const Icon(Icons.inventory_2_rounded,
                                 size: 13, color: AppColors.blueMid),
                             const SizedBox(width: 5),
                             Expanded(
@@ -442,7 +442,7 @@ class _ProductCardState extends State<_ProductCard> {
                                 _packaging,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.blueMid,
@@ -459,7 +459,7 @@ class _ProductCardState extends State<_ProductCard> {
                       _description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12.5,
                         height: 1.25,
                         fontWeight: FontWeight.w500,
@@ -486,7 +486,7 @@ class _ProductCardState extends State<_ProductCard> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           '/ unit',
                           style: TextStyle(
                             fontSize: 11.5,
@@ -501,7 +501,7 @@ class _ProductCardState extends State<_ProductCard> {
                       children: [
                         Text(
                           'Qty (MOQ ${product.minOrderQty})',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textMuted,
@@ -519,7 +519,7 @@ class _ProductCardState extends State<_ProductCard> {
                           alignment: Alignment.center,
                           child: Text(
                             '$_qty',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 14,
                               color: AppColors.textDark,
@@ -620,7 +620,7 @@ class _CardBadge extends StatelessWidget {
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.8,

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
@@ -72,10 +72,10 @@ class _QuotationPageState extends State<QuotationPage> {
                   IconButton(
                     tooltip: 'Back',
                     onPressed: () => Navigator.of(context).maybePop(),
-                    icon: Icon(Icons.arrow_back_rounded,
+                    icon: const Icon(Icons.arrow_back_rounded,
                         color: AppColors.textDark),
                   ),
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Quotation & Payment',
                     style: TextStyle(
@@ -88,7 +88,7 @@ class _QuotationPageState extends State<QuotationPage> {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'Your selected products - choose to pay now or request a '
               'quotation and talk to our team.',
               style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
@@ -110,7 +110,7 @@ class _QuotationPageState extends State<QuotationPage> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Row(
                     children: [
-                      Text(
+                      const Text(
                         'Estimated total',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -120,7 +120,7 @@ class _QuotationPageState extends State<QuotationPage> {
                       const Spacer(),
                       Text(
                         CurrencyService.format(CartService.total),
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 17,
                             color: AppColors.blueDark),
@@ -167,14 +167,14 @@ class _QuotationPageState extends State<QuotationPage> {
                 ),
               ),
               const SizedBox(height: 6),
-              Center(
+              const Center(
                 child: Text(
                   'All payments are collected in INR (₹) — international buyers included.',
                   style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                 ),
               ),
               const SizedBox(height: 6),
-              Center(
+              const Center(
                 child: Text(
                   'Our trade desk replies within minutes on working hours.',
                   style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
@@ -201,7 +201,7 @@ class _QuotationPageState extends State<QuotationPage> {
                   Expanded(
                     child: Text(
                       item.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: AppColors.textDark),
@@ -210,7 +210,7 @@ class _QuotationPageState extends State<QuotationPage> {
                   IconButton(
                     tooltip: 'Remove',
                     onPressed: () => _removeAt(index),
-                    icon: Icon(Icons.delete_outline_rounded,
+                    icon: const Icon(Icons.delete_outline_rounded,
                         size: 20, color: AppColors.danger),
                   ),
                 ],
@@ -219,7 +219,7 @@ class _QuotationPageState extends State<QuotationPage> {
                 children: [
                   Text(
                     '${CurrencyService.format(item.unitPrice)} / unit',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
                   const Spacer(),
                   _qtyButton(
@@ -233,7 +233,7 @@ class _QuotationPageState extends State<QuotationPage> {
                     alignment: Alignment.center,
                     child: Text(
                       item.quantity.toString(),
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                           color: AppColors.textDark),
@@ -244,7 +244,7 @@ class _QuotationPageState extends State<QuotationPage> {
                   const SizedBox(width: 10),
                   Text(
                     CurrencyService.format(item.lineTotal),
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 14.5,
                         color: AppColors.blueDark),

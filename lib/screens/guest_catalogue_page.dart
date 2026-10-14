@@ -114,7 +114,7 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              const Text(
                                 'Could not load the catalogue',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
@@ -125,7 +125,7 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
                               Text(
                                 _error!,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 12.5, color: AppColors.textMuted),
                               ),
                               const SizedBox(height: 10),
@@ -159,7 +159,7 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
           IconButton(
             tooltip: 'Back',
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
+            icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
           ),
           Container(
             height: 36,
@@ -172,7 +172,7 @@ class _GuestCataloguePageState extends State<GuestCataloguePage> {
                 color: Colors.white, size: 20),
           ),
           const SizedBox(width: 10),
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

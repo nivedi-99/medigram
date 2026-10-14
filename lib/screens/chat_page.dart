@@ -213,7 +213,7 @@ class _ChatPageState extends State<ChatPage> {
               Container(
                 height: 46,
                 width: 46,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: AppColors.heroGradient,
                   shape: BoxShape.circle,
                 ),
@@ -224,7 +224,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'MediGram Chat',
                       style: TextStyle(
                         fontSize: 18,
@@ -235,7 +235,7 @@ class _ChatPageState extends State<ChatPage> {
                     Text(
                       'Trade desk • Online • Prices in '
                           '${CurrencyService.currencyCode}',
-                      style: TextStyle(fontSize: 11.5, color: AppColors.success),
+                      style: const TextStyle(fontSize: 11.5, color: AppColors.success),
                     ),
                   ],
                 ),
@@ -246,7 +246,7 @@ class _ChatPageState extends State<ChatPage> {
                   IconButton(
                     tooltip: 'Build quotation',
                     onPressed: _openQuotationBuilder,
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.receipt_long_rounded,
                       color: AppColors.blueDark,
                     ),
@@ -257,7 +257,7 @@ class _ChatPageState extends State<ChatPage> {
                       top: 2,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: AppColors.pink,
                           shape: BoxShape.circle,
                         ),
@@ -336,7 +336,7 @@ class _ChatPageState extends State<ChatPage> {
                   ? 'Quote list is empty — add medicines for an instant price.'
                   : '${_quoteItems.length} item(s) — total '
                       '${CurrencyService.format(_quoteTotal)}',
-              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+              style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             ),
           ),
           ElevatedButton.icon(
@@ -372,7 +372,7 @@ class _ChatPageState extends State<ChatPage> {
           Container(
             height: 50,
             width: 50,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: AppColors.heroGradient,
               shape: BoxShape.circle,
             ),
@@ -462,9 +462,9 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
             child: Row(
               children: [
-                Icon(Icons.receipt_long_rounded, color: AppColors.blueDark),
+                const Icon(Icons.receipt_long_rounded, color: AppColors.blueDark),
                 const SizedBox(width: 10),
-                Expanded(
+                const Expanded(
                   child: Text(
                     'Build quotation',
                     style: TextStyle(
@@ -476,7 +476,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
                 ),
                 Text(
                   'Prices in ${CurrencyService.currencyCode}',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),
@@ -501,8 +501,8 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       children: [
         if (widget.items.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
             child: Text(
               'Search below and add medicines — quantities start at each '
               "product's minimum order quantity.",
@@ -518,7 +518,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
           const SizedBox(height: 4),
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
                   'Total',
                   style: TextStyle(
@@ -529,7 +529,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
               ),
               Text(
                 CurrencyService.format(_total),
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
                   color: AppColors.blueDark,
@@ -540,7 +540,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
           const SizedBox(height: 4),
           Text(
             'INR settlement approx: ${CurrencyService.settlementInr(_total)}',
-            style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
@@ -560,7 +560,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
           ),
           const SizedBox(height: 14),
         ],
-        Text(
+        const Text(
           'Add more medicines',
           style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -586,7 +586,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
                     item.product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13.5,
                       color: AppColors.textDark,
@@ -595,7 +595,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
                 ),
                 Text(
                   CurrencyService.format(item.lineTotal),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13.5,
                     color: AppColors.blueDark,
@@ -614,7 +614,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: Text(
                     'Qty ${item.quantity}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                       color: AppColors.textDark,
@@ -628,12 +628,12 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
                 const Spacer(),
                 Text(
                   'MOQ ${item.product.minOrderQty}',
-                  style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                 ),
                 const SizedBox(width: 10),
                 InkWell(
                   onTap: () => _remove(item),
-                  child: Icon(Icons.delete_outline_rounded,
+                  child: const Icon(Icons.delete_outline_rounded,
                       size: 20, color: AppColors.danger),
                 ),
               ],
@@ -655,7 +655,7 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
           p.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
+          style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 13,
               color: AppColors.textDark),
@@ -664,16 +664,16 @@ class _QuotationBuilderSheetState extends State<_QuotationBuilderSheet> {
           '${p.category} • MOQ ${p.minOrderQty} • ${CurrencyService.format(p.price)}',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+          style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
         ),
         trailing: item == null
             ? IconButton(
                 onPressed: () => _add(p),
-                icon: Icon(Icons.add_circle_rounded, color: AppColors.pink),
+                icon: const Icon(Icons.add_circle_rounded, color: AppColors.pink),
               )
             : Text(
                 '${item.quantity} added',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.success,

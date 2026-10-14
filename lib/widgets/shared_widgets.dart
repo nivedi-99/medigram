@@ -66,7 +66,7 @@ class SectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
@@ -78,7 +78,7 @@ class SectionTitle extends StatelessWidget {
               onTap: onAction,
               child: Text(
                 actionLabel!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.blueDark,
@@ -179,7 +179,7 @@ class MenuTile extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14.5,
           color: AppColors.textDark,
@@ -188,11 +188,11 @@ class MenuTile extends StatelessWidget {
       subtitle: subtitle != null
           ? Text(
               subtitle!,
-              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+              style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
             )
           : null,
       trailing: trailing ??
-          Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
     );
   }
 }
@@ -256,7 +256,7 @@ class LabeledField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppColors.textDark,
@@ -298,9 +298,9 @@ class GradientHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(28, 60, 28, 36),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppColors.authGradient,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(36),
           bottomRight: Radius.circular(36),
         ),
@@ -368,7 +368,7 @@ class EmptyState extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
               color: AppColors.textDark,
@@ -378,7 +378,7 @@ class EmptyState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textMuted, height: 1.4),
+            style: const TextStyle(color: AppColors.textMuted, height: 1.4),
           ),
         ],
       ),
@@ -416,10 +416,10 @@ class TrackingTimeline extends StatelessWidget {
         color: AppColors.isDark
             ? AppColors.danger.withValues(alpha: 0.16)
             : const Color(0xFFFFEDED),
-        child: Row(
+        child: const Row(
           children: [
             Icon(Icons.cancel_rounded, color: AppColors.danger),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 'This order was cancelled. Refund (if applicable) has been credited to your original payment method.',

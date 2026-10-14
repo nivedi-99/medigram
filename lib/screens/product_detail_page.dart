@@ -254,7 +254,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         const SizedBox(height: 18),
         Text(
           product.name,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.w800,
             color: AppColors.textDark,
@@ -332,7 +332,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         const SizedBox(height: 12),
         _detailCard('Typical uses', _usesForCategory(product.category)),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Category information is provided for general export '
           'guidance only. Always confirm indications, dosage and '
           'regulatory suitability with a qualified professional '
@@ -386,7 +386,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         product.name.isEmpty
                             ? '?'
                             : product.name.substring(0, 1).toUpperCase(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 72,
                           fontWeight: FontWeight.w800,
                           color: AppColors.blueDark,
@@ -422,10 +422,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         IconButton(
           tooltip: 'Back to catalogue',
           onPressed: () => Navigator.of(context).maybePop(),
-          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textDark),
         ),
         const SizedBox(width: 4),
-        Text(
+        const Text(
           'Product details',
           style: TextStyle(
             fontSize: 14,
@@ -469,7 +469,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textMuted,
@@ -480,7 +480,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
               color: AppColors.textDark,
@@ -499,7 +499,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         children: [
           Text(
             title.toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
@@ -528,7 +528,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textMuted,
@@ -537,7 +537,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     height: 1.3,
@@ -559,7 +559,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         children: [
           Text(
             title.toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.1,
@@ -569,7 +569,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           const SizedBox(height: 7),
           Text(
             body,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w600,
               height: 1.4,
@@ -696,7 +696,7 @@ class _ProductImage extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 label.isEmpty ? '?' : label.substring(0, 1).toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 64,
                   fontWeight: FontWeight.w800,
                   color: AppColors.blueDark,
@@ -864,8 +864,8 @@ class _ProductSidebarState extends State<_ProductSidebar> {
             for (final p in similar)
               _SidebarTile(product: p, onTap: () => widget.onSelect(p)),
           const SizedBox(height: 14),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(4, 0, 4, 8),
             child: Text(
               'BROWSE THE CATALOGUE',
               style: TextStyle(
@@ -927,8 +927,8 @@ class _ProductSidebarState extends State<_ProductSidebar> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 14, 16, 0),
             child: Text(
               'SIMILAR PRODUCTS',
               style: TextStyle(
@@ -1013,7 +1013,7 @@ class _SidebarTile extends StatelessWidget {
                         product.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12.5,
                           height: 1.2,
                           fontWeight: FontWeight.w800,
@@ -1023,7 +1023,7 @@ class _SidebarTile extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         CurrencyService.priceLine(product.price),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: AppColors.blueDark,
@@ -1035,7 +1035,7 @@ class _SidebarTile extends StatelessWidget {
                           product.category,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textMuted,
@@ -1046,7 +1046,7 @@ class _SidebarTile extends StatelessWidget {
                   ),
                 ),
                 if (onTap != null)
-                  Icon(
+                  const Icon(
                     Icons.chevron_right_rounded,
                     size: 18,
                     color: AppColors.textMuted,
@@ -1072,7 +1072,7 @@ class _SidebarHint extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           height: 1.4,
           color: AppColors.textMuted,

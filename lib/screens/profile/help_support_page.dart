@@ -87,7 +87,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             ],
           ),
           const SizedBox(height: 26),
-          Text(
+          const Text(
             'Frequently Asked Questions',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark),
           ),
@@ -104,7 +104,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                         childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 14),
                         title: Text(
                           f['q']!,
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textDark),
                         ),
                         iconColor: AppColors.blueDark,
                         collapsedIconColor: AppColors.textMuted,
@@ -113,7 +113,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               f['a']!,
-                              style: TextStyle(color: AppColors.textMuted, fontSize: 12.5, height: 1.5),
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 12.5, height: 1.5),
                             ),
                           ),
                         ],
@@ -124,7 +124,7 @@ class _HelpSupportPageState extends State<HelpSupportPage> {
             ),
           ),
           const SizedBox(height: 26),
-          Text(
+          const Text(
             'Raise a Support Ticket',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textDark),
           ),
