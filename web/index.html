@@ -67,27 +67,27 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background: #fffdd7;
+      background: #04262c;
       font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
     ::selection {
-      background: rgba(83, 150, 146, 0.35);
+      background: rgba(99, 188, 152, 0.45);
     }
 
     ::-webkit-scrollbar {
       width: 10px;
     }
     ::-webkit-scrollbar-track {
-      background: #fffdd7;
+      background: #04262c;
     }
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #539692, #6fb3ae);
+      background: linear-gradient(180deg, #0a6c5e, #63bc98);
       border-radius: 8px;
-      border: 2px solid #fffdd7;
+      border: 2px solid #04262c;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #2f5e5b;
+      background: #63bc98;
     }
 
     #loading-screen {
@@ -99,9 +99,9 @@
       justify-content: center;
       gap: 0;
       background:
-        radial-gradient(1100px 560px at 8% -10%, rgba(83, 150, 146, 0.20), transparent 60%),
-        radial-gradient(900px 500px at 108% 112%, rgba(185, 151, 31, 0.14), transparent 60%),
-        linear-gradient(160deg, #fffdd7 0%, #fdf7cb 52%, #f2ecc0 100%);
+        radial-gradient(1100px 560px at 8% -10%, rgba(99, 188, 152, 0.20), transparent 60%),
+        radial-gradient(900px 500px at 108% 112%, rgba(217, 188, 74, 0.12), transparent 60%),
+        linear-gradient(160deg, #04262c 0%, #03333b 52%, #05454e 100%);
       z-index: 9999;
       transition: opacity 0.45s ease, visibility 0.45s ease;
     }
@@ -115,78 +115,27 @@
       width: 92px;
       height: 92px;
       border-radius: 26px;
-      background: rgba(83, 150, 146, 0.12);
-      border: 1px solid rgba(47, 94, 91, 0.30);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.28);
       display: flex;
       align-items: center;
       justify-content: center;
       animation: float 3.2s ease-in-out infinite;
-      box-shadow: 0 18px 44px rgba(47, 94, 91, 0.28);
+      box-shadow: 0 18px 44px rgba(2, 22, 27, 0.55);
     }
     .brand-mark::before {
       content: "";
       position: absolute;
       inset: -14px;
       border-radius: 34px;
-      border: 1.5px solid rgba(83, 150, 146, 0.5);
+      border: 1.5px solid rgba(99, 188, 152, 0.45);
       animation: pulse-ring 2.4s ease-out infinite;
     }
     .brand-mark svg {
       width: 46px;
       height: 46px;
-      fill: #539692;
-      filter: drop-shadow(0 3px 6px rgba(47, 94, 91, 0.4));
-    }
-
-    /* Floating medicine photos with hover VFX */
-    .med-card {
-      position: absolute;
-      width: 236px;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid rgba(47, 94, 91, 0.24);
-      box-shadow: 0 24px 60px rgba(47, 94, 91, 0.28);
-      animation: float 4.4s ease-in-out infinite;
-      transition: transform 0.35s ease, box-shadow 0.35s ease,
-        border-color 0.35s ease;
-    }
-    .med-card img {
-      display: block;
-      width: 100%;
-      height: 148px;
-      object-fit: cover;
-    }
-    .med-card:hover {
-      transform: scale(1.07) rotate(-1.4deg);
-      border-color: rgba(83, 150, 146, 0.85);
-      box-shadow: 0 32px 72px rgba(47, 94, 91, 0.4);
-    }
-    .med-card .med-caption {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 18px 14px 10px;
-      font-size: 10.5px;
-      font-weight: 600;
-      letter-spacing: 1.8px;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.94);
-      background: linear-gradient(180deg, transparent, rgba(31, 63, 61, 0.9));
-    }
-    .med-card.left {
-      left: 7%;
-      top: 22%;
-    }
-    .med-card.right {
-      right: 7%;
-      top: 42%;
-      animation-delay: 1.6s;
-    }
-    @media (max-width: 1020px) {
-      .med-card {
-        display: none;
-      }
+      fill: #63bc98;
+      filter: drop-shadow(0 3px 6px rgba(2, 22, 27, 0.55));
     }
 
     @keyframes float {
@@ -205,11 +154,8 @@
       font-weight: 800;
       letter-spacing: 2.5px;
       text-transform: uppercase;
-      background: linear-gradient(90deg, #2f5e5b, #539692 55%, #6fb3ae);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(0 2px 10px rgba(47, 94, 91, 0.25));
+      color: #f4f9f7;
+      text-shadow: 0 2px 18px rgba(99, 188, 152, 0.35);
     }
     .brand-tagline {
       margin-top: 6px;
@@ -217,7 +163,7 @@
       font-weight: 500;
       letter-spacing: 3.2px;
       text-transform: uppercase;
-      color: rgba(47, 94, 91, 0.72);
+      color: rgba(214, 240, 229, 0.82);
     }
 
     .load-bar {
@@ -225,7 +171,7 @@
       width: 190px;
       height: 4px;
       border-radius: 999px;
-      background: rgba(47, 94, 91, 0.14);
+      background: rgba(255, 255, 255, 0.14);
       overflow: hidden;
     }
     .load-bar span {
@@ -233,7 +179,7 @@
       height: 100%;
       width: 40%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #539692, #b9971f);
+      background: linear-gradient(90deg, #63bc98, #d9bc4a);
       animation: slide 1.25s ease-in-out infinite;
     }
     @keyframes slide {
@@ -246,7 +192,7 @@
       font-size: 11.5px;
       letter-spacing: 1.4px;
       text-transform: uppercase;
-      color: rgba(47, 94, 91, 0.62);
+      color: rgba(214, 240, 229, 0.72);
     }
 
     .footer-note {
@@ -255,7 +201,7 @@
       font-size: 11px;
       letter-spacing: 1.6px;
       text-transform: uppercase;
-      color: rgba(47, 94, 91, 0.5);
+      color: rgba(214, 240, 229, 0.55);
     }
 
     /* Drifting medicine VFX: capsules, tablets, crosses + ECG pulse line */
@@ -273,8 +219,8 @@
       width: 54px;
       height: 24px;
       border-radius: 999px;
-      background: linear-gradient(90deg, #539692 0 50%, rgba(47, 94, 91, 0.16) 50%);
-      border: 1.5px solid rgba(47, 94, 91, 0.35);
+      background: linear-gradient(90deg, #63bc98 0 50%, rgba(255, 255, 255, 0.14) 50%);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
       opacity: 0.55;
       animation: vfx-drift 9s ease-in-out infinite;
     }
@@ -285,15 +231,15 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      background: rgba(83, 150, 146, 0.18);
-      border: 1.5px dashed rgba(47, 94, 91, 0.45);
+      background: rgba(99, 188, 152, 0.16);
+      border: 1.5px dashed rgba(163, 230, 209, 0.5);
       animation: vfx-drift 11s ease-in-out infinite;
     }
     .tablet.t1 { right: 24%; bottom: 24%; animation-delay: 0.7s; }
     .tablet.t2 { left: 32%; top: 30%; animation-delay: 2.1s; width: 18px; height: 18px; }
     .tablet.t3 { right: 30%; top: 60%; animation-delay: 3.4s; }
     .plus {
-      color: rgba(47, 94, 91, 0.4);
+      color: rgba(163, 230, 209, 0.5);
       font-size: 26px;
       font-weight: 700;
       animation: vfx-drift 8s ease-in-out infinite;
@@ -312,7 +258,7 @@
     }
     .ecg path {
       fill: none;
-      stroke: rgba(83, 150, 146, 0.5);
+      stroke: rgba(99, 188, 152, 0.6);
       stroke-width: 2.5;
       stroke-linecap: round;
       stroke-dasharray: 620;
@@ -334,7 +280,6 @@
       .brand-mark,
       .brand-mark::before,
       .load-bar span,
-      .med-card,
       .vfx,
       .ecg path {
         animation: none;
@@ -365,16 +310,6 @@
       <svg class="vfx ecg" viewBox="0 0 600 80" preserveAspectRatio="none">
         <path d="M0 40 H150 L168 40 176 22 190 58 202 30 212 40 H330 L348 40 356 16 372 64 384 26 394 40 H600" />
       </svg>
-    </div>
-    <div class="med-card left">
-      <img src="assets/landing/supply-chain-3d.jpg"
-           alt="Cold-chain medicine supply" draggable="false">
-      <div class="med-caption">Cold-chain export</div>
-    </div>
-    <div class="med-card right">
-      <img src="assets/products/antibiotics.jpg"
-           alt="WHO-GMP certified medicines" draggable="false">
-      <div class="med-caption">WHO-GMP certified</div>
     </div>
     <div class="brand-mark">
       <svg viewBox="0 0 24 24" aria-hidden="true">

@@ -4,7 +4,6 @@ import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 import 'report_product_page.dart';
 import '../services/cart_service.dart';
-import 'cart_page.dart';
 
 class OrdersPage extends StatelessWidget {
   final List<MedicineOrder> orders;
@@ -114,9 +113,11 @@ class OrdersPage extends StatelessWidget {
                               TextButton.icon(
                                 onPressed: () {
                                   CartService.addOrderItems(order);
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const CartPage(),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Order items added to your cart'),
+                                      duration: Duration(seconds: 2),
                                     ),
                                   );
                                 },

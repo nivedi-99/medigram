@@ -75,14 +75,19 @@ class _MedBackgroundVfxState extends State<MedBackgroundVfx>
 
   @override
   Widget build(BuildContext context) {
+    // Pick the VFX tint from the actual canvas luminance so the motifs stay
+    // visible on any background (deep teal canvas → soft white strokes).
+    final Color? base = widget.baseColor;
+    final bool darkCanvas =
+        base == null ? AppColors.isDark : base.computeLuminance() < 0.5;
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) => CustomPaint(
         painter: _MedVfxPainter(
           _controller.value,
           motifs: _motifs,
-          baseColor: widget.baseColor,
-          isDark: AppColors.isDark,
+          baseColor: base,
+          isDark: darkCanvas,
         ),
         child: child,
       ),

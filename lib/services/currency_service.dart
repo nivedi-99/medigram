@@ -5,11 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Display pricing for the MediGram catalogue.
 ///
-/// * Prices are authored in USD, but every buyer — domestic or international
-///   (US / EU / UK / AU / …) — sees prices and settles payments in INR (₹).
-/// * The header selector only records the buyer's region for context; it no
-///   longer changes the display currency.
-/// * INR conversion uses the admin-managed FX table (/api/v1/payments).
+/// * Prices are authored in USD. The header selector picks the display
+///   region (US / UK / EU / India / Australia) and every displayed price
+///   converts live using the admin-managed FX table (/api/v1/payments).
+/// * Settlement is always collected in INR (₹) — see [settlementInr] and
+///   the INR notices at checkout. Only the display currency changes.
 
 class RegionOption {
   final String country;
@@ -91,9 +91,44 @@ class CurrencyService {
     return _regionCountry.isEmpty ? 'United States' : _regionCountry;
   }
 
-  /// The display/settlement currency — always INR. All buyers (US, EU, UK,
-  /// AU, India, …) see prices and must pay in Indian Rupees.
-  static String get currencyCode => 'INR';
+  static bool get _isUs {
+    final c = _regionCountry.toLowerCase();
+    return c.contains('united states') ||
+        c.trim() == 'usa' ||
+        c.trim() == 'us' ||
+        c.contains('america');
+  }
+
+  static bool get _isUk {
+    final c = _regionCountry.toLowerCase().trim();
+    return c == 'uk' ||
+        c.contains('united kingdom') ||
+        c.contains('england') ||
+        c.contains('scotland') ||
+        c.contains('wales');
+  }
+
+  static bool get _isEurope {
+    final c = _regionCountry.toLowerCase().trim();
+    return c == 'eu' ||
+        c.contains('european union') ||
+        c.contains('europe') ||
+        c.contains('germany') ||
+        c.contains('france') ||
+        c.contains('netherlands');
+  }
+
+  /// The display currency for the selected region.
+  /// Payments always settle in INR — see [settlementInr].
+  static String get currencyCode {
+    if (_isUs) return 'USD';
+    if (_isUk) return 'GBP';
+    if (_isEurope) return 'EUR';
+    final c = _regionCountry.toLowerCase();
+    if (c.contains('india')) return 'INR';
+    if (c.contains('australia')) return 'AUD';
+    return 'USD';
+  }
 
   static String get currencySymbol {
     for (final r in regions) {
@@ -106,10 +141,10 @@ class CurrencyService {
 
   static double get inrPerUsd => _rates['INR'] ?? 83.5;
 
-  /// Converts a USD catalogue price into the display currency (INR).
+  /// Converts a USD catalogue price into the display currency.
   static double convert(double usd) => usd * _fxToDisplay;
 
-  /// Formats a USD catalogue price in the display currency (INR): `₹417.50`.
+  /// Formats a USD catalogue price in the display currency: `$12.50` / `€11.50`.
   static String format(double usd) {
     final converted = convert(usd);
     final whole = converted.floor();
@@ -121,8 +156,8 @@ class CurrencyService {
     return '$currencySymbol$wholeStr.${frac.toString().padLeft(2, '0')}';
   }
 
-  /// Formats a price as the INR amount with the USD catalogue price in
-  /// parentheses, e.g. `₹417.50 / unit ($5.00)`.
+  /// Formats a price as the regional amount with the USD catalogue price in
+  /// parentheses, e.g. `£9.90 / unit ($12.50)`.
   static String priceLine(double usd) {
     if (usd <= 0) return 'Price on request';
     final base = r'$' + usd.toStringAsFixed(2);

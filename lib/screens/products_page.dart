@@ -4,9 +4,9 @@ import '../models/models.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/product_photo.dart';
 import '../widgets/region_picker.dart';
 import 'medicine_labels_page.dart';
-import 'quotation_page.dart';
 import 'product_detail_page.dart';
 
 /// Live export catalogue - sourced from the MediGram API (master list).
@@ -259,14 +259,6 @@ class _ProductsPageState extends State<ProductsPage>
   /// Responsive uniform grid; every card is a fixed-size box so the hover
   /// glow cards can never overflow, on any screen width.
 }
-
-/// Maps a medicine name to its generated image slug:
-/// 'Pregabalin 300mg' -> 'pregabalin-300mg'. Must stay in sync with
-/// tool/generate_label_images.dart, which writes the files.
-String _slug(String name) => name
-    .toLowerCase()
-    .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-    .replaceAll(RegExp(r'^-+|-+$'), '');
 
 /// One catalogue product card: image placeholder on the left, the item name,
 /// description and price on the right. Tapping opens the product detail
@@ -548,10 +540,13 @@ class _ProductCardState extends State<_ProductCard> {
                             ? (widget.onRequiresLogin ?? () {})
                             : () {
                                 CartService.addWithQuantity(product, _qty);
-                                // Quotation & payment hub: pay now or get a quote.
-                                Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                      builder: (_) => const QuotationPage()),
+                                Navigator.of(context).pop(); // back to catalogue
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '${product.name} added to your order'),
+                                    duration: const Duration(seconds: 2),
+                                  ),
                                 );
                               },
                         style: ElevatedButton.styleFrom(
@@ -593,42 +588,8 @@ class _ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget image;
-    if (product.hasPhoto) {
-      // Admin-uploaded photo (or its canonical storage path) first; fall
-      // back to the generated labelled bottle shot, then a plain tile.
-      image = Image.network(
-        product.imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Image.network(
-          'assets/products/labels/${_slug(product.name)}.png',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: AppColors.blueLight.withValues(alpha: 0.55),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.medication_rounded,
-              size: 34,
-              color: AppColors.blueMid.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-      );
-    } else {
-      image = Image.network(
-        'assets/products/labels/${_slug(product.name)}.png',
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          color: AppColors.blueLight.withValues(alpha: 0.55),
-          alignment: Alignment.center,
-          child: Icon(
-            Icons.medication_rounded,
-            size: 34,
-            color: AppColors.blueMid.withValues(alpha: 0.7),
-          ),
-        ),
-      );
-    }
+    // Hardened web fallback chain: proxy → storage → label → category → tile.
+    final Widget image = ProductPhoto(product: product);
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
       child: SizedBox(

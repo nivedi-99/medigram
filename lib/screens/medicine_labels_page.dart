@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/currency_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/product_photo.dart';
 import 'product_detail_page.dart';
 
 /// Labelled medicine showcase — pharmaexport-style framed medicine cards.
@@ -174,14 +175,6 @@ class _CardItem {
   const _CardItem(this.product, [this.packing, this.catalogue]);
 }
 
-/// Maps a medicine name to its generated image slug:
-/// 'Pregabalin 300mg' -> 'pregabalin-300mg'. Must stay in sync with
-/// tool/generate_label_images.dart, which writes the files.
-String _slug(String name) => name
-    .toLowerCase()
-    .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-    .replaceAll(RegExp(r'^-+|-+$'), '');
-
 /// One framed medicine card (pharmaexport style): image tile + badge,
 /// name + generic line, dashed rule, spec table, big price and a
 /// full-width button. Glows on its borders and lifts slightly on hover.
@@ -206,6 +199,23 @@ class _MedicineLabelCard extends StatefulWidget {
 
 class _MedicineLabelCardState extends State<_MedicineLabelCard> {
   bool _hover = false;
+
+  @override
+  void initState() {
+    super.initState();
+    CurrencyService.region.addListener(_onRegionChanged);
+  }
+
+  /// Re-renders the price when the display region changes.
+  void _onRegionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    CurrencyService.region.removeListener(_onRegionChanged);
+    super.dispose();
+  }
 
   ProductRecord get product => widget.product;
   bool get isPlaceholder => widget.isPlaceholder;
@@ -431,42 +441,13 @@ class _ImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hardened web fallback chain (proxy → storage → label → tile).
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         width: 56,
         height: 56,
-        child: product.hasPhoto
-            ? Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Image.network(
-                  'assets/products/labels/${_slug(product.name)}.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.blueLight.withValues(alpha: 0.55),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.medication_rounded,
-                      size: 26,
-                      color: AppColors.blueMid.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
-              )
-            : Image.network(
-                'assets/products/labels/${_slug(product.name)}.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.blueLight.withValues(alpha: 0.55),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.medication_rounded,
-                    size: 26,
-                    color: AppColors.blueMid.withValues(alpha: 0.7),
-                  ),
-                ),
-              ),
+        child: ProductPhoto(product: product),
       ),
     );
   }

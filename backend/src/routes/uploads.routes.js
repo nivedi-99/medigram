@@ -5,6 +5,59 @@ import { requireAuth } from '../middleware/auth.js';
 import { requireRole } from '../middleware/role.js';
 
 const router = express.Router();
+
+/**
+ * PUBLIC product-photo proxy — GET /api/v1/uploads/product-photo/:productId.
+ *
+ * Serves the catalogue photo through our own origin (same-origin bytes, no
+ * cross-origin fetch), which keeps Flutter web's CanvasKit renderer happy —
+ * it draws `Image.network` bytes via CORS-bound fetches. Resolution order:
+ * the DB-recorded photo when it points into the public bucket, otherwise the
+ * canonical `products/<id>` storage object. Registered before the auth
+ * middleware on purpose: <img> tags cannot attach bearer tokens.
+ */
+router.get('/product-photo/:id', async (req, res, next) => {
+  try {
+    const id = String(req.params.id);
+    if (!/^[0-9a-f-]{36}$/i.test(id)) {
+      return next(errors.badRequest('Invalid product id.'));
+    }
+
+    let objectPath = `products/${id}`;
+    try {
+      const { data: row } = await admin
+        .from('products')
+        .select('image_url')
+        .eq('id', id)
+        .single();
+      const stored = row?.image_url ? String(row.image_url) : '';
+      const marker = '/object/public/product-images/';
+      if (stored.includes(marker)) {
+        objectPath = stored.slice(stored.indexOf(marker) + marker.length);
+      }
+    } catch {
+      /* the image_url column may not exist yet — canonical path still works */
+    }
+
+    const { data: blob, error } = await admin.storage
+      .from(BUCKET)
+      .download(objectPath);
+    if (error || !blob) {
+      return next(
+        new ApiError(404, 'PHOTO_NOT_FOUND', error?.message ?? 'No photo.'),
+      );
+    }
+
+    const bytes = Buffer.from(await blob.arrayBuffer());
+    res.set('Content-Type', blob.type || 'application/octet-stream');
+    res.set('Cache-Control', 'public, max-age=120');
+    res.set('Access-Control-Allow-Origin', '*');
+    res.send(bytes);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.use(requireAuth);
 
 /**

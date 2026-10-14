@@ -3,24 +3,11 @@ import '../models/models.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
 import '../widgets/region_picker.dart';
-import 'quotation_page.dart';
+import '../widgets/product_photo.dart';
+import '../widgets/med_background.dart';
 import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
-import '../widgets/export_video_view.dart';
-import '../widgets/med_background.dart';
-
-/// Cream canvas behind the logged-in dashboard (light mode only).
-/// Dark mode keeps the deep-teal palette from [AppColors].
-const Color _lemonBg = Color(0xFFFFFDD7);
-
-/// Export/promo film embedded in the dashboard video card.
-///
-/// Swap this for your own video: a direct MP4/WebM link plays in an inline
-/// HTML5 player, and a YouTube link (`youtube.com` / `youtu.be`) plays in an
-/// embedded iframe.
-const String kExportVideoUrl =
-    'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
 class DashboardPage extends StatelessWidget {
   final Customer customer;
@@ -31,6 +18,9 @@ class DashboardPage extends StatelessWidget {
   final VoidCallback onOpenProfile;
   final List<ProductRecord> products;
 
+  /// Opens the quotation/cart hub (bottom-nav tab) from the header badge.
+  final VoidCallback? onOpenCart;
+
   const DashboardPage({
     super.key,
     required this.customer,
@@ -40,6 +30,7 @@ class DashboardPage extends StatelessWidget {
     required this.onOpenChatbot,
     required this.onOpenNotifications,
     required this.onOpenProfile,
+    this.onOpenCart,
   });
 
   /// Distinct product categories from the live catalogue.
@@ -59,7 +50,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color pageBg = AppColors.isDark ? AppColors.bg : _lemonBg;
+    final Color pageBg = AppColors.bg;
     return MedBackgroundVfx(
       baseColor: pageBg,
       child: CustomScrollView(
@@ -108,6 +99,12 @@ class DashboardPage extends StatelessWidget {
                   const RegionPicker(),
                   const SizedBox(width: 6),
                   const ThemeToggle(),
+                  ValueListenableBuilder<int>(
+                    valueListenable: CartService.count,
+                    builder: (context, count, _) =>
+                        _CartBadge(count: count, onTap: onOpenCart),
+                  ),
+                  const SizedBox(width: 6),
                   _NotificationBell(
                     count: unreadNotifications,
                     onTap: onOpenNotifications,
@@ -147,12 +144,7 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _companyBanner(),
-            ),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 6)),
           const SliverToBoxAdapter(
             child: SectionTitle(title: 'Featured Medicines'),
           ),
@@ -165,34 +157,6 @@ class DashboardPage extends StatelessWidget {
                 itemCount: _featured.length,
                 itemBuilder: (context, index) =>
                     _MedicineStripCard(product: _featured[index]),
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SectionTitle(title: 'Export Video'),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _exportVideoCard(),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-              child: Row(
-                children: [
-                  Icon(Icons.movie_rounded,
-                      size: 16, color: AppColors.textMuted),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'From our export floor — packaging, QA checks and dispatch, end to end.',
-                      style: TextStyle(
-                          fontSize: 12.5, color: AppColors.textMuted),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
@@ -238,89 +202,6 @@ class DashboardPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 26)),
         ],
-      ),
-    );
-  }
-
-  Widget _companyBanner() {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: AppColors.heroGradient,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 62,
-            width: 62,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.local_pharmacy_rounded,
-              size: 34,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  companyName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                const Text(
-                  'Trusted healthcare products, expert guidance and reliable delivery.',
-                  style: TextStyle(
-                      color: Colors.white, fontSize: 13, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Rounded 16:9 card embedding the export/promo video.
-  Widget _exportVideoCard() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadow.withValues(alpha: 0.14),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              ColoredBox(
-                color: AppColors.isDark
-                    ? const Color(0xFF04262C)
-                    : const Color(0xFF05353F),
-              ),
-              buildExportVideoPlayer(videoUrl: kExportVideoUrl),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -620,10 +501,12 @@ class _MedicineGridCardState extends State<_MedicineGridCard> {
                             child: ElevatedButton.icon(
                               onPressed: () {
                                 CartService.add(p);
-                                // Quotation & payment hub: pay now or get a quote.
-                                Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                      builder: (_) => const QuotationPage()),
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('${p.name} added to your order'),
+                                    duration: const Duration(seconds: 2),
+                                  ),
                                 );
                               },
                               icon: const Icon(Icons.add_shopping_cart_rounded,
@@ -719,46 +602,8 @@ class _HoverChipState extends State<_HoverChip> {
   }
 }
 
-/// Product photo with graceful fallbacks: admin upload → labelled bottle
-/// shot → category shot → soft medication-icon tile.
-Widget _productImage(ProductRecord product) {
-  Widget iconTile() => Container(
-        color: AppColors.blueLight.withValues(alpha: 0.55),
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.medication_rounded,
-          size: 34,
-          color: AppColors.blueMid.withValues(alpha: 0.7),
-        ),
-      );
-
-  Widget categoryShot() => Image.network(
-        product.imageAsset,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => iconTile(),
-      );
-
-  Widget labelledShot() => Image.network(
-        'assets/products/labels/${_slug(product.name)}.png',
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => categoryShot(),
-      );
-
-  if (product.hasPhoto && product.imageUrl.isNotEmpty) {
-    return Image.network(
-      product.imageUrl,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => labelledShot(),
-    );
-  }
-  return labelledShot();
-}
-
-/// Mirrors the asset slug convention used by the generated bottle labels.
-String _slug(String name) => name
-    .toLowerCase()
-    .replaceAll(RegExp(r"[^a-z0-9]+"), '-')
-    .replaceAll(RegExp(r'^-+|-+$'), '');
+/// Product photo with the hardened web fallback chain (see [ProductPhoto]).
+Widget _productImage(ProductRecord product) => ProductPhoto(product: product);
 
 class _NotificationBell extends StatelessWidget {
   final int count;
@@ -795,6 +640,62 @@ class _NotificationBell extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.pink,
                   shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cart button with a live item-count badge — opens the quotation/cart hub.
+class _CartBadge extends StatelessWidget {
+  final int count;
+  final VoidCallback? onTap;
+
+  const _CartBadge({required this.count, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05), blurRadius: 8),
+        ],
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            onPressed: onTap,
+            tooltip: 'Your order',
+            icon:
+                Icon(Icons.shopping_cart_rounded, color: AppColors.blueDark),
+          ),
+          if (count > 0)
+            Positioned(
+              right: 4,
+              top: 4,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                constraints: const BoxConstraints(minWidth: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.pink,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '$count',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),

@@ -41,6 +41,23 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   static const bool _placing = false;
 
+  @override
+  void initState() {
+    super.initState();
+    CurrencyService.region.addListener(_onRegionChanged);
+  }
+
+  /// Re-renders totals when the display region changes.
+  void _onRegionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    CurrencyService.region.removeListener(_onRegionChanged);
+    super.dispose();
+  }
+
   void _changeQty(int index, int delta) {
     final item = CartService.items[index];
     CartService.setQuantity(index, item.quantity + delta);

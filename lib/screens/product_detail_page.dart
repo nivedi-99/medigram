@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
+import '../services/api_config.dart';
 import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
-import 'quotation_page.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 import '../widgets/whatsapp_chat_button.dart';
@@ -50,10 +50,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void initState() {
     super.initState();
     _product = widget.product;
+    CurrencyService.region.addListener(_onRegionChanged);
+  }
+
+  /// Re-renders prices when the display region changes.
+  void _onRegionChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    CurrencyService.region.removeListener(_onRegionChanged);
     _scroll.dispose();
     super.dispose();
   }
@@ -185,8 +192,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           child: Stack(
             children: [
               _ProductImage(
-                  source:
-                      product.hasPhoto ? product.imageUrl : product.imageAsset,
+                  source: _photoSource,
                   fallbackAsset: product.imageAsset,
                   label: product.name),
               Positioned(
@@ -344,10 +350,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  /// Best available photo: the admin-uploaded image when present, otherwise
-  /// the bundled category product shot.
-  String get _photoSource =>
-      product.hasPhoto ? product.imageUrl : product.imageAsset;
+  /// Best available photo: served through our same-origin proxy when the
+  /// product has a stored photo (web/CORS-safe), otherwise the bundled
+  /// category product shot.
+  String get _photoSource => product.hasPhoto
+      ? ApiConfig.uri('/uploads/product-photo/${product.id}').toString()
+      : product.imageAsset;
 
   /// Fullscreen, pinch-zoomable view of the product photo.
   void _openImageViewer(BuildContext context) {
@@ -582,10 +590,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ? (onRequiresLogin ?? () {})
               : () {
                   CartService.add(product);
-                  // Quotation & payment hub: pay now or request a quotation.
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                        builder: (_) => const QuotationPage()),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.name} added to your order'),
+                      duration: const Duration(seconds: 2),
+                    ),
                   );
                 },
           style: ElevatedButton.styleFrom(
@@ -1092,7 +1101,9 @@ class _SidebarThumb extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Image.network(
-        product.hasPhoto ? product.imageUrl : product.imageAsset,
+        product.hasPhoto
+            ? ApiConfig.uri('/uploads/product-photo/${product.id}').toString()
+            : product.imageAsset,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Image.network(
           'assets/products/labels/${_sidebarSlug(product.name)}.png',

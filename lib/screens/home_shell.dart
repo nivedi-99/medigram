@@ -46,7 +46,19 @@ class _HomeShellState extends State<HomeShell> {
     super.initState();
     CurrencyService.configure(widget.country);
     CurrencyService.loadRegion();
+    CurrencyService.region.addListener(_onRegionChanged);
     _loadData();
+  }
+
+  /// Re-renders the active tab so prices follow the selected region.
+  void _onRegionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    CurrencyService.region.removeListener(_onRegionChanged);
+    super.dispose();
   }
 
   int get _unreadCount => _notifications.where((n) => n.unread).length;
@@ -194,6 +206,7 @@ class _HomeShellState extends State<HomeShell> {
                           onOpenChatbot: () => goToTab(3),
                           onOpenNotifications: () => goToTab(4),
                           onOpenProfile: () => goToTab(4),
+                          onOpenCart: () => goToTab(3),
                         ),
                         ProductsPage(
                           products: _products,
