@@ -9,7 +9,7 @@ import '../widgets/theme_toggle.dart';
 import '../theme/app_colors.dart';
 import '../widgets/shared_widgets.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   final Customer customer;
   final String companyName;
   final int unreadNotifications;
@@ -33,6 +33,22 @@ class DashboardPage extends StatelessWidget {
     this.onOpenCart,
   });
 
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  /// Live catalogue search typed into the dashboard search bar ('' = off).
+  String _query = '';
+
+  Customer get customer => widget.customer;
+  List<ProductRecord> get products => widget.products;
+  int get unreadNotifications => widget.unreadNotifications;
+  VoidCallback get onOpenChatbot => widget.onOpenChatbot;
+  VoidCallback get onOpenNotifications => widget.onOpenNotifications;
+  VoidCallback get onOpenProfile => widget.onOpenProfile;
+  VoidCallback? get onOpenCart => widget.onOpenCart;
+
   /// Distinct product categories from the live catalogue.
   List<String> get _categories {
     final seen = <String>{};
@@ -47,6 +63,23 @@ class DashboardPage extends StatelessWidget {
 
   /// Medicines laid out in the responsive grid below.
   List<ProductRecord> get _gridProducts => products.take(8).toList();
+
+  /// Products matching the active dashboard search (name, manufacturer,
+  /// description or category — case-insensitive, whitespace-trimmed).
+  List<ProductRecord> get _searchResults {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return const [];
+    return products
+        .where((p) =>
+            p.name.toLowerCase().contains(q) ||
+            p.manufacturer.toLowerCase().contains(q) ||
+            p.description.toLowerCase().contains(q) ||
+            p.category.toLowerCase().contains(q))
+        .toList();
+  }
+
+  /// True while the buyer has typed a search term.
+  bool get _searching => _query.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +151,19 @@ class DashboardPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: TextField(
+                      onChanged: (v) => setState(() => _query = v),
                       decoration: InputDecoration(
                         hintText: 'Search medicines, categories...',
-                        prefixIcon: Icon(Icons.search_rounded),
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        suffixIcon: _searching
+                            ? IconButton(
+                                tooltip: 'Clear search',
+                                onPressed: () => setState(() => _query = ''),
+                                icon: const Icon(Icons.close_rounded),
+                              )
+                            : null,
                       ),
                     ),
                   ),
@@ -145,62 +186,106 @@ class DashboardPage extends StatelessWidget {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 6)),
-          const SliverToBoxAdapter(
-            child: SectionTitle(title: 'Featured Medicines'),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 202,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: _featured.length,
-                itemBuilder: (context, index) =>
-                    _MedicineStripCard(product: _featured[index]),
+          if (_searching) ...[
+            SliverToBoxAdapter(
+              child: SectionTitle(
+                title: _searchResults.isEmpty
+                    ? 'No matches for "${_query.trim()}"'
+                    : 'Results for "${_query.trim()}" (${_searchResults.length})',
               ),
             ),
-          ),
-          const SliverToBoxAdapter(
-            child: SectionTitle(title: 'Medicine Categories'),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 48,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
-                itemBuilder: (context, index) =>
-                    _HoverChip(label: _categories[index]),
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SectionTitle(title: 'Featured Medicine Information'),
-          ),
-          SliverLayoutBuilder(
-            builder: (context, constraints) {
-              final double width = constraints.crossAxisExtent;
-              final int columns = width < 620 ? 2 : (width < 1000 ? 3 : 4);
-              return SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    mainAxisExtent: 262,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) =>
-                        _MedicineGridCard(product: _gridProducts[index]),
-                    childCount: _gridProducts.length,
+            if (_searchResults.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Text(
+                    'Try a different medicine name, generic or category.',
+                    style: TextStyle(color: AppColors.textMuted),
                   ),
                 ),
-              );
-            },
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 26)),
+              )
+            else
+              SliverLayoutBuilder(
+                builder: (context, constraints) {
+                  final double width = constraints.crossAxisExtent;
+                  final int columns = width < 620 ? 2 : (width < 1000 ? 3 : 4);
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
+                        mainAxisExtent: 262,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            _MedicineGridCard(product: _searchResults[index]),
+                        childCount: _searchResults.length,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 26)),
+          ] else ...[
+            const SliverToBoxAdapter(
+              child: SectionTitle(title: 'Featured Medicines'),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 202,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _featured.length,
+                  itemBuilder: (context, index) =>
+                      _MedicineStripCard(product: _featured[index]),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SectionTitle(title: 'Medicine Categories'),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 48,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _categories.length,
+                  itemBuilder: (context, index) =>
+                      _HoverChip(label: _categories[index]),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SectionTitle(title: 'Featured Medicine Information'),
+            ),
+            SliverLayoutBuilder(
+              builder: (context, constraints) {
+                final double width = constraints.crossAxisExtent;
+                final int columns = width < 620 ? 2 : (width < 1000 ? 3 : 4);
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      mainAxisExtent: 262,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          _MedicineGridCard(product: _gridProducts[index]),
+                      childCount: _gridProducts.length,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 26)),
+          ],
         ],
       ),
     );
