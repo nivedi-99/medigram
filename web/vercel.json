@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/product-img/:id",
+      "destination": "https://hcoperadzsrcpkftetug.supabase.co/storage/v1/object/public/product-images/products/:id"
+    }
+  ]
+}

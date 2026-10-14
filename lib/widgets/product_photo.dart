@@ -48,10 +48,17 @@ class _ProductPhotoState extends State<ProductPhoto> {
 
   void _rebuild() {
     _sources = [
+      // 0. Same-origin image route (Vercel rewrite proxies the storage
+      //    object): immune to client-side DNS/CORS problems with
+      //    *.supabase.co hosts.
+      if (widget.product.hasPhoto) '/product-img/${widget.product.id}',
+      // 1. Render API proxy (public route, web/CORS-safe).
       if (widget.product.hasPhoto)
         ApiConfig.uri('/uploads/product-photo/${widget.product.id}')
             .toString(),
+      // 2. Stored/canonical storage URL from the API payload.
       if (widget.product.imageUrl.isNotEmpty) widget.product.imageUrl,
+      // 3/4. Bundled label + category shots (may be absent in the bundle).
       'assets/products/labels/${_slug(widget.product.name)}.png',
       widget.product.imageAsset,
     ];

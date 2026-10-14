@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../models/models.dart';
-import '../services/api_config.dart';
 import '../services/app_launcher.dart';
 import '../services/cart_service.dart';
 import '../services/currency_service.dart';
@@ -350,11 +349,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  /// Best available photo: served through our same-origin proxy when the
-  /// product has a stored photo (web/CORS-safe), otherwise the bundled
-  /// category product shot.
+  /// Best available photo: the same-origin image route (a Vercel rewrite
+  /// that proxies the storage object — DNS/CORS-safe on every network) when
+  /// the product has a stored photo, otherwise the bundled category shot.
   String get _photoSource => product.hasPhoto
-      ? ApiConfig.uri('/uploads/product-photo/${product.id}').toString()
+      ? '/product-img/${product.id}'
       : product.imageAsset;
 
   /// Fullscreen, pinch-zoomable view of the product photo.
@@ -1102,11 +1101,13 @@ class _SidebarThumb extends StatelessWidget {
       ),
       child: Image.network(
         product.hasPhoto
-            ? ApiConfig.uri('/uploads/product-photo/${product.id}').toString()
+            ? '/product-img/${product.id}'
             : product.imageAsset,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Image.network(
-          'assets/products/labels/${_sidebarSlug(product.name)}.png',
+          product.imageUrl.isNotEmpty
+              ? product.imageUrl
+              : 'assets/products/labels/${_sidebarSlug(product.name)}.png',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             color: AppColors.blueLight.withValues(alpha: 0.55),
